@@ -15,13 +15,13 @@
     "rootDir": "./src/",
     "strict": true,
     "esModuleInterop": true,
-    "noImplicitAny": false
+    "noImplicitAny": false,
+    "allowJs": true,
   },
   "include": [
     "src/"
   ],
   "exclude": [
-    "**/*.spec.ts",
-    "*.js"
+    "**/*.spec.ts"
   ]
 }

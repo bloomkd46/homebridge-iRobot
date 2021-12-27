@@ -1,7 +1,9 @@
 {
-  "pluginAlias": "ExampleHomebridgePlugin",
+  "pluginAlias": "iRobotPlatform",
   "pluginType": "platform",
   "singular": true,
+  "customUi": true,
+  "headerDisplay": "<p align=\"center\"><img width=\"60%\" src=\"https://user-images.githubusercontent.com/75853497/143301930-e2f3bc9a-9f0d-4e03-95f8-c69769712ca5.png\"></p><p align=\"center\">For help and support please visit our <a href=\"https://github.com/bloomkd46/homebridge-iRobot/wiki\">GitHub Wiki</a>. We hope you find this plugin useful!</p>",
   "schema": {
     "type": "object",
     "properties": {
@@ -9,7 +11,30 @@
         "title": "Name",
         "type": "string",
         "required": true,
-        "default": "Example Dynamic Platform"
+        "default": "iRobot"
+      },
+      "email":{
+        "title": "Email",
+        "type": "string",
+        "required": true,
+        "placeholder": "email@example.com",
+        "format": "email"
+      },
+      "password": {
+        "title": "Password",
+        "type": "string",
+        "required": true
+      },
+      "interval": {
+        "title": "Interval",
+        "type": "Integer",
+        "required": false
+      },
+      "key" : {
+        "title": "Auth Key (Optional)",
+        "type": "string",
+        "required": false,
+        "description": "Auth Key To Use To Connect To iRobot API"
       }
     }
   }

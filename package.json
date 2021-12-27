@@ -1,16 +1,16 @@
 {
   "private": true,
-  "displayName": "Plugin Name",
-  "name": "homebridge-plugin-name",
-  "version": "1.0.0",
-  "description": "A short description about what your plugin does.",
+  "displayName": "Hombrige iRobot",
+  "name": "homebridge-irobot",
+  "version": "0.0.0",
+  "description": "A homebridge plugin for controlling iRobot devices",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "git://github.com/USERNAME/GITHUB_PROJECT_NAME.git"
+    "url": "https://github.com/bloomkd46/homebridge-iRobot.git"
   },
   "bugs": {
-    "url": "https://github.com/USERNAME/GITHUB_PROJECT_NAME/issues"
+    "url": "https://github.com/bloomkd46/homebridge-iRobot/issues"
   },
   "engines": {
     "node": ">=14.18.1",
@@ -18,15 +18,20 @@
   },
   "main": "dist/index.js",
   "scripts": {
-    "lint": "eslint src/**.ts --max-warnings=0",
+    "lint": "eslint src/**.ts --max-warnings=0 --fix",
     "watch": "npm run build && npm link && nodemon",
-    "build": "rimraf ./dist && tsc && cp -r src/scripts dist",
-    "prepublishOnly": "npm run lint && npm run build"
+    "build": "rimraf ./dist && tsc ",
+    "prepublishOnly": "npm run lint && npm run build && echo Build Completed!"
   },
   "keywords": [
-    "homebridge-plugin"
+    "homebridge-plugin",
+    "iRobot",
+    "roomba",
+    "homebridge",
+    "vacuum"
   ],
   "dependencies": {
+    "@homebridge/plugin-ui-utils": "^0.0.19",
     "dorita980": "^3.1.11",
     "request": "^2.88.2"
   },

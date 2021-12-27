@@ -15,19 +15,18 @@ getRobotIP();
 
 function getRobotIP () {
     const server = dgram.createSocket('udp4');
-
+/*
   server.on('error', (err) => {
-    console.log(new Error(err));
-    server.close();
+    throw err;
   });
-
+*/
   server.on('message', (msg) => {
     try {
       let parsedMsg = JSON.parse(msg);
       if (parsedMsg.hostname && parsedMsg.ip && ((parsedMsg.hostname.split('-')[0] === 'Roomba') || (parsedMsg.hostname.split('-')[0] === 'iRobot'))) {
         if(parsedMsg.hostname.split('-')[1] === blid){
             server.close();
-            console.log(parsedMsg.ip);
+            console.log(JSON.stringify(parsedMsg));
             process.exit(0);
         }
       }
