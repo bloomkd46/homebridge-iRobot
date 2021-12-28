@@ -1,20 +1,14 @@
 import child_process from 'child_process';
 import { Logger } from 'homebridge';
-export function getRoombas(email: string, password: string, key: string | boolean, log: Logger): Robot[] {
+export function getRoombas(email: string, password: string, log: Logger): Robot[] {
   child_process.execSync('chmod -R 755 "' + __dirname + '/scripts"');
   let robots: Robot[] = [];
   try{
-    if (key !== false) {
-      robots = JSON.parse(child_process.execFileSync(
-        __dirname + '/scripts/getRoombaCredentials.js',
-        [email, password, key as string]).toString());
-    }else {
-      robots = JSON.parse(child_process.execFileSync(
-        __dirname + '/scripts/getRoombaCredentials.js',
-        [email, password]).toString());
-    }
-  }catch{
-    log.error('Faild to login to iRobot');
+    robots = JSON.parse(child_process.execFileSync(
+      __dirname + '/scripts/getRoombaCredentials.js',
+      [email, password]).toString());
+  }catch(e){
+    log.error('Faild to login to iRobot\n', e);
   }
   robots.forEach(robot => {
     try{
@@ -22,8 +16,8 @@ export function getRoombas(email: string, password: string, key: string | boolea
       robot.ip = robotInfo.ip;
       delete robotInfo.ip;
       robot.info = robotInfo;
-    }catch{
-      log.error('Failed to fetch ip for roomba', robot.name);
+    }catch(e){
+      log.error('Failed to fetch ip for roomba:', robot.name, '\n', e);
     }
   });
   return robots;

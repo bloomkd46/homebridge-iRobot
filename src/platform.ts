@@ -16,7 +16,6 @@ export class iRobotPlatform implements DynamicPlatformPlugin {
     'name': this.config.name || PLATFORM_NAME,
     'email': this.config.email,
     'password': this.config.password,
-    'key': this.config.key || false,
     'interval': this.config.interval || 800,
   };
 
@@ -64,7 +63,7 @@ export class iRobotPlatform implements DynamicPlatformPlugin {
     // or a user-defined array in the platform config.
 
     // loop over the discovered devices and register each one if it has not already been registered
-    for (const device of getRoombas(this.Config.email, this.Config.password, this.Config.key, this.log)) {
+    for (const device of getRoombas(this.Config.email, this.Config.password, this.log)) {
       if(device.ip === 'undefined' && this.config[device.name] !== undefined) {
         const deviceInfo = this.config[device.name];
         device.ip = deviceInfo.ip;
@@ -124,6 +123,5 @@ export interface Config {
   'name': string;
   'email': string;
   'password': string;
-  'key': string | boolean;
   'interval': number;
 }

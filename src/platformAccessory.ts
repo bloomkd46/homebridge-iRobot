@@ -11,9 +11,14 @@ import { Config, iRobotPlatform } from './platform';
  */
 export class iRobotPlatformAccessory {
   private service: Service;
+  private bin: Service;
+  private battery: Service;
   private roomba;
   private active = 0;
-  private lastStatus = '';
+  private lastStatus = {cycle:'', phase:''};
+  private state = 0;
+  private binfull = 0;
+  private batteryStatus = {'low': 0, 'percent': 50, 'charging': 1};
 
   constructor(
     private readonly platform: iRobotPlatform,
@@ -32,13 +37,22 @@ export class iRobotPlatformAccessory {
       this.accessory.context.connected = false;
       this.platform.log.warn('Roomba ', device.name, ' went offline, atempting to reconnect');
       this.roomba = new dorita980.Local(this.device.blid, this.device.password, this.device.ip, this.config.interval);
-    }).on('mission', (data) => {
-      if(data.cleanMissionStatus.cycle !== this.lastStatus) {
-        this.platform.log.debug('mission update:', data);
-      }
-      this.lastStatus = data.cleanMissionStatus.cycle;
-      this.service.updateCharacteristic(this.platform.Characteristic.Active, data.cleanMissionStatus.cycle === 'none' ? 0 : 1);
-      this.active = data === 'none' ? 0 :1;
+    }).on('mission', () => {
+      this.roomba.getRobotState(['cleanMissionStatus', 'batPct', 'bin']).then((data) => {
+        if(data.cleanMissionStatus.cycle !== this.lastStatus.cycle || data.cleanMissionStatus.phase !== this.lastStatus.phase) {
+          this.platform.log.debug('mission update:', data);
+        }
+        this.lastStatus = data.cleanMissionStatus;
+        this.service.updateCharacteristic(this.platform.Characteristic.Active, data.cleanMissionStatus.cycle === 'none' ? 0 : 1);
+        // eslint-disable-next-line max-len
+        this.service.updateCharacteristic(this.platform.Characteristic.CurrentFanState, data.cleanMissionStatus.phase === 'charge' ? 0 : data.cleanMissionStatus.phase === 'run' ? 2 : 1);
+        this.bin.updateCharacteristic(this.platform.Characteristic.FilterChangeIndication, data.bin.full ? 1 : 0);
+
+
+        this.active = data.cleanMissionStatus.cycle === 'none' ? 0 : 1;
+        this.state = data.cleanMissionStatus.phase === 'charge' ? 0 : data.cleanMissionStatus.phase === 'run' ? 2 : 1;
+        this.binfull = data.bin.full ? 1 : 0;
+      });
     });
 
     // set accessory information
@@ -52,17 +66,33 @@ export class iRobotPlatformAccessory {
     this.service = this.accessory.getService(this.platform.Service.Fanv2) ||
     this.accessory.addService(this.platform.Service.Fanv2);
 
+    this.bin = this.accessory.getService(this.platform.Service.FilterMaintenance) ||
+    this.accessory.addService(this.platform.Service.FilterMaintenance);
+
+    this.battery = this.accessory.getService(this.platform.Service.Battery) ||
+    this.accessory.addService(this.platform.Service.FilterMaintenance);
+
     // set the service name, this is what is displayed as the default name on the Home app
     // in this example we are using the name we stored in the `accessory.context` in the `discoverDevices` method.
     this.service.setCharacteristic(this.platform.Characteristic.Name, this.device.name);
+    this.bin.setCharacteristic(this.platform.Characteristic.Name, this.device.name);
+
 
     // each service must implement at-minimum the "required characteristics" for the given service type
     // see https://developers.homebridge.io/#/service/Lightbulb
 
     this.service.getCharacteristic(this.platform.Characteristic.Active)
-      .onSet(this.setState.bind(this))                // SET - bind to the `setOn` method below
-      .onGet(this.getState.bind(this));               // GET - bind to the `getOn` method below
+      .onSet(this.set.bind(this))                // SET - bind to the `setOn` method below
+      .onGet(this.get.bind(this));               // GET - bind to the `getOn` method below
+    this.service.getCharacteristic(this.platform.Characteristic.CurrentFanState)
+      .onGet(this.getState.bind(this)); // GET - bind to the
 
+    this.bin.getCharacteristic(this.platform.Characteristic.FilterChangeIndication)
+      .onGet(this.getBinfull.bind(this));
+
+    /*this.battery.getCharacteristic(this.platform.Characteristic.StatusLowBattery)
+      .onSet(this.get)
+      */
     /**
      * Creating multiple services of the same type.
      *
@@ -107,33 +137,26 @@ export class iRobotPlatformAccessory {
    * @example
    * this.service.updateCharacteristic(this.platform.Characteristic.On, true)
    */
-  async getState(): Promise<CharacteristicValue> {
+  async get(): Promise<CharacteristicValue> {
+    this.platform.log.debug('Updating', this.device.name, 'To', this.active === 0 ? 'Off' : 'On');
     return this.active;
   }
 
-  async getMode(): Promise<CharacteristicValue> {
-    return 1;
+  async getState(): Promise<CharacteristicValue> {
+    this.platform.log.debug('Updating', this.device.name, 'Mode To', this.state === 0 ? 'Off' : this.state === 1 ? 'Idle' : 'On');
+    return this.state;
   }
 
-  async getRunningState(): Promise<CharacteristicValue> {
-    return this.active === 0 ? 0 : 2;
+  async getBinfull(): Promise<CharacteristicValue> {
+    this.platform.log.debug('Updating', this.device.name, 'Binfull To', this.binfull === 0 ? 'OK' : 'FULL');
+    return this.binfull;
   }
 
   /**
    * Handle "SET" requests from HomeKit
    * These are sent when the user changes the state of an accessory, for example, changing the Brightness
    */
-  async setMode(value: CharacteristicValue) {
-    if(this.accessory.context.connected){
-      this.platform.log.debug('Target State Not Implemented yet, ->', value);
-    }
-  }
-
-  /**
-   * Handle "SET" requests from HomeKit
-   * These are sent when the user changes the state of an accessory, for example, turning on a Light bulb.
-   */
-  async setState(value: CharacteristicValue) {
+  async set(value: CharacteristicValue) {
     if(this.accessory.context.connected){
     // implement your own code to turn your device on/off
       if(value === 1){
@@ -142,10 +165,9 @@ export class iRobotPlatformAccessory {
         await this.roomba.pause();
         setTimeout(async () =>{
           await this.roomba.dock();
-        }, 1000);
+        }, 500);
       }
-
-      this.platform.log.debug('Set Characteristic On ->', value);
+      this.platform.log.debug('Set', this.device.name, 'To', value === 0 ? 'Pause and Dock' : 'Clean');
     }
   }
 

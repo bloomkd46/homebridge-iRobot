@@ -11,7 +11,7 @@ if (!process.argv[2] || !process.argv[3]) {
 
 const username = process.argv[2];
 const password = process.argv[3];
-const apiKey = process.argv[4] || process.env.GIGYA_API_KEY || '3_rWtvxmUKwgOzu3AUPTMLnM46lj-LxURGflmu5PcE_sGptTbD-wMeshVbLvYpq01K';
+const apiKey = '3_rWtvxmUKwgOzu3AUPTMLnM46lj-LxURGflmu5PcE_sGptTbD-wMeshVbLvYpq01K';
 
 const gigyaLoginOptions = {
   'method': 'POST',
