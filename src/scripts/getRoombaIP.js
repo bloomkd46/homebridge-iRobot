@@ -15,11 +15,11 @@ getRobotIP();
 
 function getRobotIP () {
     const server = dgram.createSocket('udp4');
-/*
+
   server.on('error', (err) => {
-    throw err;
+    console.error(err);
   });
-*/
+
   server.on('message', (msg) => {
     try {
       let parsedMsg = JSON.parse(msg);
@@ -37,7 +37,7 @@ function getRobotIP () {
     //console.log('Looking for robots...');
   });
 
-  server.bind(5678, function () {
+  server.bind(function () {
     const message = new Buffer.from('irobotmcs');
     server.setBroadcast(true);
     server.send(message, 0, message.length, 5678, '255.255.255.255');

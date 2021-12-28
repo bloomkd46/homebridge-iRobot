@@ -13,6 +13,7 @@ export class iRobotPlatformAccessory {
   private service: Service;
   private roomba;
   private active = 0;
+  private lastStatus = '';
 
   constructor(
     private readonly platform: iRobotPlatform,
@@ -32,7 +33,11 @@ export class iRobotPlatformAccessory {
       this.platform.log.warn('Roomba ', device.name, ' went offline, atempting to reconnect');
       this.roomba = new dorita980.Local(this.device.blid, this.device.password, this.device.ip, this.config.interval);
     }).on('mission', (data) => {
-      this.service.updateCharacteristic(this.platform.Characteristic.Active, data.cycle === 'none' ? 0 : 1);
+      if(data.cleanMissionStatus.cycle !== this.lastStatus) {
+        this.platform.log.debug('mission update:', data);
+      }
+      this.lastStatus = data.cleanMissionStatus.cycle;
+      this.service.updateCharacteristic(this.platform.Characteristic.Active, data.cleanMissionStatus.cycle === 'none' ? 0 : 1);
       this.active = data === 'none' ? 0 :1;
     });
 
@@ -41,11 +46,11 @@ export class iRobotPlatformAccessory {
       .setCharacteristic(this.platform.Characteristic.Manufacturer, 'iRobot')
       .setCharacteristic(this.platform.Characteristic.Model, this.device.info.sku || 'N/A')
       .setCharacteristic(this.platform.Characteristic.SerialNumber, this.device.blid || 'N/A')
-      .setCharacteristic(this.platform.Characteristic.Version, device.info.ver || 'N/A');
+      .setCharacteristic(this.platform.Characteristic.FirmwareRevision, device.info.ver || 'N/A');
 
 
-    this.service = this.accessory.getService(this.platform.Service.AirPurifier) ||
-    this.accessory.addService(this.platform.Service.AirPurifier);
+    this.service = this.accessory.getService(this.platform.Service.Fanv2) ||
+    this.accessory.addService(this.platform.Service.Fanv2);
 
     // set the service name, this is what is displayed as the default name on the Home app
     // in this example we are using the name we stored in the `accessory.context` in the `discoverDevices` method.
@@ -53,17 +58,10 @@ export class iRobotPlatformAccessory {
 
     // each service must implement at-minimum the "required characteristics" for the given service type
     // see https://developers.homebridge.io/#/service/Lightbulb
-    /*
+
     this.service.getCharacteristic(this.platform.Characteristic.Active)
       .onSet(this.setState.bind(this))                // SET - bind to the `setOn` method below
       .onGet(this.getState.bind(this));               // GET - bind to the `getOn` method below
-    /*
-    this.service.getCharacteristic(this.platform.Characteristic.TargetAirPurifierState)
-      .onSet(this.setMode.bind(this))       // SET - bind to the 'setBrightness` method below
-      .onGet(this.getMode.bind(this));
-*/
-    this.service.getCharacteristic(this.platform.Characteristic.CurrentAirPurifierState)
-      .onSet(this.getRunningState.bind(this));
 
     /**
      * Creating multiple services of the same type.
