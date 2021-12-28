@@ -18,7 +18,7 @@ export class iRobotPlatformAccessory {
   private lastStatus = {cycle:'', phase:''};
   private state = 0;
   private binfull = 0;
-  private batteryStatus = {'low': 0, 'percent': 50, 'charging': 1};
+  private batteryStatus = {'low': false, 'percent': 50, 'charging': true};
 
   constructor(
     private readonly platform: iRobotPlatform,
@@ -40,18 +40,26 @@ export class iRobotPlatformAccessory {
     }).on('mission', () => {
       this.roomba.getRobotState(['cleanMissionStatus', 'batPct', 'bin']).then((data) => {
         if(data.cleanMissionStatus.cycle !== this.lastStatus.cycle || data.cleanMissionStatus.phase !== this.lastStatus.phase) {
-          this.platform.log.debug('mission update:', data);
+          this.platform.log.debug(device.name + '\'s mission update:', data.cleanMissionStatus, data.batPct, data.bin);
         }
         this.lastStatus = data.cleanMissionStatus;
         this.service.updateCharacteristic(this.platform.Characteristic.Active, data.cleanMissionStatus.cycle === 'none' ? 0 : 1);
         // eslint-disable-next-line max-len
         this.service.updateCharacteristic(this.platform.Characteristic.CurrentFanState, data.cleanMissionStatus.phase === 'charge' ? 0 : data.cleanMissionStatus.phase === 'run' ? 2 : 1);
         this.bin.updateCharacteristic(this.platform.Characteristic.FilterChangeIndication, data.bin.full ? 1 : 0);
+        this.battery.updateCharacteristic(this.platform.Characteristic.BatteryLevel, data.batPct);
+        // eslint-disable-next-line max-len
+        this.battery.updateCharacteristic(this.platform.Characteristic.StatusLowBattery, data.batPct < (this.platform.config.lowBattery || 20));
+        this.battery.updateCharacteristic(this.platform.Characteristic.ChargingState, data.cleanMissionStatus.phase === 'charge');
 
 
         this.active = data.cleanMissionStatus.cycle === 'none' ? 0 : 1;
         this.state = data.cleanMissionStatus.phase === 'charge' ? 0 : data.cleanMissionStatus.phase === 'run' ? 2 : 1;
         this.binfull = data.bin.full ? 1 : 0;
+        this.batteryStatus.charging = data.cleanMissionStatus.phase === 'charge';
+        this.batteryStatus.low = data.batPct < (this.platform.config.lowBattery || 20);
+        this.batteryStatus.percent = data.batPct;
+
       });
     });
 
@@ -70,12 +78,14 @@ export class iRobotPlatformAccessory {
     this.accessory.addService(this.platform.Service.FilterMaintenance);
 
     this.battery = this.accessory.getService(this.platform.Service.Battery) ||
-    this.accessory.addService(this.platform.Service.FilterMaintenance);
+    this.accessory.addService(this.platform.Service.Battery);
 
     // set the service name, this is what is displayed as the default name on the Home app
     // in this example we are using the name we stored in the `accessory.context` in the `discoverDevices` method.
     this.service.setCharacteristic(this.platform.Characteristic.Name, this.device.name);
     this.bin.setCharacteristic(this.platform.Characteristic.Name, this.device.name);
+    this.battery.setCharacteristic(this.platform.Characteristic.Name, this.device.name);
+
 
 
     // each service must implement at-minimum the "required characteristics" for the given service type
@@ -90,6 +100,14 @@ export class iRobotPlatformAccessory {
     this.bin.getCharacteristic(this.platform.Characteristic.FilterChangeIndication)
       .onGet(this.getBinfull.bind(this));
 
+    this.battery.getCharacteristic(this.platform.Characteristic.StatusLowBattery)
+      .onGet(this.getBatteryStatus.bind(this));
+
+    this.battery.getCharacteristic(this.platform.Characteristic.BatteryLevel)
+      .onGet(this.getBatteryLevel.bind(this));
+
+    this.battery.getCharacteristic(this.platform.Characteristic.ChargingState)
+      .onGet(this.getChargeState.bind(this));
     /*this.battery.getCharacteristic(this.platform.Characteristic.StatusLowBattery)
       .onSet(this.get)
       */
@@ -150,6 +168,21 @@ export class iRobotPlatformAccessory {
   async getBinfull(): Promise<CharacteristicValue> {
     this.platform.log.debug('Updating', this.device.name, 'Binfull To', this.binfull === 0 ? 'OK' : 'FULL');
     return this.binfull;
+  }
+
+  async getBatteryLevel(): Promise<CharacteristicValue> {
+    this.platform.log.debug('Updating', this.device.name, 'Battery Level To', this.batteryStatus.percent);
+    return this.batteryStatus.percent;
+  }
+
+  async getBatteryStatus(): Promise<CharacteristicValue> {
+    this.platform.log.debug('Updating', this.device.name, 'Battery Status To', this.batteryStatus.low ? 'Low' : 'Normal');
+    return this.batteryStatus.low ? 1 : 0;
+  }
+
+  async getChargeState(): Promise<CharacteristicValue> {
+    this.platform.log.debug('Updating', this.device.name, 'Charge Status To', this.batteryStatus.charging ? 'Charging' : 'Not Charging');
+    return this.batteryStatus.charging ? 1 : 0;
   }
 
   /**
