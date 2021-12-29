@@ -15,10 +15,10 @@ export class iRobotPlatformAccessory {
   private battery: Service;
   private roomba;
   private active = 0;
-  private lastStatus = {cycle:'', phase:''};
+  private lastStatus = { cycle: '', phase: '' };
   private state = 0;
   private binfull = 0;
-  private batteryStatus = {'low': false, 'percent': 50, 'charging': true};
+  private batteryStatus = { 'low': false, 'percent': 50, 'charging': true };
 
   constructor(
     private readonly platform: iRobotPlatform,
@@ -39,13 +39,13 @@ export class iRobotPlatformAccessory {
       this.roomba = new dorita980.Local(this.device.blid, this.device.password, this.device.ip, this.config.interval);
     }).on('mission', () => {
       this.roomba.getRobotState(['cleanMissionStatus', 'batPct', 'bin']).then((data) => {
-        if(data.cleanMissionStatus.cycle !== this.lastStatus.cycle || data.cleanMissionStatus.phase !== this.lastStatus.phase) {
-          this.platform.log.debug(device.name + '\'s mission update:', data.cleanMissionStatus, data.batPct, data.bin);
+        if (data.cleanMissionStatus.cycle !== this.lastStatus.cycle || data.cleanMissionStatus.phase !== this.lastStatus.phase) {
+          this.platform.log.debug(device.name + '\'s mission update:', '\n'+data.cleanMissionStatus, '\n'+data.batPct, '\n'+data.bin);
         }
         this.lastStatus = data.cleanMissionStatus;
         this.service.updateCharacteristic(this.platform.Characteristic.Active, data.cleanMissionStatus.cycle === 'none' ? 0 : 1);
         // eslint-disable-next-line max-len
-        this.service.updateCharacteristic(this.platform.Characteristic.CurrentFanState, data.cleanMissionStatus.phase === 'charge' ? 0 : data.cleanMissionStatus.phase === 'run' ? 2 : 1);
+        this.service.updateCharacteristic(this.platform.Characteristic.CurrentAirPurifierState, data.cleanMissionStatus.phase === 'charge' ? 0 : data.cleanMissionStatus.phase === 'run' ? 2 : 1);
         this.bin.updateCharacteristic(this.platform.Characteristic.FilterChangeIndication, data.bin.full ? 1 : 0);
         this.battery.updateCharacteristic(this.platform.Characteristic.BatteryLevel, data.batPct);
         // eslint-disable-next-line max-len
@@ -66,19 +66,21 @@ export class iRobotPlatformAccessory {
     // set accessory information
     this.accessory.getService(this.platform.Service.AccessoryInformation)!
       .setCharacteristic(this.platform.Characteristic.Manufacturer, 'iRobot')
-      .setCharacteristic(this.platform.Characteristic.Model, this.device.info.sku || 'N/A')
+      .setCharacteristic(this.platform.Characteristic.Model, this.device.model || 'N/A')
       .setCharacteristic(this.platform.Characteristic.SerialNumber, this.device.blid || 'N/A')
-      .setCharacteristic(this.platform.Characteristic.FirmwareRevision, device.info.ver || 'N/A');
+      .setCharacteristic(this.platform.Characteristic.FirmwareRevision, device.info.ver || 'N/A')
+      .setCharacteristic(this.platform.Characteristic.AppMatchingIdentifier, 1012014442)
+      .getCharacteristic(this.platform.Characteristic.Identify).onSet(this.identify.bind(this));
 
 
-    this.service = this.accessory.getService(this.platform.Service.Fanv2) ||
-    this.accessory.addService(this.platform.Service.Fanv2);
+    this.service = this.accessory.getService(this.platform.Service.AirPurifier) ||
+      this.accessory.addService(this.platform.Service.AirPurifier);
 
     this.bin = this.accessory.getService(this.platform.Service.FilterMaintenance) ||
-    this.accessory.addService(this.platform.Service.FilterMaintenance);
+      this.accessory.addService(this.platform.Service.FilterMaintenance);
 
     this.battery = this.accessory.getService(this.platform.Service.Battery) ||
-    this.accessory.addService(this.platform.Service.Battery);
+      this.accessory.addService(this.platform.Service.Battery);
 
     // set the service name, this is what is displayed as the default name on the Home app
     // in this example we are using the name we stored in the `accessory.context` in the `discoverDevices` method.
@@ -94,8 +96,11 @@ export class iRobotPlatformAccessory {
     this.service.getCharacteristic(this.platform.Characteristic.Active)
       .onSet(this.set.bind(this))                // SET - bind to the `setOn` method below
       .onGet(this.get.bind(this));               // GET - bind to the `getOn` method below
-    this.service.getCharacteristic(this.platform.Characteristic.CurrentFanState)
+    this.service.getCharacteristic(this.platform.Characteristic.CurrentAirPurifierState)
       .onGet(this.getState.bind(this)); // GET - bind to the
+    this.service.getCharacteristic(this.platform.Characteristic.TargetAirPurifierState)
+      .onGet(this.getMode.bind(this)) // GET
+      .onSet(this.setMode.bind(this));
 
     this.bin.getCharacteristic(this.platform.Characteristic.FilterChangeIndication)
       .onGet(this.getBinfull.bind(this));
@@ -185,22 +190,43 @@ export class iRobotPlatformAccessory {
     return this.batteryStatus.charging ? 1 : 0;
   }
 
+  async getMode(): Promise<CharacteristicValue> {
+    this.platform.log.debug('Updating', this.device.name, 'Mode To Auto');
+    return 1;
+  }
+
+
+
+  async identify() {
+    if (this.accessory.context.connected) {
+      await this.roomba.find();
+    }
+  }
+
+
+
   /**
    * Handle "SET" requests from HomeKit
    * These are sent when the user changes the state of an accessory, for example, changing the Brightness
    */
   async set(value: CharacteristicValue) {
-    if(this.accessory.context.connected){
-    // implement your own code to turn your device on/off
-      if(value === 1){
+    if (this.accessory.context.connected) {
+      // implement your own code to turn your device on/off
+      if (value === 1) {
         await this.roomba.clean();
-      }else{
+      } else {
         await this.roomba.pause();
-        setTimeout(async () =>{
+        setTimeout(async () => {
           await this.roomba.dock();
         }, 500);
       }
       this.platform.log.debug('Set', this.device.name, 'To', value === 0 ? 'Pause and Dock' : 'Clean');
+    }
+  }
+
+  async setMode(value: CharacteristicValue) {
+    if (this.accessory.context.connected) {
+      this.platform.log.debug('Set', this.device.name, 'To', value === 0 ? 'Room-By-Room' : 'Everywhere', '(Support Coming Soon!)');
     }
   }
 
