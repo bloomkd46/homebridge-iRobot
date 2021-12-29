@@ -1,0 +1,92 @@
+name: Feature Request
+description: suggest an idea for this project
+title: "Feature Request: "
+labels: [enchancment]
+assignees:
+  - bloomkd46
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this Feature Request!
+        
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: "Is your feature request related to a problem? Please describe:"
+      placeholder: A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
+    validations:
+      required: true
+            
+  - type: textarea
+    id: should-happend
+    attributes:
+      label: "Describe the solution you'd like:"
+      placeholder: A clear and concise description of what you want to happen.
+    validations:
+      required: true
+      
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: "Describe alternatives you've considered:"
+      placeholder: A clear and concise description of any alternative solutions or features you've considered.
+    validations:
+      required: false
+            
+  - type: textarea
+    id: additional
+    attributes:
+      label: "Additional context:"
+      placeholder: Add any other context or screenshots about the feature request here.
+      render: shell
+    validations:
+      required: false
+      
+  - type: input
+    id: node-version
+    attributes:
+      label: "Node Version (optional):"
+      placeholder: node -v
+    validations:
+      required: false
+      
+  - type: input
+    id: npm-version
+    attributes:
+      label: "NPM Version (optional):"
+      placeholder: npm -v
+    validations:
+      required: false
+      
+  - type: input
+    id: homebridge-version
+    attributes:
+      label: "Homebridge Version (optional):"
+      placeholder: Homebridge -V
+    validations:
+      required: false
+      
+  - type: input
+    id: plugin-version
+    attributes:
+      label: "Plugin Version:"
+      placeholder: npm list -g homebridge-irobot
+    validations:
+      required: true
+      
+  - type: dropdown
+    id: os
+    attributes:
+      label: "Operating System (optional):"
+      multiple: false
+      options:
+        - Raspberian
+        - Ubuntu
+        - Debian
+        - Windows
+        - MacOS
+        - Docker
+        - Other
+    validations: 
+      required: false

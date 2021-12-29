@@ -1,0 +1,95 @@
+name: Support Request
+description: Need Help?
+title: "Support Request: "
+labels: "question, help wanted"
+assignees:
+  - bloomkd46
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this Support Request!
+        
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: "Describe Your Problem:"
+      placeholder: A clear and concise description of what your problem is.
+    validations:
+      required: true
+            
+  - type: textarea
+    id: should-happend
+    attributes:
+      label: "Expected behavior:"
+      placeholder: A clear and concise description of what you expected to happen.
+    validations:
+      required: false
+      
+  - type: textarea
+    id: logs
+    attributes:
+      label: "Logs:"
+      description: Please copy and paste any relevant log output. This will be automatically formatted into code, so no need for backticks.
+      placeholder: Show the Homebridge logs here. Replace any sensitive information with *.
+      render: shell
+    validations:
+      required: true
+      
+  - type: textarea
+    id: config
+    attributes:
+      label: "Config:"
+      description: Please copy and paste your config. This will be automatically formatted into code, so no need for backticks.
+      placeholder: Show the Homebridge config here. Replace any sensitive information with *.
+      render: shell
+    validations:
+      required: true
+      
+  - type: input
+    id: node-version
+    attributes:
+      label: "Node Version:"
+      placeholder: node -v
+    validations:
+      required: true
+      
+  - type: input
+    id: npm-version
+    attributes:
+      label: "NPM Version:"
+      placeholder: npm -v
+    validations:
+      required: true
+      
+  - type: input
+    id: homebridge-version
+    attributes:
+      label: "Homebridge Version:"
+      placeholder: Homebridge -V
+    validations:
+      required: true
+      
+  - type: input
+    id: plugin-version
+    attributes:
+      label: "Plugin Version:"
+      placeholder: npm list -g homebridge-irobot
+    validations:
+      required: true
+      
+  - type: dropdown
+    id: os
+    attributes:
+      label: "Operating System:"
+      multiple: false
+      options:
+        - Raspberian
+        - Ubuntu
+        - Debian
+        - Windows
+        - MacOS
+        - Docker
+        - Other
+    validations: 
+      required: true
