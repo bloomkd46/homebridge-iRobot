@@ -1,7 +1,7 @@
 import child_process from 'child_process';
 import { Logger } from 'homebridge';
 export function getRoombas(email: string, password: string, log: Logger): Robot[] {
-  child_process.execSync('chmod -R 755 "' + __dirname + '/scripts"');
+  //child_process.execSync('chmod -R 755 "' + __dirname + '/scripts"');
   let robots: Robot[] = [];
 
   log.info('Logging into iRobot...');
