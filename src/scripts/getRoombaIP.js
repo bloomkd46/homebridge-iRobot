@@ -34,7 +34,10 @@ function getRobotIP () {
   });
 
   server.on('listening', () => {
-    //console.log('Looking for robots...');
+    setTimeout(()=>{
+      console.log('Request Timed Out');
+      process.exit(0);
+    }, 5000);
   });
 
   server.bind(function () {

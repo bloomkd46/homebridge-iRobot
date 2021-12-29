@@ -13,7 +13,7 @@ export function getRoombas(email: string, password: string, log: Logger): Robot[
     log.error(Robots);
   }
   robots.forEach(robot => {
-    log.info('Getting IP addresses for roomba:', robot.name);
+    log.info('Getting IP address for roomba:', robot.name);
     const robotIP = child_process.execFileSync(__dirname + '/scripts/getRoombaIP.js', [robot.blid]).toString();
     try{
       const robotInfo = JSON.parse(robotIP);
