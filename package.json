@@ -21,7 +21,7 @@
     "lint": "eslint src/**.ts --max-warnings=0 --fix",
     "watch": "npm run build && npm link && nodemon",
     "build": "rimraf ./dist && tsc ",
-    "prepublishOnly": "npm run lint && npm run build && echo Build Completed!"
+    "prepublishOnly": "npm run lint && npm run build"
   },
   "keywords": [
     "homebridge-plugin",
