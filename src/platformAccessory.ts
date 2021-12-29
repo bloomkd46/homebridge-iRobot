@@ -1,4 +1,4 @@
-import { Service, PlatformAccessory, CharacteristicValue } from 'homebridge';
+import { Service, PlatformAccessory, CharacteristicValue, Characteristic } from 'homebridge';
 import { Robot } from './getRoombas';
 import dorita980 from 'dorita980';
 
@@ -32,15 +32,18 @@ export class iRobotPlatformAccessory {
       this.accessory.context.connected = true;
       this.platform.log.info('Succefully connected to roomba ', device.name);
     }).on('offline', () => {
-      this.roomba.end();
-      this.roomba = null;
       this.accessory.context.connected = false;
+      this.roomba.end();
       this.platform.log.warn('Roomba ', device.name, ' went offline, atempting to reconnect');
-      this.roomba = new dorita980.Local(this.device.blid, this.device.password, this.device.ip, this.config.interval);
+    }).on('close', () =>{
+      this.roomba = null;
+      this.platform.log.warn('Roomba ', device.name, ' connection closed, atempting to reconnect...');
+      this.roomba = new dorita980.Local(this.device.blid, this.device.password, this.device.ip, 2, this.config.interval);
     }).on('mission', () => {
       this.roomba.getRobotState(['cleanMissionStatus', 'batPct', 'bin']).then((data) => {
         if (data.cleanMissionStatus.cycle !== this.lastStatus.cycle || data.cleanMissionStatus.phase !== this.lastStatus.phase) {
-          this.platform.log.debug(device.name + '\'s mission update:', '\n'+data.cleanMissionStatus, '\n'+data.batPct, '\n'+data.bin);
+          // eslint-disable-next-line max-len
+          this.platform.log.debug(device.name + '\'s mission update:', '\n'+JSON.stringify(data.cleanMissionStatus, null, 2), '\n'+data.batPct, '\n'+JSON.stringify(data.bin, null, 2));
         }
         this.lastStatus = data.cleanMissionStatus;
         this.service.updateCharacteristic(this.platform.Characteristic.Active, data.cleanMissionStatus.cycle === 'none' ? 0 : 1);
@@ -67,14 +70,14 @@ export class iRobotPlatformAccessory {
     this.accessory.getService(this.platform.Service.AccessoryInformation)!
       .setCharacteristic(this.platform.Characteristic.Manufacturer, 'iRobot')
       .setCharacteristic(this.platform.Characteristic.Model, this.device.model || 'N/A')
-      .setCharacteristic(this.platform.Characteristic.SerialNumber, this.device.blid || 'N/A')
+      .setCharacteristic(this.platform.Characteristic.SerialNumber, 'N/A')
       .setCharacteristic(this.platform.Characteristic.FirmwareRevision, device.info.ver || 'N/A')
-      .setCharacteristic(this.platform.Characteristic.AppMatchingIdentifier, 1012014442)
-      .getCharacteristic(this.platform.Characteristic.Identify).onSet(this.identify.bind(this));
+      .setCharacteristic(this.platform.Characteristic.SoftwareRevision, device.info.sw || 'N/A')
+      .getCharacteristic(this.platform.Characteristic.Identify).on('set', this.identify.bind(this));
 
 
-    this.service = this.accessory.getService(this.platform.Service.AirPurifier) ||
-      this.accessory.addService(this.platform.Service.AirPurifier);
+    this.service = this.accessory.getService(this.platform.Service.Fanv2) ||
+      this.accessory.addService(this.platform.Service.Fanv2);
 
     this.bin = this.accessory.getService(this.platform.Service.FilterMaintenance) ||
       this.accessory.addService(this.platform.Service.FilterMaintenance);
@@ -96,12 +99,13 @@ export class iRobotPlatformAccessory {
     this.service.getCharacteristic(this.platform.Characteristic.Active)
       .onSet(this.set.bind(this))                // SET - bind to the `setOn` method below
       .onGet(this.get.bind(this));               // GET - bind to the `getOn` method below
-    this.service.getCharacteristic(this.platform.Characteristic.CurrentAirPurifierState)
+    this.service.getCharacteristic(this.platform.Characteristic.CurrentFanState)
       .onGet(this.getState.bind(this)); // GET - bind to the
-    this.service.getCharacteristic(this.platform.Characteristic.TargetAirPurifierState)
-      .onGet(this.getMode.bind(this)) // GET
-      .onSet(this.setMode.bind(this));
-
+    if(this.device.multiRoom === true){
+      this.service.getCharacteristic(this.platform.Characteristic.TargetFanState)
+        .onGet(this.getMode.bind(this)) // GET
+        .onSet(this.setMode.bind(this));
+    }
     this.bin.getCharacteristic(this.platform.Characteristic.FilterChangeIndication)
       .onGet(this.getBinfull.bind(this));
 
@@ -200,6 +204,7 @@ export class iRobotPlatformAccessory {
   async identify() {
     if (this.accessory.context.connected) {
       await this.roomba.find();
+      this.platform.log.info('Identifying', this.device.name, '(Note: Some Models Won\'t Beep If Docked');
     }
   }
 

@@ -20,6 +20,7 @@ export function getRoombas(email: string, password: string, log: Logger): Robot[
       robot.ip = robotInfo.ip;
       delete robotInfo.ip;
       robot.model = getModel(robotInfo.sku);
+      robot.multiRoom = getMultiRoom(robot.model);
       robot.info = robotInfo;
     }catch(e){
       log.error('Failed to fetch ip for roomba:', robot.name, 'see below for details');
@@ -31,6 +32,7 @@ export function getRoombas(email: string, password: string, log: Logger): Robot[
 }
 function getModel(sku: string):string{
   switch(sku.charAt(0)){
+    case 'j':
     case 'i':
       return sku.substring(0, 2);
     case 'R':
@@ -39,12 +41,22 @@ function getModel(sku: string):string{
       return sku;
   }
 }
+function getMultiRoom(model:string){
+  switch(model.charAt(0)){
+    case 'j':
+    case 'i':
+      return true;
+    default:
+      return false;
+  }
+}
 export interface Robot {
   'name': string;
   'blid': string;
   'password': string;
   'ip': string;
   'model': string;
+  'multiRoom': boolean;
   'info': {
     'ver': string;
     'hostname': string;
