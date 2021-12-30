@@ -8,7 +8,6 @@
 Homebridge plugin to integrate iRobot roombas into HomeKit
  
  [![build workflow](https://github.com/bloomkd46/homebridge-iRobot/actions/workflows/build.yml/badge.svg)](../../actions/workflows/build.yml)
- [![lint workflow](https://github.com/bloomkd46/homebridge-iRobot/actions/workflows/lint.yml/badge.svg)](../../actions/workflows/lint.yml)
 
 [![npm](https://img.shields.io/npm/v/homebridge-irobot/latest?label=latest)](https://www.npmjs.com/package/homebridge-irobot)
 [![npm](https://img.shields.io/npm/v/homebridge-irobot/beta?label=beta)](https://github.com/bwp91/homebridge-irobot/wiki/Beta-Version)  
@@ -21,14 +20,25 @@ Homebridge plugin to integrate iRobot roombas into HomeKit
 
 - This plugin allows you to view and control your iRobot roombas within HomeKit. The plugin:
   - downloads a device list if your iRobot credentials are supplied
-  - attempts to control your devices locally, reverting to cloud control if necessary
+  - controls your devices locally
   - listens for real-time device updates when controlled externally
-  - can ignore any roombas you have using the configuration
+
+## Features:
+  * On/Off Control
+  * Auto-Dicovery Of All Devices On Your Acount
+  * Battery Percent/Charging ifo
+  * Binfull Detection In The Form Of Filter/Contact/Motion Sensor
+  * Stuck Sensor
+  
+## TODO: 
+  * Get Approved By Homebridge
+  * Add Room-By-Room Support
+  * Add Custom UI For Viewing Devices
 
 ### Prerequisites
 
 - To use this plugin, you will need to already have [Homebridge](https://homebridge.io) (at least v1.3.5) or [HOOBS](https://hoobs.org) (at least v4) installed. Refer to the links for more information and installation instructions.
-- Whilst it is recommended to use [Node](https://nodejs.org/en/) v16, the plugin supports v12 and v14 as per the [Homebridge guidelines](https://github.com/homebridge/homebridge/wiki/How-To-Update-Node.js).
+
 
 ### Setup
 
