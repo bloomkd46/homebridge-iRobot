@@ -16,12 +16,14 @@ export class iRobotPlatformAccessory {
   private binFilter!: Service;
   private binContact!: Service;
   private binMotion!: Service;
+  private rooms!: Service[];
 
 
   private binConfig: string[] = this.device.multiRoom && this.platform.config.ignoreMultiRoomBin ? [] : this.platform.config.bin.split(':');
   private roomba;
   private active = false;
   private lastStatus = { cycle: '', phase: '' };
+  private lastCommandStatus = {pmap_id: null};
   private state = 0;
   private binfull = 0;
   private batteryStatus = { 'low': false, 'percent': 50, 'charging': true };
@@ -46,6 +48,13 @@ export class iRobotPlatformAccessory {
     this.service = this.accessory.getService(this.device.name) ||
       this.accessory.addService(this.platform.Service.Fanv2, this.device.name, 'Main-Service');
 
+    if(this.device.multiRoom){
+      this.accessory.context.map.regions.forEach(region => {
+        this.rooms[region.id] = this.accessory.getService('Room '+ region.id) ||
+      this.accessory.addService(this.platform.Service.Switch, 'Room '+ region.id, region.id);
+      });
+    }
+
 
     if (this.binConfig.includes('filter')) {
       this.binFilter = this.accessory.getService(this.device.name + '\'s Bin Filter') ||
@@ -64,9 +73,9 @@ export class iRobotPlatformAccessory {
     this.battery = this.accessory.getService(this.device.name + '\'s Battery') ||
       this.accessory.addService(this.platform.Service.Battery, this.device.name + '\'s Battery', 'Battery-Service');
 
-    if(!this.platform.config.hideStuckSensor){
+    if (!this.platform.config.hideStuckSensor) {
       this.stuck = this.accessory.getService(this.device.name + ' Stuck') ||
-      this.accessory.addService(this.platform.Service.MotionSensor, this.device.name + ' Stuck', 'Stuck-MotionSensor');
+        this.accessory.addService(this.platform.Service.MotionSensor, this.device.name + ' Stuck', 'Stuck-MotionSensor');
     }
     // set the service name, this is what is displayed as the default name on the Home app
     // in this example we are using the name we stored in the `accessory.context` in the `discoverDevices` method.
@@ -123,7 +132,7 @@ export class iRobotPlatformAccessory {
       .onGet(this.getChargeState.bind(this));
 
 
-    if(!this.platform.config.hideStuckSensor){
+    if (!this.platform.config.hideStuckSensor) {
       this.stuck.getCharacteristic(this.platform.Characteristic.MotionDetected)
         .onGet(this.getStuck.bind(this));
     }
@@ -189,10 +198,18 @@ export class iRobotPlatformAccessory {
       this.platform.log.debug(this.device.name + '\'s mission update:',
         '\n cleeanMissionStatus:', JSON.stringify(data.cleanMissionStatus, null, 2),
         '\n batPct:', data.batPct,
-        '\n bin:', JSON.stringify(data.bin, null, 2));
+        '\n bin:', JSON.stringify(data.bin, null, 2),
+        '\n lastCommand:', JSON.stringify(data.lastCommand, null, 2));
     }
+    if ((this.device.multiRoom && data.lastCommand.pmap_id !== null) && data.lastCommand.pmap_id !== this.lastCommandStatus.pmap_id) {
+      //this.platform.log.debug('Updating map for roomba:', this.device.name);
+      this.updateMap(data.lastCommand);
+    }
+
     this.lastStatus = data.cleanMissionStatus;
+    this.lastCommandStatus = data.lastCommand;
     /*------------------------------------------------------------------------------------------------------------------------------------*/
+
     this.active = this.getHomekitActive(data.cleanMissionStatus);
 
     this.state = this.active ? 2 : this.getEveInactive(data.cleanMissionStatus) ? 0 : 1;
@@ -225,6 +242,26 @@ export class iRobotPlatformAccessory {
     this.battery.updateCharacteristic(this.platform.Characteristic.StatusLowBattery, this.batteryStatus.low);
     this.battery.updateCharacteristic(this.platform.Characteristic.ChargingState, this.batteryStatus.charging);
   }
+
+  updateMap(lastCommand) {
+    if (this.accessory.context.map === undefined) {
+      this.platform.log.info('Creating new map for roomba:', this.device.name);
+      this.accessory.context.map = {
+        'pmap_id': lastCommand.pmap_id,
+        'regions': lastCommand.regions,
+        'user_pmapv_id': lastCommand.user_pmapv_id,
+      };
+    } else {
+      if(!this.accessory.context.map.regions.includes(lastCommand.regions)){
+        this.platform.log.info('Adding new region(s) for roomba:', this.device.name, '\n', lastCommand.regions);
+        this.accessory.context.map.regions.push(lastCommand.regions);
+      }
+      this.platform.log.debug(this.device.name + '\'s map update:',
+        '\n map:', JSON.stringify(this.accessory.context.map, null, 2));
+    }
+  }
+
+
 
   getHomekitActive(cleanMissionStatus): boolean {
     const configStatus: string[] | boolean[] = this.platform.config.status.split(':');
@@ -267,47 +304,47 @@ export class iRobotPlatformAccessory {
    * @example
    * this.service.updateCharacteristic(this.platform.Characteristic.On, true)
    */
-  async get(): Promise<CharacteristicValue> {
+  async get(): Promise < CharacteristicValue > {
     this.platform.log.debug('Updating', this.device.name, 'To', this.active ? 'On' : 'Off');
     return this.active ? 1 : 0;
   }
 
-  async getState(): Promise<CharacteristicValue> {
+  async getState(): Promise < CharacteristicValue > {
     this.platform.log.debug('Updating', this.device.name, 'Mode To', this.state === 0 ? 'Off' : this.state === 1 ? 'Idle' : 'On');
     return this.state;
   }
 
-  async getBinfull(): Promise<CharacteristicValue> {
+  async getBinfull(): Promise < CharacteristicValue > {
     this.platform.log.debug('Updating', this.device.name, 'Binfull To', this.binfull === 0 ? 'OK' : 'FULL');
     return this.binfull;
   }
 
-  async getBinfullBoolean(): Promise<CharacteristicValue> {
+  async getBinfullBoolean(): Promise < CharacteristicValue > {
     this.platform.log.debug('Updating', this.device.name, 'Binfull To', this.binfull === 0 ? 'OK' : 'FULL');
     return this.binfull === 1;
   }
 
-  async getBatteryLevel(): Promise<CharacteristicValue> {
+  async getBatteryLevel(): Promise < CharacteristicValue > {
     this.platform.log.debug('Updating', this.device.name, 'Battery Level To', this.batteryStatus.percent);
     return this.batteryStatus.percent;
   }
 
-  async getBatteryStatus(): Promise<CharacteristicValue> {
+  async getBatteryStatus(): Promise < CharacteristicValue > {
     this.platform.log.debug('Updating', this.device.name, 'Battery Status To', this.batteryStatus.low ? 'Low' : 'Normal');
     return this.batteryStatus.low ? 1 : 0;
   }
 
-  async getChargeState(): Promise<CharacteristicValue> {
+  async getChargeState(): Promise < CharacteristicValue > {
     this.platform.log.debug('Updating', this.device.name, 'Charge Status To', this.batteryStatus.charging ? 'Charging' : 'Not Charging');
     return this.batteryStatus.charging ? 1 : 0;
   }
 
-  async getMode(): Promise<CharacteristicValue> {
+  async getMode(): Promise < CharacteristicValue > {
     this.platform.log.debug('Updating', this.device.name, 'Mode To Auto');
     return 1;
   }
 
-  async getStuck(): Promise<CharacteristicValue> {
+  async getStuck(): Promise < CharacteristicValue > {
     this.platform.log.debug('Updating', this.device.name, 'Stuck To', this.stuckStatus);
     return this.stuckStatus;
   }
