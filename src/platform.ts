@@ -65,6 +65,9 @@ export class iRobotPlatform implements DynamicPlatformPlugin {
         delete deviceInfo.ip;
         device.info = deviceInfo;
       }
+      if(this.config.disableMultiRoom){
+        device.multiRoom = false;
+      }
       // generate a unique id for the accessory this should be generated from
       // something globally unique, but constant, for example, the device serial
       // number or MAC address

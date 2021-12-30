@@ -95,7 +95,7 @@ export class iRobotPlatformAccessory {
       .onGet(this.get.bind(this));               // GET - bind to the `getOn` method below
     this.service.getCharacteristic(this.platform.Characteristic.CurrentFanState)
       .onGet(this.getState.bind(this)); // GET - bind to the
-    if (this.device.multiRoom && !this.platform.config.disableMultiRoom) {
+    if (this.device.multiRoom) {
       this.service.getCharacteristic(this.platform.Characteristic.TargetFanState)
         .onGet(this.getMode.bind(this)) // GET
         .onSet(this.setMode.bind(this));
