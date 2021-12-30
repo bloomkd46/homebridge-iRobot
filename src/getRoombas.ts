@@ -34,6 +34,7 @@ function getModel(sku: string):string{
   switch(sku.charAt(0)){
     case 'j':
     case 'i':
+    case 's':
       return sku.substring(0, 2);
     case 'R':
       return sku.substring(1, 4);
@@ -43,9 +44,14 @@ function getModel(sku: string):string{
 }
 function getMultiRoom(model:string){
   switch(model.charAt(0)){
+    case 's':
     case 'j':
     case 'i':
-      return true;
+      if(model.charAt(1) as unknown as number > 4){
+        return true;
+      } else{
+        return false;
+      }
     default:
       return false;
   }

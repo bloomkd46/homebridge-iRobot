@@ -12,12 +12,7 @@ import { getRoombas } from './getRoombas';
 export class iRobotPlatform implements DynamicPlatformPlugin {
   public readonly Service: typeof Service = this.api.hap.Service;
   public readonly Characteristic: typeof Characteristic = this.api.hap.Characteristic;
-  private readonly Config: Config = {
-    'name': this.config.name || PLATFORM_NAME,
-    'email': this.config.email,
-    'password': this.config.password,
-    'interval': this.config.interval || 800,
-  };
+
 
   // this is used to track restored cached accessories
   public readonly accessories: PlatformAccessory[] = [];
@@ -27,7 +22,7 @@ export class iRobotPlatform implements DynamicPlatformPlugin {
     public readonly config: PlatformConfig,
     public readonly api: API,
   ) {
-    this.log.debug('Finished initializing platform:', this.Config.name);
+    this.log.debug('Finished initializing platform:', this.config.name);
 
     // When this event is fired it means Homebridge has restored all cached accessories from disk.
     // Dynamic Platform plugins should only register new accessories after this event was fired,
@@ -63,7 +58,7 @@ export class iRobotPlatform implements DynamicPlatformPlugin {
     // or a user-defined array in the platform config.
 
     // loop over the discovered devices and register each one if it has not already been registered
-    for (const device of getRoombas(this.Config.email, this.Config.password, this.log)) {
+    for (const device of getRoombas(this.config.email, this.config.password, this.log)) {
       if(device.ip === 'undefined' && this.config[device.name] !== undefined) {
         const deviceInfo = this.config[device.name];
         device.ip = deviceInfo.ip;
@@ -89,7 +84,7 @@ export class iRobotPlatform implements DynamicPlatformPlugin {
 
         // create the accessory handler for the restored accessory
         // this is imported from `platformAccessory.ts`
-        new iRobotPlatformAccessory(this, existingAccessory, device, this.Config);
+        new iRobotPlatformAccessory(this, existingAccessory, device);
 
         // it is possible to remove platform accessories at any time using `api.unregisterPlatformAccessories`, eg.:
         // remove platform accessories when no longer present
@@ -111,17 +106,11 @@ export class iRobotPlatform implements DynamicPlatformPlugin {
 
         // create the accessory handler for the newly create accessory
         // this is imported from `platformAccessory.ts`
-        new iRobotPlatformAccessory(this, accessory, device, this.Config);
+        new iRobotPlatformAccessory(this, accessory, device);
 
         // link the accessory to your platform
         this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
       }
     }
   }
-}
-export interface Config {
-  'name': string;
-  'email': string;
-  'password': string;
-  'interval': number;
 }

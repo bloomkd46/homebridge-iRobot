@@ -1,8 +1,8 @@
-import { Service, PlatformAccessory, CharacteristicValue, Characteristic } from 'homebridge';
+import { Service, PlatformAccessory, CharacteristicValue } from 'homebridge';
 import { Robot } from './getRoombas';
 import dorita980 from 'dorita980';
 
-import { Config, iRobotPlatform } from './platform';
+import { iRobotPlatform } from './platform';
 
 /**
  * Platform Accessory
@@ -11,86 +11,80 @@ import { Config, iRobotPlatform } from './platform';
  */
 export class iRobotPlatformAccessory {
   private service: Service;
-  private bin: Service;
   private battery: Service;
+  private stuck!: Service;
+  private binFilter!: Service;
+  private binContact!: Service;
+  private binMotion!: Service;
+
+
+  private binConfig: string[] = this.device.multiRoom && this.platform.config.ignoreMultiRoomBin ? [] : this.platform.config.bin.split(':');
   private roomba;
-  private active = 0;
+  private active = false;
   private lastStatus = { cycle: '', phase: '' };
   private state = 0;
   private binfull = 0;
   private batteryStatus = { 'low': false, 'percent': 50, 'charging': true };
+  private stuckStatus = false;
 
   constructor(
     private readonly platform: iRobotPlatform,
     private readonly accessory: PlatformAccessory,
     private readonly device: Robot,
-    private readonly config: Config,
   ) {
-    this.accessory.context.connected = false;
-    this.roomba = new dorita980.Local(this.device.blid, this.device.password, this.device.ip, 2, this.config.interval);
-    this.roomba.on('connect', () => {
-      this.accessory.context.connected = true;
-      this.platform.log.info('Succefully connected to roomba ', device.name);
-    }).on('offline', () => {
-      this.accessory.context.connected = false;
-      this.roomba.end();
-      this.platform.log.warn('Roomba ', device.name, ' went offline, atempting to reconnect');
-    }).on('close', () =>{
-      this.roomba = null;
-      this.platform.log.warn('Roomba ', device.name, ' connection closed, atempting to reconnect...');
-      this.roomba = new dorita980.Local(this.device.blid, this.device.password, this.device.ip, 2, this.config.interval);
-    }).on('mission', () => {
-      this.roomba.getRobotState(['cleanMissionStatus', 'batPct', 'bin']).then((data) => {
-        if (data.cleanMissionStatus.cycle !== this.lastStatus.cycle || data.cleanMissionStatus.phase !== this.lastStatus.phase) {
-          // eslint-disable-next-line max-len
-          this.platform.log.debug(device.name + '\'s mission update:', '\n'+JSON.stringify(data.cleanMissionStatus, null, 2), '\n'+data.batPct, '\n'+JSON.stringify(data.bin, null, 2));
-        }
-        this.lastStatus = data.cleanMissionStatus;
-        this.service.updateCharacteristic(this.platform.Characteristic.Active, data.cleanMissionStatus.cycle === 'none' ? 0 : 1);
-        // eslint-disable-next-line max-len
-        this.service.updateCharacteristic(this.platform.Characteristic.CurrentAirPurifierState, data.cleanMissionStatus.phase === 'charge' ? 0 : data.cleanMissionStatus.phase === 'run' ? 2 : 1);
-        this.bin.updateCharacteristic(this.platform.Characteristic.FilterChangeIndication, data.bin.full ? 1 : 0);
-        this.battery.updateCharacteristic(this.platform.Characteristic.BatteryLevel, data.batPct);
-        // eslint-disable-next-line max-len
-        this.battery.updateCharacteristic(this.platform.Characteristic.StatusLowBattery, data.batPct < (this.platform.config.lowBattery || 20));
-        this.battery.updateCharacteristic(this.platform.Characteristic.ChargingState, data.cleanMissionStatus.phase === 'charge');
-
-
-        this.active = data.cleanMissionStatus.cycle === 'none' ? 0 : 1;
-        this.state = data.cleanMissionStatus.phase === 'charge' ? 0 : data.cleanMissionStatus.phase === 'run' ? 2 : 1;
-        this.binfull = data.bin.full ? 1 : 0;
-        this.batteryStatus.charging = data.cleanMissionStatus.phase === 'charge';
-        this.batteryStatus.low = data.batPct < (this.platform.config.lowBattery || 20);
-        this.batteryStatus.percent = data.batPct;
-
-      });
-    });
+    this.configureRoomba();
 
     // set accessory information
     this.accessory.getService(this.platform.Service.AccessoryInformation)!
       .setCharacteristic(this.platform.Characteristic.Manufacturer, 'iRobot')
       .setCharacteristic(this.platform.Characteristic.Model, this.device.model || 'N/A')
       .setCharacteristic(this.platform.Characteristic.SerialNumber, 'N/A')
-      .setCharacteristic(this.platform.Characteristic.FirmwareRevision, device.info.ver || 'N/A')
-      .setCharacteristic(this.platform.Characteristic.SoftwareRevision, device.info.sw || 'N/A')
+      .setCharacteristic(this.platform.Characteristic.FirmwareRevision, device.info.sw || device.info.ver || 'N/A')
       .getCharacteristic(this.platform.Characteristic.Identify).on('set', this.identify.bind(this));
 
 
-    this.service = this.accessory.getService(this.platform.Service.Fanv2) ||
-      this.accessory.addService(this.platform.Service.Fanv2);
+    this.service = this.accessory.getService(this.device.name) ||
+      this.accessory.addService(this.platform.Service.Fanv2, this.device.name, 'Main-Service');
 
-    this.bin = this.accessory.getService(this.platform.Service.FilterMaintenance) ||
-      this.accessory.addService(this.platform.Service.FilterMaintenance);
 
-    this.battery = this.accessory.getService(this.platform.Service.Battery) ||
-      this.accessory.addService(this.platform.Service.Battery);
+    if (this.binConfig.includes('filter')) {
+      this.binFilter = this.accessory.getService(this.device.name + '\'s Bin Filter') ||
+        this.accessory.addService(this.platform.Service.FilterMaintenance, this.device.name + '\'s Bin Filter', 'Filter-Bin');
+    }
+    if (this.binConfig.includes('contact')) {
+      this.binContact = this.accessory.getService(this.device.name + '\'s Bin Contact Sensor') ||
+        this.accessory.addService(this.platform.Service.ContactSensor, this.device.name + '\'s Bin Contact Sensor', 'Contact-Bin');
+    }
+    if (this.binConfig.includes('motion')) {
+      this.binMotion = this.accessory.getService(this.device.name + '\'s Bin Motion Sensor') ||
+        this.accessory.addService(this.platform.Service.MotionSensor, this.device.name + '\'s Bin Motion Sensor', 'Motion-Bin');
+    }
 
+
+    this.battery = this.accessory.getService(this.device.name + '\'s Battery') ||
+      this.accessory.addService(this.platform.Service.Battery, this.device.name + '\'s Battery', 'Battery-Service');
+
+    if(!this.platform.config.hideStuckSensor){
+      this.stuck = this.accessory.getService(this.device.name + ' Stuck') ||
+      this.accessory.addService(this.platform.Service.MotionSensor, this.device.name + ' Stuck', 'Stuck-MotionSensor');
+    }
     // set the service name, this is what is displayed as the default name on the Home app
     // in this example we are using the name we stored in the `accessory.context` in the `discoverDevices` method.
-    this.service.setCharacteristic(this.platform.Characteristic.Name, this.device.name);
-    this.bin.setCharacteristic(this.platform.Characteristic.Name, this.device.name);
-    this.battery.setCharacteristic(this.platform.Characteristic.Name, this.device.name);
+    /*this.service.setCharacteristic(this.platform.Characteristic.Name, this.device.name);
 
+    if(this.binConfig.includes('filter')){
+      this.binFilter.setCharacteristic(this.platform.Characteristic.Name, this.device.name + '\'s Bin');
+    }
+    if(this.binConfig.includes('contact')){
+      this.binContact.setCharacteristic(this.platform.Characteristic.Name, this.device.name + '\'s Bin');
+    }
+    if(this.binConfig.includes('motion')){
+      this.binMotion.setCharacteristic(this.platform.Characteristic.Name, this.device.name + '\'s Bin');
+    }
+
+    this.battery.setCharacteristic(this.platform.Characteristic.Name, this.device.name + '\'s Battery');
+    this.stuck.setCharacteristic(this.platform.Characteristic.Name, this.device.name + ' Stuck');
+*/
 
 
     // each service must implement at-minimum the "required characteristics" for the given service type
@@ -101,22 +95,38 @@ export class iRobotPlatformAccessory {
       .onGet(this.get.bind(this));               // GET - bind to the `getOn` method below
     this.service.getCharacteristic(this.platform.Characteristic.CurrentFanState)
       .onGet(this.getState.bind(this)); // GET - bind to the
-    if(this.device.multiRoom === true){
+    if (this.device.multiRoom && !this.platform.config.disableMultiRoom) {
       this.service.getCharacteristic(this.platform.Characteristic.TargetFanState)
         .onGet(this.getMode.bind(this)) // GET
         .onSet(this.setMode.bind(this));
     }
-    this.bin.getCharacteristic(this.platform.Characteristic.FilterChangeIndication)
-      .onGet(this.getBinfull.bind(this));
+
+    if (this.binConfig.includes('filter')) {
+      this.binFilter.getCharacteristic(this.platform.Characteristic.FilterChangeIndication)
+        .onGet(this.getBinfull.bind(this));
+    }
+    if (this.binConfig.includes('contact')) {
+      this.binContact.getCharacteristic(this.platform.Characteristic.ContactSensorState)
+        .onGet(this.getBinfull.bind(this));
+    }
+    if (this.binConfig.includes('motion')) {
+      this.binMotion.getCharacteristic(this.platform.Characteristic.MotionDetected)
+        .onGet(this.getBinfullBoolean.bind(this));
+    }
+
 
     this.battery.getCharacteristic(this.platform.Characteristic.StatusLowBattery)
       .onGet(this.getBatteryStatus.bind(this));
-
     this.battery.getCharacteristic(this.platform.Characteristic.BatteryLevel)
       .onGet(this.getBatteryLevel.bind(this));
-
     this.battery.getCharacteristic(this.platform.Characteristic.ChargingState)
       .onGet(this.getChargeState.bind(this));
+
+
+    if(!this.platform.config.hideStuckSensor){
+      this.stuck.getCharacteristic(this.platform.Characteristic.MotionDetected)
+        .onGet(this.getStuck.bind(this));
+    }
     /*this.battery.getCharacteristic(this.platform.Characteristic.StatusLowBattery)
       .onSet(this.get)
       */
@@ -151,6 +161,99 @@ export class iRobotPlatformAccessory {
     //let motionDetected = false;
   }
 
+  async configureRoomba() {
+    this.roomba = null;
+    this.accessory.context.connected = false;
+    this.roomba = new dorita980.Local(this.device.blid, this.device.password, this.device.ip/*, 2, this.config.interval*/);
+    this.roomba.on('connect', () => {
+      this.accessory.context.connected = true;
+      this.platform.log.info('Succefully connected to roomba', this.device.name);
+    }).on('offline', () => {
+      this.accessory.context.connected = false;
+      this.platform.log.warn('Roomba', this.device.name, ' went offline, reconnecting in 3 seconds');
+      setTimeout(() => {
+        this.roomba.end();
+      }, 3000);
+    }).on('close', () => {
+      this.accessory.context.connected = false;
+      this.platform.log.warn('Roomba', this.device.name, ' connection closed, atempting to reconnect...');
+      this.roomba.removeAllListeners();
+      this.configureRoomba();
+    }).on('state', (data) => {
+      this.updateRoombaState(data);
+    });
+  }
+
+  updateRoombaState(data) {
+    if (data.cleanMissionStatus.cycle !== this.lastStatus.cycle || data.cleanMissionStatus.phase !== this.lastStatus.phase) {
+      this.platform.log.debug(this.device.name + '\'s mission update:',
+        '\n cleeanMissionStatus:', JSON.stringify(data.cleanMissionStatus, null, 2),
+        '\n batPct:', data.batPct,
+        '\n bin:', JSON.stringify(data.bin, null, 2));
+    }
+    this.lastStatus = data.cleanMissionStatus;
+    /*------------------------------------------------------------------------------------------------------------------------------------*/
+    this.active = this.getHomekitActive(data.cleanMissionStatus);
+
+    this.state = this.active ? 2 : this.getEveInactive(data.cleanMissionStatus) ? 0 : 1;
+
+    this.binfull = data.bin.full ? 1 : 0;
+
+    this.stuckStatus = data.cleanMissionStatus.phase === 'stuck';
+
+    this.batteryStatus.charging = data.cleanMissionStatus.phase === 'charge';
+    this.batteryStatus.low = data.batPct < (this.platform.config.lowBattery || 20);
+    this.batteryStatus.percent = data.batPct;
+    /*------------------------------------------------------------------------------------------------------------------------------------*/
+    this.service.updateCharacteristic(this.platform.Characteristic.Active, this.active ? 1 : 0);
+
+    this.service.updateCharacteristic(this.platform.Characteristic.CurrentFanState, this.state);
+
+    if (this.binConfig.includes('filter')) {
+      this.binFilter.updateCharacteristic(this.platform.Characteristic.FilterChangeIndication, this.binfull);
+    }
+    if (this.binConfig.includes('contact')) {
+      this.binContact.updateCharacteristic(this.platform.Characteristic.ContactSensorState, this.binfull);
+    }
+    if (this.binConfig.includes('motion')) {
+      this.binMotion.updateCharacteristic(this.platform.Characteristic.MotionDetected, this.binfull === 1);
+    }
+
+    this.stuck.updateCharacteristic(this.platform.Characteristic.MotionDetected, this.stuckStatus);
+
+    this.battery.updateCharacteristic(this.platform.Characteristic.BatteryLevel, this.batteryStatus.percent);
+    this.battery.updateCharacteristic(this.platform.Characteristic.StatusLowBattery, this.batteryStatus.low);
+    this.battery.updateCharacteristic(this.platform.Characteristic.ChargingState, this.batteryStatus.charging);
+  }
+
+  getHomekitActive(cleanMissionStatus): boolean {
+    const configStatus: string[] | boolean[] = this.platform.config.status.split(':');
+    switch (configStatus[0]) {
+      case true:
+        return true;
+      case false:
+        return false;
+      case 'inverted':
+        return cleanMissionStatus[configStatus[1] as string] !== configStatus[2];
+      default:
+        return cleanMissionStatus[configStatus[0] as string] === configStatus[1];
+    }
+  }
+
+  getEveInactive(cleanMissionStatus): boolean {
+    const configStatus: string[] | boolean[] = this.platform.config.eveStatus.split(':');
+    switch (configStatus[0]) {
+      case true:
+        return true;
+      case false:
+        return false;
+      case 'inverted':
+        return cleanMissionStatus[configStatus[1] as string] !== configStatus[2];
+      default:
+        return cleanMissionStatus[configStatus[0] as string] === configStatus[1];
+    }
+  }
+
   /**
    * Handle the "GET" requests from HomeKit
    * These are sent when HomeKit wants to know the current state of the accessory, for example, checking if a Light bulb is on.
@@ -165,8 +268,8 @@ export class iRobotPlatformAccessory {
    * this.service.updateCharacteristic(this.platform.Characteristic.On, true)
    */
   async get(): Promise<CharacteristicValue> {
-    this.platform.log.debug('Updating', this.device.name, 'To', this.active === 0 ? 'Off' : 'On');
-    return this.active;
+    this.platform.log.debug('Updating', this.device.name, 'To', this.active ? 'On' : 'Off');
+    return this.active ? 1 : 0;
   }
 
   async getState(): Promise<CharacteristicValue> {
@@ -177,6 +280,11 @@ export class iRobotPlatformAccessory {
   async getBinfull(): Promise<CharacteristicValue> {
     this.platform.log.debug('Updating', this.device.name, 'Binfull To', this.binfull === 0 ? 'OK' : 'FULL');
     return this.binfull;
+  }
+
+  async getBinfullBoolean(): Promise<CharacteristicValue> {
+    this.platform.log.debug('Updating', this.device.name, 'Binfull To', this.binfull === 0 ? 'OK' : 'FULL');
+    return this.binfull === 1;
   }
 
   async getBatteryLevel(): Promise<CharacteristicValue> {
@@ -199,6 +307,11 @@ export class iRobotPlatformAccessory {
     return 1;
   }
 
+  async getStuck(): Promise<CharacteristicValue> {
+    this.platform.log.debug('Updating', this.device.name, 'Stuck To', this.stuckStatus);
+    return this.stuckStatus;
+  }
+
 
 
   async identify() {
@@ -216,22 +329,32 @@ export class iRobotPlatformAccessory {
    */
   async set(value: CharacteristicValue) {
     if (this.accessory.context.connected) {
-      // implement your own code to turn your device on/off
-      if (value === 1) {
-        await this.roomba.clean();
-      } else {
-        await this.roomba.pause();
-        setTimeout(async () => {
-          await this.roomba.dock();
-        }, 500);
+      const configOffAction: string[] = this.platform.config.offAction.split(':');
+      try {
+        if (value === 1) {
+          await this.roomba.clean();
+        } else {
+          await this.roomba[configOffAction[0]]();
+
+          setTimeout(async () => {
+            if (configOffAction[1] !== 'none') {
+              await this.roomba[configOffAction[1]]();
+            }
+          }, 500);
+        }
+        this.platform.log.debug('Set', this.device.name, 'To',
+          value === 0 ? configOffAction[0] + (configOffAction[1] !== 'none' ? ' and ' + configOffAction[1] : '') : 'Clean');
+      } catch (err) {
+        this.platform.log.error('Error Seting', this.device.name, 'To',
+          value === 0 ? configOffAction[0] + (configOffAction[1] !== 'none' ? ' and ' + configOffAction[1] : '') : 'Clean');
       }
-      this.platform.log.debug('Set', this.device.name, 'To', value === 0 ? 'Pause and Dock' : 'Clean');
     }
   }
 
   async setMode(value: CharacteristicValue) {
     if (this.accessory.context.connected) {
       this.platform.log.debug('Set', this.device.name, 'To', value === 0 ? 'Room-By-Room' : 'Everywhere', '(Support Coming Soon!)');
+      this.service.updateCharacteristic(this.platform.Characteristic.TargetFanState, 1);
     }
   }
 

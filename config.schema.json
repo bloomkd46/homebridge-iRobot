@@ -13,7 +13,7 @@
         "required": true,
         "default": "iRobot"
       },
-      "email":{
+      "email": {
         "title": "Email",
         "type": "string",
         "required": true,
@@ -25,14 +25,219 @@
         "type": "string",
         "required": true
       },
-      "interval": {
-        "title": "Interval",
+      "lowBattery": {
+        "title": "Low Battery Warning",
         "type": "integer",
         "required": false,
-        "minimum": 500,
-        "maximum": 10000,
-        "default": 1000,
-        "description":"How often in miliseconds to update"
+        "minimum": 0,
+        "maximum": 100,
+        "default": 20,
+        "description": "At What Percent Should Homekit Display Low Battery Warning"
+      },
+      "offAction": {
+        "title": "Off Action",
+        "type": "string",
+        "default": "pause:dock",
+        "oneOf": [
+          {
+            "title": "Pause And Dock",
+            "enum": [
+              "pause:dock"
+            ]
+          },
+          {
+            "title": "Stop And Dock",
+            "enum": [
+              "stop:dock"
+            ]
+          },
+          {
+            "title": "Pause And Find",
+            "enum": [
+              "pause:find"
+            ]
+          },
+          {
+            "title": "Stop And Find",
+            "enum": [
+              "stop:find"
+            ]
+          },
+          {
+            "title": "Pause",
+            "enum": [
+              "pause:none"
+            ]
+          },
+          {
+            "title": "Stop",
+            "enum": [
+              "stop:none"
+            ]
+          }
+        ],
+        "required": true,
+        "description": "What To Do When You Set The Switch To Off"
+      },
+      "status": {
+        "title": "Homekit Active",
+        "type": "string",
+        "default": "cycle:clean",
+        "oneOf": [
+          {
+            "title": "Job Active",
+            "enum": [
+              "cycle:clean"
+            ]
+          },
+          {
+            "title": "Running",
+            "enum": [
+              "phase:run"
+            ]
+          },
+          {
+            "title": "Not Charging",
+            "enum": [
+              "inverted:phase:charge"
+            ]
+          },
+          {
+            "title": "Always Off",
+            "enum": [
+              false
+            ]
+          },
+          {
+            "title": "Always On",
+            "enum": [
+              true
+            ]
+          }
+        ],
+        "required": true,
+        "description": "What To Make Homekit Display As Active"
+      },
+      "eveStatus": {
+        "title": "Eve Inactive",
+        "type": "string",
+        "default": "inverted:cycle:clean",
+        "oneOf": [
+          {
+            "title": "No Job Active",
+            "enum": [
+              "inverted:cycle:clean"
+            ]
+          },
+          {
+            "title": "Not Cleaning",
+            "enum": [
+              "inverted:phase:run"
+            ]
+          },
+          {
+            "title": "Stopped",
+            "enum": [
+              "phase:stop"
+            ]
+          },
+          {
+            "title": "Charging",
+            "enum": [
+              "phase:charge"
+            ]
+          },
+          {
+            "title": "Docking",
+            "enum": [
+              "cycle:dock"
+            ]
+          },
+          {
+            "title": "Always Inactive",
+            "enum": [
+              false
+            ]
+          }
+        ],
+        "required": true,
+        "description": "What To Make Eve Display As Inactive"
+      },
+      "bin": {
+        "title": "Roomba Bin",
+        "type": "string",
+        "default": "filter:contact",
+        "oneOf": [
+          {
+            "title": "Filter, Contact, And Motion",
+            "enum": [
+              "filter:contact:motion"
+            ]
+          },
+          {
+            "title": "Filter And Contact",
+            "enum": [
+              "filter:contact"
+            ]
+          },
+          {
+            "title": "Filter And Motion",
+            "enum": [
+              "filter:motion"
+            ]
+          },
+          {
+            "title": "Contact And Motion",
+            "enum": [
+              "contact:motion"
+            ]
+          },
+          {
+            "title": "Filter",
+            "enum": [
+              "filter"
+            ]
+          },
+          {
+            "title": "Contact",
+            "enum": [
+              "contact"
+            ]
+          },
+          {
+            "title": "Motion",
+            "enum": [
+              "motion"
+            ]
+          },
+          {
+            "title": "None",
+            "enum": [
+              "none"
+            ]
+          }
+
+        ],
+        "required": true,
+        "description": "What To Use To Display If The Roomba's Bin Is Full \n(Filters only show up in eve,\n Contact Sensors give you a notification when the bin is full and when you empty it,\n Motion Sensors only notify you if the bin is full.)"
+      },
+      "ignoreMultiRoomBin": {
+        "title": "Ignore Bin On Multi-Room Roomba's",
+        "type": "boolean",
+        "default": true,
+        "required": true
+      },
+      "hideStuckSensor": {
+        "title": "Hide Stuck Sensor",
+        "type": "boolean",
+        "required": false,
+        "default": false
+      },
+      "disableMultiRoom": {
+        "title": "Disable Multi-Room Support",
+        "type": "boolean",
+        "required": false,
+        "default": true
       }
     }
   }
