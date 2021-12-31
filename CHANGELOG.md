@@ -3,6 +3,9 @@
 All notable changes to this project will be documented in this file. This project uses [Semantic Versioning](https://semver.org/).
 
 
+### 1.3.1
+* Prevented plugin from initilizing if it dosent have an email/password
+
 ### 1.3.0
 * Added support for Multiple Rooms
 * Made Roomba wait 1 second for scenes when it is turned on

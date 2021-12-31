@@ -52,6 +52,10 @@ export class iRobotPlatform implements DynamicPlatformPlugin {
    * must not be registered again to prevent "duplicate UUID" errors.
    */
   discoverDevices() {
+    if(this.config.email === undefined || this.config.password === undefined){
+      this.log.warn('No email or password provided. Exiting setup');
+      return;
+    }
 
     // EXAMPLE ONLY
     // A real plugin you would discover accessories from the local network, cloud services
