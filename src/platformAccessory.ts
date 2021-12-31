@@ -461,7 +461,7 @@ export class iRobotPlatformAccessory {
             } else {
               await this.roomba.clean();
             }
-          }, 1000);
+          }, this.device.multiRoom ? 1000 : 0);
         } else {
           await this.roomba[configOffAction[0]]();
           eventEmitter.on('state', async () => {
