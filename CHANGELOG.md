@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file. This project uses [Semantic Versioning](https://semver.org/).
 
+### 2.0.2
+* Added Log When Updating Homekit Rooms
 
 ### 2.0.1
 * Made disableMultiRoom default to false in config

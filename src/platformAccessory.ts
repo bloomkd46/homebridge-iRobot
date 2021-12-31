@@ -271,6 +271,7 @@ export class iRobotPlatformAccessory {
         if (oldRegions !== this.accessory.context.maps[index].regions) {
           this.platform.log.debug(this.device.name + '\'s map update:',
             '\n map:', JSON.stringify(this.accessory.context.maps));
+          this.platform.log.info('Updating Homekit Rooms for Roomba:', this.device.name);
           this.updateRooms();
         }
       } else {
@@ -282,6 +283,7 @@ export class iRobotPlatformAccessory {
         });
         this.platform.log.debug(this.device.name + '\'s map update:',
           '\n map:', JSON.stringify(this.accessory.context.maps));
+        this.platform.log.info('Updating Homekit Rooms for Roomba:', this.device.name);
         this.updateRooms();
       }
     } else {
@@ -293,6 +295,7 @@ export class iRobotPlatformAccessory {
       }];
       this.platform.log.debug(this.device.name + '\'s map update:',
         '\n map:', JSON.stringify(this.accessory.context.maps));
+      this.platform.log.info('Updating Homekit Rooms for Roomba:', this.device.name);
       this.updateRooms();
     }
   }
