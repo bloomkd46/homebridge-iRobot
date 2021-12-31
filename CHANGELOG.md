@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file. This project uses [Semantic Versioning](https://semver.org/).
 
+### 2.0.4
+* fixed typo in room sync functions when adding new room to existing map
+
 ### 2.0.3
 * Fixed error where it wouldn't add new regions
 

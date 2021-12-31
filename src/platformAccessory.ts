@@ -265,7 +265,7 @@ export class iRobotPlatformAccessory {
         for (const region of lastCommand.regions) {
           if (!this.accessory.context.maps[index].regions.includes(region)) {
             this.platform.log.info('Adding new region for roomba:', this.device.name, '\n', region);
-            this.accessory.context.maps[index].regions.push(lastCommand.regions);
+            this.accessory.context.maps[index].regions.push(region);
           }
         }
         //if (oldRegions !== this.accessory.context.maps[index].regions) {
