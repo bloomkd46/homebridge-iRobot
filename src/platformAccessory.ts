@@ -1,8 +1,11 @@
 import { Service, PlatformAccessory, CharacteristicValue } from 'homebridge';
+import { iRobotPlatform } from './platform';
+import events from 'events';
+const eventEmitter = new events.EventEmitter();
+
 import { Robot } from './getRoombas';
 import dorita980 from 'dorita980';
 
-import { iRobotPlatform } from './platform';
 
 /**
  * Platform Accessory
@@ -57,7 +60,7 @@ export class iRobotPlatformAccessory {
       this.accessory.addService(this.platform.Service.Fanv2, this.device.name, 'Main-Service');
 
     this.service.setPrimaryService(true);
-    if (this.device.multiRoom && this.accessory.context.map !== undefined) {
+    if (this.device.multiRoom && this.accessory.context.maps !== undefined) {
       this.updateRooms();
     }
 
@@ -200,6 +203,7 @@ export class iRobotPlatformAccessory {
 
   updateRoombaState(data) {
     if (data.cleanMissionStatus.cycle !== this.lastStatus.cycle || data.cleanMissionStatus.phase !== this.lastStatus.phase) {
+      eventEmitter.emit('state');
       this.platform.log.debug(this.device.name + '\'s mission update:',
         '\n cleeanMissionStatus:', JSON.stringify(data.cleanMissionStatus, null, 2),
         '\n batPct:', data.batPct,
@@ -248,51 +252,82 @@ export class iRobotPlatformAccessory {
     this.battery.updateCharacteristic(this.platform.Characteristic.ChargingState, this.batteryStatus.charging);
   }
 
-  async updateMap(lastCommand) {
-    if (this.accessory.context.map !== undefined && this.accessory.context.map.regions !== undefined) {
-      for (const region of lastCommand.regions) {
-        if (!this.accessory.context.map.regions.includes(region)) {
-          this.platform.log.info('Adding new region(s) for roomba:', this.device.name, '\n', region);
-          this.accessory.context.map.regions.push(lastCommand.regions);
+  updateMap(lastCommand) {
+    if (this.accessory.context.maps !== undefined) {
+      let index = -1;
+      for (const map of this.accessory.context.maps) {
+        if (map.pmap_id === lastCommand.pmap_id) {
+          index = this.accessory.context.maps.indexOf(map);
         }
       }
-      this.platform.log.debug(this.device.name + '\'s map update:',
-        '\n map:', JSON.stringify(this.accessory.context.map));
+      if (index !== -1) {
+        const oldRegions = this.accessory.context.maps[index].regions;
+        for (const region of lastCommand.regions) {
+          if (!this.accessory.context.maps[index].regions.includes(region)) {
+            this.platform.log.info('Adding new region for roomba:', this.device.name, '\n', region);
+            this.accessory.context.maps[index].regions.push(lastCommand.regions);
+          }
+        }
+        if (oldRegions !== this.accessory.context.maps[index].regions) {
+          this.platform.log.debug(this.device.name + '\'s map update:',
+            '\n map:', JSON.stringify(this.accessory.context.maps));
+          this.updateRooms();
+        }
+      } else {
+        this.platform.log.info('Creating new map for roomba:', this.device.name);
+        this.accessory.context.maps.push({
+          'pmap_id': lastCommand.pmap_id,
+          'regions': lastCommand.regions,
+          'user_pmapv_id': lastCommand.user_pmapv_id,
+        });
+        this.platform.log.debug(this.device.name + '\'s map update:',
+          '\n map:', JSON.stringify(this.accessory.context.maps));
+        this.updateRooms();
+      }
     } else {
       this.platform.log.info('Creating new map for roomba:', this.device.name);
-      this.accessory.context.map = {
+      this.accessory.context.maps = [{
         'pmap_id': lastCommand.pmap_id,
         'regions': lastCommand.regions,
         'user_pmapv_id': lastCommand.user_pmapv_id,
-      };
+      }];
+      this.platform.log.debug(this.device.name + '\'s map update:',
+        '\n map:', JSON.stringify(this.accessory.context.maps));
+      this.updateRooms();
     }
-    this.updateRooms();
   }
 
   updateRooms() {
     this.accessory.context.activeRooms = [];
-    if (this.accessory.context.map.regions !== null && this.accessory.context.map.regions !== undefined) {
-      for (const region of this.accessory.context.map.regions) {
-        ((this.accessory.getService('Room ' + region.region_id) ||
-          this.accessory.addService(this.platform.Service.Switch, 'Room ' + region.region_id, region.region_id))
+    //if (this.accessory.context.maps !== undefined) {
+    for (const map of this.accessory.context.maps) {
+      const index = this.accessory.context.maps.indexOf(map);
+      for (const region of map.regions) {
+        ((this.accessory.getService('Map ' + index + ' Room ' + region.region_id) ||
+          this.accessory.addService(this.platform.Service.Switch,
+            'Map ' + index + ' Room ' + region.region_id,
+            index + ':' + region.region_id))
           .getCharacteristic(this.platform.Characteristic.On))
           .removeAllListeners()
           .onSet((activate) => {
             if (activate) {
+              this.accessory.context.activeMap = index;
               if (!this.accessory.context.activeRooms.includes(region.region_id)) {
                 this.accessory.context.activeRooms.push(region.region_id);
               }
             } else {
               this.accessory.context.activeRooms.splice(this.accessory.context.activeRooms.indexOf(region.region_id));
             }
-            this.platform.log.debug(activate ? 'enabling' : 'disabling', 'room ' + region.region_id + ' on roomba ' + this.device.name);
+            this.platform.log.debug(activate ? 'enabling' : 'disabling',
+              'room ' + region.region_id + ' of map ' + index + ' on roomba ' + this.device.name);
           })
           .onGet(() => {
-            return this.accessory.context.activeRooms.includes(region.region_id);
+            return this.accessory.context.activeMap === index ? this.accessory.context.activeRooms.includes(region.region_id) : false;
           });
       }
     }
   }
+  //}
 
 
 
@@ -402,32 +437,39 @@ export class iRobotPlatformAccessory {
       const configOffAction: string[] = this.platform.config.offAction.split(':');
       try {
         if (value === 1) {
-          if (this.roomByRoom) {
-            if (this.accessory.context.activeRooms !== undefined) {
-              const args = {
-                'ordered': 1,
-                'pmap_id': this.accessory.context.map.pmap_id,
-                'user_pmapv_id': this.accessory.context.map.user_pmapv_id,
-                'regions': [{}],
-              };
-              args.regions.splice(0);
-              for (const room of this.accessory.context.activeRooms) {
-                args.regions.push({ 'region_id': room, 'type': 'rid' });
+          //give scenes a chance to run
+          setTimeout(async () => {
+            if (this.roomByRoom) {
+              if (this.accessory.context.activeRooms !== undefined) {
+                const args = {
+                  'ordered': 1,
+                  'pmap_id': this.accessory.context.maps[this.accessory.context.activeMap].pmap_id,
+                  'user_pmapv_id': this.accessory.context.maps[this.accessory.context.activeMap].user_pmapv_id,
+                  'regions': [{}],
+                };
+                args.regions.splice(0);
+                for (const room of this.accessory.context.activeRooms) {
+                  for (const region of this.accessory.context.maps[this.accessory.context.activeMap].regions) {
+                    if (region.region_id === room) {
+                      args.regions.push(region);
+                    }
+                  }
+                }
+                this.platform.log.debug('Clean Room Args:\n', JSON.stringify(args));
+                this.roomba.cleanRoom(args);
               }
-              this.platform.log.debug('Clean Room Args:\n', JSON.stringify(args));
-              this.roomba.cleanRoom(args);
+            } else {
+              await this.roomba.clean();
             }
-          } else {
-            await this.roomba.clean();
-          }
+          }, 1000);
         } else {
           await this.roomba[configOffAction[0]]();
-
-          setTimeout(async () => {
+          eventEmitter.on('state', async () => {
             if (configOffAction[1] !== 'none') {
               await this.roomba[configOffAction[1]]();
             }
-          }, 1000);
+            eventEmitter.removeAllListeners();
+          });
         }
         this.platform.log.debug('Set', this.device.name, 'To',
           value === 0 ? configOffAction[0] + (configOffAction[1] !== 'none' ? ' and ' + configOffAction[1] : '') : 'Clean');
@@ -435,9 +477,12 @@ export class iRobotPlatformAccessory {
         this.platform.log.error('Error Seting', this.device.name, 'To',
           value === 0 ? configOffAction[0] + (configOffAction[1] !== 'none' ? ' and ' + configOffAction[1] : '') : 'Clean');
         this.platform.log.error(err as string);
+
       }
     }
   }
+
+
 
   async setMode(value: CharacteristicValue) {
     if (this.accessory.context.connected) {
