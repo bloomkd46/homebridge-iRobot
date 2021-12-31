@@ -239,14 +239,14 @@
       "hideStuckSensor": {
         "title": "Hide Stuck Sensor",
         "type": "boolean",
-        "required": false,
+        "required": true,
         "default": false
       },
       "disableMultiRoom": {
         "title": "Disable Multi-Room Support",
         "type": "boolean",
-        "required": false,
-        "default": true
+        "required": true,
+        "default": false
       }
     }
   }
