@@ -3,6 +3,9 @@
 All notable changes to this project will be documented in this file. This project uses [Semantic Versioning](https://semver.org/).
 
 
+### 2.0.1
+* Made disableMultiRoom default to false in config
+
 ### 2.0.0
 * Became A Homebridge Vertified Plugin
 * Set Password format to password in Schema
