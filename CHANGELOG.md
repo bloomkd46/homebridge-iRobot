@@ -3,6 +3,9 @@
 All notable changes to this project will be documented in this file. This project uses [Semantic Versioning](https://semver.org/).
 
 
+### 1.3.2
+* Made Roomba execute off action 2 after 5 seconds if state dosent change
+
 ### 1.3.1
 * Prevented plugin from initilizing if it dosent have an email/password
 

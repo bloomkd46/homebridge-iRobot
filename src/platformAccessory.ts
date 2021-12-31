@@ -464,6 +464,9 @@ export class iRobotPlatformAccessory {
           }, this.device.multiRoom ? 1000 : 0);
         } else {
           await this.roomba[configOffAction[0]]();
+          setTimeout(async () => {
+            eventEmitter.emit('state');
+          }, 5000);
           eventEmitter.on('state', async () => {
             if (configOffAction[1] !== 'none') {
               await this.roomba[configOffAction[1]]();
