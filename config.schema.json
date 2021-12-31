@@ -154,6 +154,12 @@
             ]
           },
           {
+            "title": "Stuck",
+            "enum": [
+              "phase:stuck"
+            ]
+          },
+          {
             "title": "Always Inactive",
             "enum": [
               false

@@ -16,24 +16,32 @@ export class iRobotPlatformAccessory {
   private binFilter!: Service;
   private binContact!: Service;
   private binMotion!: Service;
-  private rooms!: Service[];
+  private shutdown = false;
 
 
   private binConfig: string[] = this.device.multiRoom && this.platform.config.ignoreMultiRoomBin ? [] : this.platform.config.bin.split(':');
   private roomba;
   private active = false;
   private lastStatus = { cycle: '', phase: '' };
-  private lastCommandStatus = {pmap_id: null};
+  private lastCommandStatus = { pmap_id: null };
   private state = 0;
   private binfull = 0;
   private batteryStatus = { 'low': false, 'percent': 50, 'charging': true };
   private stuckStatus = false;
+  private roomByRoom = false;
 
   constructor(
     private readonly platform: iRobotPlatform,
     private readonly accessory: PlatformAccessory,
     private readonly device: Robot,
   ) {
+    this.platform.api.on('shutdown', () => {
+      this.platform.log.info('Disconnecting From Roomba:', device.name);
+      this.shutdown = true;
+      if (this.accessory.context.connected) {
+        this.roomba.end();
+      }
+    });
     this.configureRoomba();
 
     // set accessory information
@@ -41,20 +49,17 @@ export class iRobotPlatformAccessory {
       .setCharacteristic(this.platform.Characteristic.Manufacturer, 'iRobot')
       .setCharacteristic(this.platform.Characteristic.Model, this.device.model || 'N/A')
       .setCharacteristic(this.platform.Characteristic.SerialNumber, 'N/A')
-      .setCharacteristic(this.platform.Characteristic.FirmwareRevision, device.info.sw || device.info.ver || 'N/A')
+      .setCharacteristic(this.platform.Characteristic.FirmwareRevision, this.device.info.sw || this.device.info.ver || 'N/A')
       .getCharacteristic(this.platform.Characteristic.Identify).on('set', this.identify.bind(this));
 
 
     this.service = this.accessory.getService(this.device.name) ||
       this.accessory.addService(this.platform.Service.Fanv2, this.device.name, 'Main-Service');
 
-    if(this.device.multiRoom){
-      this.accessory.context.map.regions.forEach(region => {
-        this.rooms[region.id] = this.accessory.getService('Room '+ region.id) ||
-      this.accessory.addService(this.platform.Service.Switch, 'Room '+ region.id, region.id);
-      });
+    this.service.setPrimaryService(true);
+    if (this.device.multiRoom && this.accessory.context.map !== undefined) {
+      this.updateRooms();
     }
-
 
     if (this.binConfig.includes('filter')) {
       this.binFilter = this.accessory.getService(this.device.name + '\'s Bin Filter') ||
@@ -179,18 +184,18 @@ export class iRobotPlatformAccessory {
       this.platform.log.info('Succefully connected to roomba', this.device.name);
     }).on('offline', () => {
       this.accessory.context.connected = false;
-      this.platform.log.warn('Roomba', this.device.name, ' went offline, reconnecting in 3 seconds');
-      setTimeout(() => {
-        this.roomba.end();
-      }, 3000);
+      this.platform.log.warn('Roomba', this.device.name, ' went offline, disconnecting...');
+      this.roomba.end();
     }).on('close', () => {
       this.accessory.context.connected = false;
-      this.platform.log.warn('Roomba', this.device.name, ' connection closed, atempting to reconnect...');
       this.roomba.removeAllListeners();
-      this.configureRoomba();
-    }).on('state', (data) => {
-      this.updateRoombaState(data);
-    });
+      if (this.shutdown) {
+        this.platform.log.info('Roomba', this.device.name, 'connection closed');
+      } else {
+        this.platform.log.warn('Roomba', this.device.name, ' connection closed, atempting to reconnect...');
+        this.configureRoomba();
+      }
+    }).on('state', this.updateRoombaState.bind(this));
   }
 
   updateRoombaState(data) {
@@ -198,16 +203,16 @@ export class iRobotPlatformAccessory {
       this.platform.log.debug(this.device.name + '\'s mission update:',
         '\n cleeanMissionStatus:', JSON.stringify(data.cleanMissionStatus, null, 2),
         '\n batPct:', data.batPct,
-        '\n bin:', JSON.stringify(data.bin, null, 2),
-        '\n lastCommand:', JSON.stringify(data.lastCommand, null, 2));
+        '\n bin:', JSON.stringify(data.bin),
+        '\n lastCommand:', JSON.stringify(data.lastCommand));
     }
-    if ((this.device.multiRoom && data.lastCommand.pmap_id !== null) && data.lastCommand.pmap_id !== this.lastCommandStatus.pmap_id) {
-      //this.platform.log.debug('Updating map for roomba:', this.device.name);
+    this.lastStatus = data.cleanMissionStatus;
+    if ((this.device.multiRoom && (data.lastCommand.pmap_id !== null && data.lastCommand.pmap_id !== undefined))
+      && data.lastCommand.pmap_id !== this.lastCommandStatus.pmap_id) {
       this.updateMap(data.lastCommand);
     }
-
-    this.lastStatus = data.cleanMissionStatus;
     this.lastCommandStatus = data.lastCommand;
+
     /*------------------------------------------------------------------------------------------------------------------------------------*/
 
     this.active = this.getHomekitActive(data.cleanMissionStatus);
@@ -243,21 +248,49 @@ export class iRobotPlatformAccessory {
     this.battery.updateCharacteristic(this.platform.Characteristic.ChargingState, this.batteryStatus.charging);
   }
 
-  updateMap(lastCommand) {
-    if (this.accessory.context.map === undefined) {
+  async updateMap(lastCommand) {
+    if (this.accessory.context.map !== undefined && this.accessory.context.map.regions !== undefined) {
+      for (const region of lastCommand.regions) {
+        if (!this.accessory.context.map.regions.includes(region)) {
+          this.platform.log.info('Adding new region(s) for roomba:', this.device.name, '\n', region);
+          this.accessory.context.map.regions.push(lastCommand.regions);
+        }
+      }
+      this.platform.log.debug(this.device.name + '\'s map update:',
+        '\n map:', JSON.stringify(this.accessory.context.map));
+    } else {
       this.platform.log.info('Creating new map for roomba:', this.device.name);
       this.accessory.context.map = {
         'pmap_id': lastCommand.pmap_id,
         'regions': lastCommand.regions,
         'user_pmapv_id': lastCommand.user_pmapv_id,
       };
-    } else {
-      if(!this.accessory.context.map.regions.includes(lastCommand.regions)){
-        this.platform.log.info('Adding new region(s) for roomba:', this.device.name, '\n', lastCommand.regions);
-        this.accessory.context.map.regions.push(lastCommand.regions);
+    }
+    this.updateRooms();
+  }
+
+  updateRooms() {
+    this.accessory.context.activeRooms = [];
+    if (this.accessory.context.map.regions !== null && this.accessory.context.map.regions !== undefined) {
+      for (const region of this.accessory.context.map.regions) {
+        ((this.accessory.getService('Room ' + region.region_id) ||
+          this.accessory.addService(this.platform.Service.Switch, 'Room ' + region.region_id, region.region_id))
+          .getCharacteristic(this.platform.Characteristic.On))
+          .removeAllListeners()
+          .onSet((activate) => {
+            if (activate) {
+              if (!this.accessory.context.activeRooms.includes(region.region_id)) {
+                this.accessory.context.activeRooms.push(region.region_id);
+              }
+            } else {
+              this.accessory.context.activeRooms.splice(this.accessory.context.activeRooms.indexOf(region.region_id));
+            }
+            this.platform.log.debug(activate ? 'enabling' : 'disabling', 'room ' + region.region_id + ' on roomba ' + this.device.name);
+          })
+          .onGet(() => {
+            return this.accessory.context.activeRooms.includes(region.region_id);
+          });
       }
-      this.platform.log.debug(this.device.name + '\'s map update:',
-        '\n map:', JSON.stringify(this.accessory.context.map, null, 2));
     }
   }
 
@@ -304,47 +337,47 @@ export class iRobotPlatformAccessory {
    * @example
    * this.service.updateCharacteristic(this.platform.Characteristic.On, true)
    */
-  async get(): Promise < CharacteristicValue > {
+  async get(): Promise<CharacteristicValue> {
     this.platform.log.debug('Updating', this.device.name, 'To', this.active ? 'On' : 'Off');
     return this.active ? 1 : 0;
   }
 
-  async getState(): Promise < CharacteristicValue > {
+  async getState(): Promise<CharacteristicValue> {
     this.platform.log.debug('Updating', this.device.name, 'Mode To', this.state === 0 ? 'Off' : this.state === 1 ? 'Idle' : 'On');
     return this.state;
   }
 
-  async getBinfull(): Promise < CharacteristicValue > {
+  async getBinfull(): Promise<CharacteristicValue> {
     this.platform.log.debug('Updating', this.device.name, 'Binfull To', this.binfull === 0 ? 'OK' : 'FULL');
     return this.binfull;
   }
 
-  async getBinfullBoolean(): Promise < CharacteristicValue > {
+  async getBinfullBoolean(): Promise<CharacteristicValue> {
     this.platform.log.debug('Updating', this.device.name, 'Binfull To', this.binfull === 0 ? 'OK' : 'FULL');
     return this.binfull === 1;
   }
 
-  async getBatteryLevel(): Promise < CharacteristicValue > {
+  async getBatteryLevel(): Promise<CharacteristicValue> {
     this.platform.log.debug('Updating', this.device.name, 'Battery Level To', this.batteryStatus.percent);
     return this.batteryStatus.percent;
   }
 
-  async getBatteryStatus(): Promise < CharacteristicValue > {
+  async getBatteryStatus(): Promise<CharacteristicValue> {
     this.platform.log.debug('Updating', this.device.name, 'Battery Status To', this.batteryStatus.low ? 'Low' : 'Normal');
     return this.batteryStatus.low ? 1 : 0;
   }
 
-  async getChargeState(): Promise < CharacteristicValue > {
+  async getChargeState(): Promise<CharacteristicValue> {
     this.platform.log.debug('Updating', this.device.name, 'Charge Status To', this.batteryStatus.charging ? 'Charging' : 'Not Charging');
     return this.batteryStatus.charging ? 1 : 0;
   }
 
-  async getMode(): Promise < CharacteristicValue > {
-    this.platform.log.debug('Updating', this.device.name, 'Mode To Auto');
-    return 1;
+  async getMode(): Promise<CharacteristicValue> {
+    this.platform.log.debug('Updating', this.device.name, 'Mode To', this.roomByRoom ? 'Room-By-Room' : 'Everywhere');
+    return this.roomByRoom ? 0 : 1;
   }
 
-  async getStuck(): Promise < CharacteristicValue > {
+  async getStuck(): Promise<CharacteristicValue> {
     this.platform.log.debug('Updating', this.device.name, 'Stuck To', this.stuckStatus);
     return this.stuckStatus;
   }
@@ -369,7 +402,24 @@ export class iRobotPlatformAccessory {
       const configOffAction: string[] = this.platform.config.offAction.split(':');
       try {
         if (value === 1) {
-          await this.roomba.clean();
+          if (this.roomByRoom) {
+            if (this.accessory.context.activeRooms !== undefined) {
+              const args = {
+                'ordered': 1,
+                'pmap_id': this.accessory.context.map.pmap_id,
+                'user_pmapv_id': this.accessory.context.map.user_pmapv_id,
+                'regions': [{}],
+              };
+              args.regions.splice(0);
+              for (const room of this.accessory.context.activeRooms) {
+                args.regions.push({ 'region_id': room, 'type': 'rid' });
+              }
+              this.platform.log.debug('Clean Room Args:\n', JSON.stringify(args));
+              this.roomba.cleanRoom(args);
+            }
+          } else {
+            await this.roomba.clean();
+          }
         } else {
           await this.roomba[configOffAction[0]]();
 
@@ -377,21 +427,22 @@ export class iRobotPlatformAccessory {
             if (configOffAction[1] !== 'none') {
               await this.roomba[configOffAction[1]]();
             }
-          }, 500);
+          }, 1000);
         }
         this.platform.log.debug('Set', this.device.name, 'To',
           value === 0 ? configOffAction[0] + (configOffAction[1] !== 'none' ? ' and ' + configOffAction[1] : '') : 'Clean');
       } catch (err) {
         this.platform.log.error('Error Seting', this.device.name, 'To',
           value === 0 ? configOffAction[0] + (configOffAction[1] !== 'none' ? ' and ' + configOffAction[1] : '') : 'Clean');
+        this.platform.log.error(err as string);
       }
     }
   }
 
   async setMode(value: CharacteristicValue) {
     if (this.accessory.context.connected) {
-      this.platform.log.debug('Set', this.device.name, 'To', value === 0 ? 'Room-By-Room' : 'Everywhere', '(Support Coming Soon!)');
-      this.service.updateCharacteristic(this.platform.Characteristic.TargetFanState, 1);
+      this.platform.log.debug('Set', this.device.name, 'To', value === 0 ? 'Room-By-Room' : 'Everywhere');
+      this.roomByRoom = value === 0;
     }
   }
 

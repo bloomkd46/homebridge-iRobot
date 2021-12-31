@@ -7,6 +7,7 @@ export function getRoombas(email: string, password: string, log: Logger): Robot[
   log.info('Logging into iRobot...');
   const Robots = child_process.execFileSync(__dirname + '/scripts/getRoombaCredentials.js', [email, password]).toString();
   try{
+    log.debug(Robots);
     robots = JSON.parse(Robots);
   }catch(e){
     log.error('Faild to login to iRobot, see below for details');
@@ -14,8 +15,12 @@ export function getRoombas(email: string, password: string, log: Logger): Robot[
   }
   robots.forEach(robot => {
     log.info('Getting IP address for roomba:', robot.name);
-    const robotIP = child_process.execFileSync(__dirname + '/scripts/getRoombaIP.js', [robot.blid]).toString();
+    let robotIP = child_process.execFileSync(__dirname + '/scripts/getRoombaIP.js', [robot.blid]).toString();
+    while (robotIP === 'Request Timed Out'){
+      robotIP = child_process.execFileSync(__dirname + '/scripts/getRoombaIP.js', [robot.blid]).toString();
+    }
     try{
+      log.debug(robotIP);
       const robotInfo = JSON.parse(robotIP);
       robot.ip = robotInfo.ip;
       delete robotInfo.ip;

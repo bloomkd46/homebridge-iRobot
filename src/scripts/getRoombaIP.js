@@ -37,7 +37,7 @@ function getRobotIP () {
     setTimeout(()=>{
       console.log('Request Timed Out');
       process.exit(0);
-    }, 5000);
+    }, 15000);
   });
 
   server.bind(function () {
