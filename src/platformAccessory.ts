@@ -261,19 +261,19 @@ export class iRobotPlatformAccessory {
         }
       }
       if (index !== -1) {
-        const oldRegions = this.accessory.context.maps[index].regions;
+        //const oldRegions = this.accessory.context.maps[index].regions;
         for (const region of lastCommand.regions) {
           if (!this.accessory.context.maps[index].regions.includes(region)) {
             this.platform.log.info('Adding new region for roomba:', this.device.name, '\n', region);
             this.accessory.context.maps[index].regions.push(lastCommand.regions);
           }
         }
-        if (oldRegions !== this.accessory.context.maps[index].regions) {
-          this.platform.log.debug(this.device.name + '\'s map update:',
-            '\n map:', JSON.stringify(this.accessory.context.maps));
-          this.platform.log.info('Updating Homekit Rooms for Roomba:', this.device.name);
-          this.updateRooms();
-        }
+        //if (oldRegions !== this.accessory.context.maps[index].regions) {
+        this.platform.log.debug(this.device.name + '\'s map update:',
+          '\n map:', JSON.stringify(this.accessory.context.maps));
+        this.platform.log.info('Updating Homekit Rooms for Roomba:', this.device.name);
+        this.updateRooms();
+        //}
       } else {
         this.platform.log.info('Creating new map for roomba:', this.device.name);
         this.accessory.context.maps.push({
