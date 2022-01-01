@@ -42,7 +42,7 @@ class PluginUiServer extends HomebridgePluginUiServer {
         // Just return an empty accessory list in case of any errors
         return []
       }
-    })
+    });
     this.ready()
   }
 }

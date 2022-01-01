@@ -6,7 +6,7 @@
     />
   </p>
   <div id="pageIntro" class="text-center" style="display: none;">
-    <p class="lead">Thank you for installing <strong>homebridge-meross</strong></p>
+    <p class="lead">Thank you for installing <strong>homebridge-iRobot</strong></p>
     <p>
       You can enter your iRobot username and password on the next page
     </p>
@@ -27,9 +27,9 @@
     <button type="button" class="btn btn-primary" id="menuDevices">
       My Devices
     </button>
-    <button type="button" class="btn btn-primary mr-0" id="menuHome">
+    <!--<button type="button" class="btn btn-primary mr-0" id="menuHome">
       Support
-    </button>
+    </button>-->
   </div>
   <div
     id="disabledBanner"
@@ -59,43 +59,35 @@
         <tbody>
           <tr>
             <th scope="row">Status</th>
-            <td id="status"></td>
+            <td id="status">Loading...</td>
           </tr>
-          <!--<tr>
-            <th scope="row">Connection Type</th>
-            <td id="connection_type"></td>
-          </tr>-->
           <tr>
-            <th scope="row">Serial Number</th>
-            <td id="serial_number"></td>
+            <th scope="row">Blid</th>
+            <td id="blid">Loading...</td>
+          </tr>
+          <tr>
+            <th scope="row">Password</th>
+            <td id="password">Loading...</td>
           </tr>
           <tr>
             <th scope="row">Model</th>
-            <td id="model"></td>
+            <td id="model">Loading...</td>
           </tr>
           <tr>
             <th scope="row">IP Address</th>
-            <td id="ip_address"></td>
+            <td id="ip_address">Loading...</td>
           </tr>
           <tr>
             <th scope="row">MAC Address</th>
-            <td id="mac_address"></td>
-          </tr>
-          <tr>
-            <th scope="row">Hardware Version</th>
-            <td id="hardware"></td>
-          </tr>
-          <tr>
-            <th scope="row">Firmware Version</th>
-            <td id="firmware"></td>
+            <td id="mac_address">Loading...</td>
           </tr>
         </tbody>
       </table>
     </div>
   </div>
   <div id="pageSupport" class="mt-4" style="display: none;">
-    <p class="text-center lead">Thank you for using <strong>homebridge-meross</strong></p>
-    <p class="text-center">The links below will take you to our GitHub wiki</p>
+    <p class="text-center lead">Thank you for using <strong>homebridge-iRobot</strong></p>
+    <p class="text-center">The links below will take you to my GitHub wiki</p>
     <h4>Setup</h4>
     <ul>
       <li>
@@ -199,7 +191,7 @@
     <h4>Disclaimer</h4>
     <ul>
       <li>
-        I am in no way affiliated with Meross and this plugin is a personal project that I maintain in
+        I am in no way affiliated with iRobot and this plugin is a personal project that I maintain in
         my free time.
       </li>
       <li>
@@ -259,20 +251,15 @@
             const thisAcc = cachedAccessories.find(x => x.UUID === UUID)
             const context = thisAcc.context
             document.getElementById('displayName').innerHTML = thisAcc.displayName
-            document.getElementById('serial_number').innerHTML =
-              context.subSerialNumber || context.serialNumber
-            /*document.getElementById('connection_type').innerHTML =
-              context.connection[0].toUpperCase() + context.connection.slice(1)
-              */
+            document.getElementById('blid').innerHTML = context.blid
+            document.getElementById('password').innerHTML = context.password
             document.getElementById('status').innerHTML = context.connected
               ? '<i class="fas fa-circle mr-1 green-text"></i> Online'
               : '<i class="fas fa-circle mr-1 red-text"></i> Offline'
   
             document.getElementById('model').innerHTML = context.model || 'N/A'
             document.getElementById('ip_address').innerHTML = context.ip || 'N/A'
-            document.getElementById('mac_address').innerHTML = context.mac_address || 'N/A'
-            document.getElementById('hardware').innerHTML = context.hardware || 'N/A'
-            document.getElementById('firmware').innerHTML = context.firmware || 'N/A'
+            document.getElementById('mac_address').innerHTML = context.info.mac || 'N/A'
             document.getElementById('deviceTable').style.display = 'inline-table'
             homebridge.hideSpinner()
           }
@@ -324,7 +311,7 @@
           await homebridge.savePluginConfig()
           homebridge.hideSpinner()
         }
-        menuHome.addEventListener('click', () => showSupport())
+        //menuHome.addEventListener('click', () => showSupport())
         menuDevices.addEventListener('click', () => showDevices())
         menuSettings.addEventListener('click', () => showSettings())
         disabledEnable.addEventListener('click', () => enablePlugin())
