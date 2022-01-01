@@ -243,7 +243,7 @@
           if(context.maps !== undefined){
             document.getElementById('mapCount').style.display = 'table-row'
             document.getElementById('maps').innerHTML = context.maps.length || 0
-          let regions;
+          let regions = 0;
           for(const map of context.maps){
             if(map.regions !== undefined){
               regions += map.regions.length
@@ -251,7 +251,7 @@
           }
           if(regions !== undefined){
             document.getElementById('regionCount').style.display = 'table-row'
-            document.getElementById('regions').innerHTML = regions || 0
+            document.getElementById('regions').innerHTML = regions
           }
           }
           homebridge.hideSpinner()
