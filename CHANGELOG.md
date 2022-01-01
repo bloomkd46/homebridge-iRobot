@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file. This project uses [Semantic Versioning](https://semver.org/).
 
 
-### 2.1.0-beta.1
+### 2.1.0-beta.0
 * Started To Work On Custom UI
 
 ### 2.0.5
