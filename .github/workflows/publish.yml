@@ -38,7 +38,7 @@ jobs:
           fi
           
       - name: Update Package Version
-         run: npm version ${{ github.event.release.tag_name }}
+        run: npm version ${{ github.event.release.tag_name }}
 
       - name: Install Dependencies
         run: npm install
