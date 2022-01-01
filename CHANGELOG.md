@@ -3,6 +3,9 @@
 All notable changes to this project will be documented in this file. This project uses [Semantic Versioning](https://semver.org/).
 
 
+### 2.1.0-beta.2
+* hid spinner while looking for devices in custom UI
+
 ### 2.1.0-beta.1
 * Fixed menuHome custom UI error
 
