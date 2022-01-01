@@ -56,17 +56,17 @@
           <td id="password">Loading...</td>
         </tr>
         <tr>
-          <th scope="row">Model</th>
-          <td id="model">Loading...</td>
-        </tr>
-        <tr>
           <th scope="row">IP Address</th>
           <td id="ip_address">Loading...</td>
         </tr>
         <tr>
+          <th scope="row">Model</th>
+          <td id="model">Loading...</td>
+        </tr>
+        <!--<tr>
           <th scope="row">MAC Address</th>
           <td id="mac_address">Loading...</td>
-        </tr>
+        </tr>-->
       </tbody>
     </table>
   </div>
@@ -211,7 +211,7 @@
           deviceSelect.add(option)
         })
         showDeviceInfo = async UUID => {
-          //homebridge.showSpinner()
+          homebridge.showSpinner()
           const thisAcc = cachedAccessories.find(x => x.UUID === UUID)
           const context = thisAcc.context
           document.getElementById('displayName').innerHTML = thisAcc.displayName || 'N/A'
@@ -220,10 +220,9 @@
           document.getElementById('status').innerHTML = (context.connected || false)
             ? '<i class="fas fa-circle mr-1 green-text"></i> Online'
             : '<i class="fas fa-circle mr-1 red-text"></i> Offline'
-
           document.getElementById('model').innerHTML = context.model || 'N/A'
           document.getElementById('ip_address').innerHTML = context.ip || 'N/A'
-          document.getElementById('mac_address').innerHTML = context.info.mac || 'N/A'
+          //document.getElementById('mac_address').innerHTML = context.info.mac || 'N/A'
           document.getElementById('deviceTable').style.display = 'inline-table'
           homebridge.hideSpinner()
         }
@@ -236,7 +235,7 @@
           deviceSelect.add(option)
           deviceSelect.disabled = true
         }
-        //homebridge.hideSpinner()
+        homebridge.hideSpinner()
       }
       showSupport = () => {
         homebridge.showSpinner()
