@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file. This projec
 ### 2.0.5
 * Set log added in version [2.0.2](#202) to debug 
 * Set on/off logs to info
-* Added log fr when roomba is stuck
+* Added log for when roomba is stuck
 
 ### 2.0.4
 * fixed typo in room sync functions when adding new room to existing map
