@@ -22,7 +22,9 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
 
       - name: Update changelog
-        run: printf '### ${{ github.event.release.name }} \n ${{ github.event.release.body }} \n\n"$(cat CHANGELOG.md)"' > CHANGELOG.md 
+        run: |
+          x=`printf "### ${{ github.event.release.name }} \n ${{ github.event.release.body }} \n\n"; cat CHANGELOG.md`
+          echo "$x" > CHANGELOG.md
         
       - name: Commit files
         id: commit
