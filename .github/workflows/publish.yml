@@ -23,7 +23,7 @@ jobs:
 
       - name: Update changelog
         run: |
-          x=`printf "### ${{ github.event.release.name }} \n ${{ github.event.release.body }} \n\n"; cat CHANGELOG.md`
+          x=`printf "### ${{ github.event.release.name }} \n"; echo "${{ github.event.release.body }}"; printf '\n\n'; cat CHANGELOG.md`
           echo "$x" > CHANGELOG.md
         
       - name: Commit files
