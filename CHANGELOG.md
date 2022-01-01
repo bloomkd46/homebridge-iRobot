@@ -1,8 +1,3 @@
-# Change Log
-
-All notable changes to this project will be documented in this file. This project uses [Semantic Versioning](https://semver.org/).
-
-
 ### 2.1.1
 * Re-arranged table
 * fixed rooms section in table
