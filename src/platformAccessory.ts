@@ -209,6 +209,9 @@ export class iRobotPlatformAccessory {
         '\n batPct:', data.batPct,
         '\n bin:', JSON.stringify(data.bin),
         '\n lastCommand:', JSON.stringify(data.lastCommand));
+      if(data.phase === 'stuck'){
+        this.platform.log.warn('Roomba', this.device.name, 'Is Stuck!');
+      }
     }
     this.lastStatus = data.cleanMissionStatus;
     if ((this.device.multiRoom && (data.lastCommand.pmap_id !== null && data.lastCommand.pmap_id !== undefined))
@@ -271,7 +274,7 @@ export class iRobotPlatformAccessory {
         //if (oldRegions !== this.accessory.context.maps[index].regions) {
         this.platform.log.debug(this.device.name + '\'s map update:',
           '\n map:', JSON.stringify(this.accessory.context.maps));
-        this.platform.log.info('Updating Homekit Rooms for Roomba:', this.device.name);
+        this.platform.log.debug('Updating Homekit Rooms for Roomba:', this.device.name);
         this.updateRooms();
         //}
       } else {
@@ -283,7 +286,7 @@ export class iRobotPlatformAccessory {
         });
         this.platform.log.debug(this.device.name + '\'s map update:',
           '\n map:', JSON.stringify(this.accessory.context.maps));
-        this.platform.log.info('Updating Homekit Rooms for Roomba:', this.device.name);
+        this.platform.log.debug('Updating Homekit Rooms for Roomba:', this.device.name);
         this.updateRooms();
       }
     } else {
@@ -295,7 +298,7 @@ export class iRobotPlatformAccessory {
       }];
       this.platform.log.debug(this.device.name + '\'s map update:',
         '\n map:', JSON.stringify(this.accessory.context.maps));
-      this.platform.log.info('Updating Homekit Rooms for Roomba:', this.device.name);
+      this.platform.log.debug('Updating Homekit Rooms for Roomba:', this.device.name);
       this.updateRooms();
     }
   }
@@ -321,7 +324,7 @@ export class iRobotPlatformAccessory {
             } else {
               this.accessory.context.activeRooms.splice(this.accessory.context.activeRooms.indexOf(region.region_id));
             }
-            this.platform.log.debug(activate ? 'enabling' : 'disabling',
+            this.platform.log.info(activate ? 'enabling' : 'disabling',
               'room ' + region.region_id + ' of map ' + index + ' on roomba ' + this.device.name);
           })
           .onGet(() => {
@@ -438,13 +441,14 @@ export class iRobotPlatformAccessory {
   async set(value: CharacteristicValue) {
     if (this.accessory.context.connected) {
       const configOffAction: string[] = this.platform.config.offAction.split(':');
+      let args;
       try {
         if (value === 1) {
           //give scenes a chance to run
           setTimeout(async () => {
             if (this.roomByRoom) {
               if (this.accessory.context.activeRooms !== undefined) {
-                const args = {
+                args = {
                   'ordered': 1,
                   'pmap_id': this.accessory.context.maps[this.accessory.context.activeMap].pmap_id,
                   'user_pmapv_id': this.accessory.context.maps[this.accessory.context.activeMap].user_pmapv_id,
@@ -478,10 +482,12 @@ export class iRobotPlatformAccessory {
           });
         }
         this.platform.log.debug('Set', this.device.name, 'To',
-          value === 0 ? configOffAction[0] + (configOffAction[1] !== 'none' ? ' and ' + configOffAction[1] : '') : 'Clean');
+          value === 0 ? configOffAction[0] + (configOffAction[1] !== 'none' ? ' and ' + configOffAction[1] : '') : 'Clean',
+          this.roomByRoom ? 'With args:' + JSON.stringify(args) : '');
       } catch (err) {
-        this.platform.log.error('Error Seting', this.device.name, 'To',
-          value === 0 ? configOffAction[0] + (configOffAction[1] !== 'none' ? ' and ' + configOffAction[1] : '') : 'Clean');
+        this.platform.log.debug('Error Seting', this.device.name, 'To',
+          value === 0 ? configOffAction[0] + (configOffAction[1] !== 'none' ? ' and ' + configOffAction[1] : '') : 'Clean',
+          this.roomByRoom ? 'With args:' + JSON.stringify(args) : '');
         this.platform.log.error(err as string);
 
       }
@@ -492,7 +498,7 @@ export class iRobotPlatformAccessory {
 
   async setMode(value: CharacteristicValue) {
     if (this.accessory.context.connected) {
-      this.platform.log.debug('Set', this.device.name, 'To', value === 0 ? 'Room-By-Room' : 'Everywhere');
+      this.platform.log.info('Set', this.device.name, 'To', value === 0 ? 'Room-By-Room' : 'Everywhere');
       this.roomByRoom = value === 0;
     }
   }
