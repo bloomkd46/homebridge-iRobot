@@ -1,3 +1,7 @@
+### 2.1.2
+* Added Support Page In Custom UI
+* (Wiki Links Don't Work Yet)
+
 ### 2.1.1
 * Re-arranged table
 * fixed rooms section in table
