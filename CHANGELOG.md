@@ -3,6 +3,9 @@
 All notable changes to this project will be documented in this file. This project uses [Semantic Versioning](https://semver.org/).
 
 
+### 2.2.0
+* Added custom UI
+
 ### 2.1.0-beta.3
 * Removed Mac Address from devices table
 

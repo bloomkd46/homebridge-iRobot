@@ -60,16 +60,29 @@
           <td id="ip_address">Loading...</td>
         </tr>
         <tr>
+          <th scope="row">Room-By-Room Support</th>
+          <td id="room_by_room">Loading...</td>
+        </tr>
+        <tr>
           <th scope="row">Model</th>
           <td id="model">Loading...</td>
         </tr>
-        <!--<tr>
+        <tr>
           <th scope="row">MAC Address</th>
           <td id="mac_address">Loading...</td>
-        </tr>-->
+        </tr>
+        <tr id="mapCount" style="display:none;">
+          <th scope="row">Maps</th>
+          <td id="maps">Loading...</td>
+        </tr>
+        <tr id="regionCount" style="display:none;">
+          <th scope="row">Rooms</th>
+          <td id="regions">Loading...</td>
+        </tr>
       </tbody>
     </table>
   </div>
+</div>
 </div>
 <div id="pageSupport" class="mt-4" style="display: none;">
   <p class="text-center lead">Thank you for using <strong>homebridge-iRobot</strong></p>
@@ -215,15 +228,32 @@
           const thisAcc = cachedAccessories.find(x => x.UUID === UUID)
           const context = thisAcc.context
           document.getElementById('displayName').innerHTML = thisAcc.displayName || 'N/A'
-          document.getElementById('blid').innerHTML = context.blid || 'N/A'
-          document.getElementById('password').innerHTML = context.password || 'N/A'
+          document.getElementById('blid').innerHTML = context.device.blid || 'N/A'
+          document.getElementById('password').innerHTML = context.device.password || 'N/A'
           document.getElementById('status').innerHTML = (context.connected || false)
             ? '<i class="fas fa-circle mr-1 green-text"></i> Online'
             : '<i class="fas fa-circle mr-1 red-text"></i> Offline'
-          document.getElementById('model').innerHTML = context.model || 'N/A'
-          document.getElementById('ip_address').innerHTML = context.ip || 'N/A'
-          //document.getElementById('mac_address').innerHTML = context.info.mac || 'N/A'
+          document.getElementById('model').innerHTML = context.device.model || 'N/A'
+          document.getElementById('ip_address').innerHTML = context.device.ip || 'N/A'
+          document.getElementById('mac_address').innerHTML = context.device.info.mac || 'N/A'
+          document.getElementById('room_by_room').innerHTML = context.device.multiRoom || false
           document.getElementById('deviceTable').style.display = 'inline-table'
+          document.getElementById('mapCount').style.display = 'none'
+          document.getElementById('regionCount').style.display = 'none'
+          if(context.maps !== undefined){
+            document.getElementById('mapCount').style.display = 'table-row'
+            document.getElementById('maps').innerHTML = context.maps.length || 0
+          let regions;
+          for(const map of context.maps){
+            if(map.regions !== undefined){
+              regions += map.regions.length
+            }
+          }
+          if(regions !== undefined){
+            document.getElementById('regionCount').style.display = 'table-row'
+            document.getElementById('regions').innerHTML = regions || 0
+          }
+          }
           homebridge.hideSpinner()
         }
         deviceSelect.addEventListener('change', event => showDeviceInfo(event.target.value))
