@@ -32,8 +32,8 @@ jobs:
       - name: Commit files
         id: commit
         run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "github-actions"
+          git config --local user.email "75853497+bloomkd46@users.noreply.github.com"
+          git config --local user.name "bloomkd46"
           git add --all
           if [ -z "$(git status --porcelain)" ]; then 
              echo "::set-output name=push::false"
@@ -44,8 +44,8 @@ jobs:
           
       - name: Update Package Version
         run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "github-actions"
+          git config --local user.email "75853497+bloomkd46@users.noreply.github.com"
+          git config --local user.name "bloomkd46"
           npm version ${{ github.event.release.tag_name }}
         
       - name: Push changes
