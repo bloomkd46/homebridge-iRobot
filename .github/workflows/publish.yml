@@ -9,9 +9,9 @@ on:
 jobs:
   publish:
     runs-on: ubuntu-latest 
-    permissions: 
-      contents: read
-      packages: write 
+    #permissions: 
+      #contents: read
+      #packages: write 
     steps:
       - uses: actions/checkout@v2
         #with:
@@ -41,16 +41,16 @@ jobs:
              git commit -m "Updated Changelog" -a
              echo "::set-output name=push::true"
           fi
-        
+          
+      - name: Update Package Version
+        run: |
+          npm version ${{ github.event.release.tag_name }}
+          
       - name: Push changes
         if: steps.commit.outputs.push == 'true'
         uses: ad-m/github-push-action@master
         with:
            github_token: ${{ secrets.GITHUB_TOKEN }}
-        
-      - name: Update Package Version
-        run: |
-          npm version ${{ github.event.release.tag_name }}
           
       - name: Install Dependencies
         run: npm install
