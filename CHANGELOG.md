@@ -1,3 +1,6 @@
+### 2.1.4
+* Removed Status From Table Since It Always Says Online
+
 ### 2.1.3
 * Changed Logic For Identifying If Region Is Already Saved
 * Added 5 Second Delay Before Reconnecting If The Connection Drops
