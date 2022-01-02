@@ -43,15 +43,17 @@ jobs:
           fi
           
       - name: Update Package Version
-        run: npm version ${{ github.event.release.tag_name }}
-        
-      - name: Push To Github
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "github-actions"
-          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
-          git push
-
+          npm version ${{ github.event.release.tag_name }}
+        
+      - name: Push changes
+        if: steps.commit.outputs.push == 'true'
+        uses: ad-m/github-push-action@master
+        with:
+           github_token: ${{ secrets.GITHUB_TOKEN }}
+        
       - name: Install Dependencies
         run: npm install
         
