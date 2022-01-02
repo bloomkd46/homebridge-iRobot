@@ -1,3 +1,7 @@
+### 2.1.3
+* Changed Logic For Identifying If Region Is Already Saved
+* Added 5 Second Delay Before Reconnecting If The Connection Drops
+
 ### 2.1.2
 * Added Support Page In Custom UI
 * (Wiki Links Don't Work Yet)
