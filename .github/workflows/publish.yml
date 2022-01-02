@@ -44,6 +44,9 @@ jobs:
           
       - name: Update Package Version
         run: npm version ${{ github.event.release.tag_name }}
+        
+      - name: Push To Github
+        run: git push "https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}"
 
       - name: Install Dependencies
         run: npm install
@@ -59,6 +62,3 @@ jobs:
         run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-      
-      - name: Push To Github
-        run: git push "https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}" "${{ github.head_ref }}"
