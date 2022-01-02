@@ -1,3 +1,7 @@
+### 2.1.5 
+* Removed Broken Status From Device Table In Custom UI
+
+
 ### 2.1.4
 * Removed Status From Table Since It Always Says Online
 
