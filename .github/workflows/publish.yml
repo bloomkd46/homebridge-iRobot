@@ -49,7 +49,7 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "github-actions"
-          git push "https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}" HEAD:master
+          git push
 
       - name: Install Dependencies
         run: npm install
