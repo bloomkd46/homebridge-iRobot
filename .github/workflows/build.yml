@@ -1,7 +1,13 @@
 name: Build and Lint
 
-on: [push, pull_request]
-
+on:
+  push:
+    branches: [ main ]
+    paths: [ src/** ] 
+  pull_request:
+    branches: [ main ]
+    paths: [ src/** ]
+    
 jobs:
   build:
     runs-on: ubuntu-latest
