@@ -46,7 +46,10 @@ jobs:
         run: npm version ${{ github.event.release.tag_name }}
         
       - name: Push To Github
-        run: git push "https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}" HEAD:master
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "github-actions"
+          git push "https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}" HEAD:master
 
       - name: Install Dependencies
         run: npm install
