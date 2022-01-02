@@ -46,7 +46,7 @@ jobs:
         run: npm version ${{ github.event.release.tag_name }}
         
       - name: Push To Github
-        run: git push "https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}" origin master
+        run: git push "https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}" master
 
       - name: Install Dependencies
         run: npm install
