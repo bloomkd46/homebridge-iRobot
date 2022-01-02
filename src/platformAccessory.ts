@@ -195,8 +195,11 @@ export class iRobotPlatformAccessory {
       if (this.shutdown) {
         this.platform.log.info('Roomba', this.device.name, 'connection closed');
       } else {
-        this.platform.log.warn('Roomba', this.device.name, ' connection closed, atempting to reconnect...');
-        this.configureRoomba();
+        this.platform.log.warn('Roomba', this.device.name, ' connection closed, reconnecting in 5 seconds');
+        setTimeout(() =>{
+          this.platform.log.warn('Attempting To Reconnect To Roomba', this.device);
+          this.configureRoomba();
+        }, 5000);
       }
     }).on('state', this.updateRoombaState.bind(this));
   }
