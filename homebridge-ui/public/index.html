@@ -216,7 +216,6 @@
           document.getElementById('ip_address').innerHTML = context.device.ip || 'N/A'
           document.getElementById('mac_address').innerHTML = context.device.info.mac || 'N/A'
           document.getElementById('room_by_room').innerHTML = context.device.multiRoom || false
-          document.getElementById('deviceTable').style.display = 'inline-table'
           document.getElementById('mapCount').style.display = 'none'
           document.getElementById('regionCount').style.display = 'none'
           if (context.maps !== undefined) {
@@ -233,6 +232,7 @@
               document.getElementById('regions').innerHTML = regions
             }
           }
+          document.getElementById('deviceTable').style.display = 'inline-table'
           homebridge.hideSpinner()
         }
         deviceSelect.addEventListener('change', event => showDeviceInfo(event.target.value))
