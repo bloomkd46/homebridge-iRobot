@@ -1,0 +1,96 @@
+<!DOCTYPE html><html class="default"><head><meta charSet="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>homebridge-irobot</title><meta name="description" content="Documentation for homebridge-irobot"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="assets/style.css"/><link rel="stylesheet" href="assets/highlight.css"/><script async src="assets/search.js" id="search-script"></script></head><body><script>document.body.classList.add(localStorage.getItem("tsd-theme") || "os")</script><header><div class="tsd-page-toolbar"><div class="container"><div class="table-wrap"><div class="table-cell" id="tsd-search" data-base="."><div class="field"><label for="tsd-search-field" class="tsd-widget search no-caption">Search</label><input type="text" id="tsd-search-field"/></div><ul class="results"><li class="state loading">Preparing search index...</li><li class="state failure">The search index is not available</li></ul><a href="index.html" class="title">homebridge-irobot</a></div><div class="table-cell" id="tsd-widgets"><div id="tsd-filter"><a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a><div class="tsd-filter-group"><div class="tsd-select" id="tsd-filter-visibility"><span class="tsd-select-label">All</span><ul class="tsd-select-list"><li data-value="public">Public</li><li data-value="protected">Public/Protected</li><li data-value="private" class="selected">All</li></ul></div> <input type="checkbox" id="tsd-filter-inherited" checked/><label class="tsd-widget" for="tsd-filter-inherited">Inherited</label><input type="checkbox" id="tsd-filter-externals" checked/><label class="tsd-widget" for="tsd-filter-externals">Externals</label></div></div><a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a></div></div></div></div><div class="tsd-page-title"><div class="container"><h1>homebridge-irobot</h1></div></div></header><div class="container container-main"><div class="row"><div class="col-8 col-content"><div class="tsd-panel tsd-typography"><p align="center">
+ <a href="https://github.com/bloomkd46/homebridge-iRobot"><img alt="Homebridge iRobot" src="https://user-images.githubusercontent.com/75853497/143301930-e2f3bc9a-9f0d-4e03-95f8-c69769712ca5.png" width="600px"></a>
+</p>
+<span align="center">
+
+
+<a href="#homebridge-irobot" id="homebridge-irobot" style="color: inherit; text-decoration: none;">
+  <h1>homebridge-iRobot</h1>
+</a>
+<p>Homebridge plugin to integrate iRobot roombas into HomeKit</p>
+<p>(Wiki Links Don&#39;t Work Yet)</p>
+<p> <a href="https://github.com/homebridge/homebridge/wiki/Verified-Plugins"><img src="https://badgen.net/badge/homebridge/verified/purple" alt="verified-by-homebridge"></a>
+<a href="https://npmcharts.com/compare/homebridge-irobot?minimal=true"><img src="https://img.shields.io/npm/dt/homebridge-irobot" alt="npm"></a></p>
+<p><a href="https://www.npmjs.com/package/homebridge-irobot"><img src="https://img.shields.io/npm/v/homebridge-irobot/latest?label=latest" alt="npm"></a>
+<a href="../../wiki/Beta-Version"><img src="https://img.shields.io/npm/v/homebridge-irobot/beta?label=beta" alt="npm"></a>  </p>
+<p><a href="../../actions/workflows/build.yml"><img src="https://github.com/bloomkd46/homebridge-iRobot/actions/workflows/build.yml/badge.svg" alt="build workflow"></a>
+<a href="https://github.com/bloomkd46/homebridge-irobot/blob/master/LICENSE.md"><img src="https://badgen.net/github/license/bloomkd46/homebridge-irobot" alt="license"></a></p>
+</span>
+
+
+<a href="#plugin-information" id="plugin-information" style="color: inherit; text-decoration: none;">
+  <h3>Plugin Information</h3>
+</a>
+<ul>
+<li>This plugin allows you to view and control your iRobot roombas within HomeKit. The plugin:<ul>
+<li>downloads a device list if your iRobot credentials are supplied</li>
+<li>controls your devices locally</li>
+<li>listens for real-time device updates when controlled externally</li>
+</ul>
+</li>
+</ul>
+
+<a href="#features" id="features" style="color: inherit; text-decoration: none;">
+  <h2>Features:</h2>
+</a>
+<ul>
+<li>On/Off Control</li>
+<li>Room-By-Room Control On Models That Support It (Only Tested When Using One Map)</li>
+<li>Auto-Dicovery Of All Devices On Your Acount</li>
+<li>Battery Percent/Charging ifo</li>
+<li>Binfull Detection In The Form Of Filter/Contact/Motion Sensor</li>
+<li>Stuck Sensor</li>
+</ul>
+
+<a href="#todo" id="todo" style="color: inherit; text-decoration: none;">
+  <h2>TODO:</h2>
+</a>
+<ul>
+<li>Get Approved By Homebridge</li>
+<li>Add Custom UI For Viewing Devices</li>
+</ul>
+
+<a href="#prerequisites" id="prerequisites" style="color: inherit; text-decoration: none;">
+  <h3>Prerequisites</h3>
+</a>
+<ul>
+<li>To use this plugin, you will need to already have <a href="https://homebridge.io">Homebridge</a> (at least v1.3.5) or <a href="https://hoobs.org">HOOBS</a> (at least v4) installed. Refer to the links for more information and installation instructions.</li>
+</ul>
+
+<a href="#setup" id="setup" style="color: inherit; text-decoration: none;">
+  <h3>Setup</h3>
+</a>
+<ul>
+<li><a href="../../wiki/Installation">Installation</a></li>
+<li><a href="../../wiki/Configuration">Configuration</a></li>
+<li><a href="../../wiki/Beta-Version">Beta Version</a></li>
+<li><a href="../../wiki/Node-Version">Node Version</a></li>
+<li><a href="../../wiki/Uninstallation">Uninstallation</a></li>
+</ul>
+
+<a href="#helpabout" id="helpabout" style="color: inherit; text-decoration: none;">
+  <h3>Help/About</h3>
+</a>
+<ul>
+<li><a href="../../wiki/Common-Errors">Common Errors</a></li>
+<li><a href="../../issues/new/choose">Support Request</a></li>
+<li><a href="/CHANGELOG.md">Changelog</a></li>
+</ul>
+
+<a href="#credits" id="credits" style="color: inherit; text-decoration: none;">
+  <h3>Credits</h3>
+</a>
+<ul>
+<li>To the creators/contributors of <a href="https://homebridge.io">Homebridge</a> who make this plugin possible.</li>
+<li>To <a href="https://github.com/bwp91/homebridge-meross">homebridge-Meross</a> of which I based this readme, wiki, and homebridge-ui off of</li>
+<li>To <a href="https://github.com/koalazak/dorita980">Dorita980</a> Who cracked the iRobot API</li>
+</ul>
+
+<a href="#disclaimer" id="disclaimer" style="color: inherit; text-decoration: none;">
+  <h3>Disclaimer</h3>
+</a>
+<ul>
+<li>I am in no way affiliated with iRobot and this plugin is a personal project that I maintain in my free time.</li>
+<li>Use this plugin entirely at your own risk - please see licence for more information.</li>
+</ul>
+</div></div><div class="col-4 col-menu menu-sticky-wrap menu-highlight"><nav class="tsd-navigation primary"><ul><li class="current"><a href="modules.html">Exports</a></li></ul></nav><nav class="tsd-navigation secondary menu-sticky"><ul><li class="tsd-kind-property"><a href="modules.html#export_" class="tsd-kind-icon">export=</a></li></ul></nav></div></div></div><footer class="with-border-bottom"><div class="container"><h2>Settings</h2><p>Theme <select id="theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></p></div></footer><div class="container tsd-generator"><p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></div><div class="overlay"></div><script src="assets/main.js"></script></body></html>
