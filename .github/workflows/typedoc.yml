@@ -40,7 +40,7 @@ jobs:
       - name: Install Dependencies
         run: npm install && npm install typedoc --save-dev
       - name: Generate Javadoc
-        run: npx typedoc --out docs src/
+        run: npx typedoc --out docs --entryPointStrategy packages .
       
       - name: Re-inject Theme
         run: 'echo "theme: jekyll-theme-tactile" > docs/_config.yml'
