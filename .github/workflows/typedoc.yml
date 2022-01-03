@@ -1,0 +1,72 @@
+# This is a basic workflow to help you get started with Actions
+name: Typedoc Generator
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the main branch
+  push:
+    branches: [ main ]
+    paths: [ src/**, .github/workflows/typedoc.yml ] 
+  pull_request:
+    branches: [ main ]
+    paths: [ src/** , .github/workflows/typedoc.yml ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  Typedoc:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      - name: Setup node
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16.x'
+
+      - name: Remove Old Documentation
+        run: rm -r docs
+        
+      - name: Re-Create Docs Folder
+        run: mkdir docs
+        
+      - name: Re-inject Theme
+        run: 'echo "theme: jekyll-theme-tactile" > docs/_config.yml'
+       
+      - name: Install Dependency
+        run: npm install -D typedoc
+
+      - name: Generate Javadoc
+        run: npx typedoc --out docs src/index
+          
+      - name: Commit files
+        id: commit
+        shell: bash
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "github-actions"
+          git add --all
+
+          if [ -z "$(git status --porcelain)" ]; then 
+
+             echo "::set-output name=push::false"
+
+          else
+
+             git commit -m "Updated API Documentation Using Javadoc" -a
+             echo "::set-output name=push::true"
+
+          fi
+
+      - name: Push changes
+        if: steps.commit.outputs.push == 'true'
+        uses: ad-m/github-push-action@master
+        with:
+           github_token: ${{ secrets.GITHUB_TOKEN }}
