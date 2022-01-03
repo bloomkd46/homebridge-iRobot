@@ -30,6 +30,7 @@ jobs:
           echo "$x" > CHANGELOG.md
         
       - name: Commit files
+        if: false == true
         id: commit
         run: |
           git config --local user.email "action@github.com"
@@ -44,7 +45,10 @@ jobs:
           
       - name: Update Package Version
         run: |
-          npm version ${{ github.event.release.tag_name }}
+          git config --local user.email "action@github.com"
+          git config --local user.name "github-actions"
+          git add --all
+          npm version --no-git-tag-version ${{ github.event.release.tag_name }}
           
       - name: Push changes
         if: steps.commit.outputs.push == 'true'
