@@ -60,7 +60,7 @@ jobs:
 
           else
 
-             git commit -m "Updated API Documentation Using Javadoc" -a
+             git commit -m "Updated API Documentation Using Typedoc" -a
              echo "::set-output name=push::true"
 
           fi
