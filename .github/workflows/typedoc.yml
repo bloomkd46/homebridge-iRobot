@@ -37,14 +37,14 @@ jobs:
       - name: Re-Create Docs Folder
         run: mkdir docs
         
-      - name: Re-inject Theme
-        run: 'echo "theme: jekyll-theme-tactile" > docs/_config.yml'
-       
       - name: Install Dependency
         run: npm install -D typedoc
 
       - name: Generate Javadoc
         run: npx typedoc --out docs src/index.ts 
+      
+      - name: Re-inject Theme
+        run: 'echo "theme: jekyll-theme-tactile" > docs/_config.yml'
           
       - name: Commit files
         id: commit
