@@ -44,7 +44,7 @@ jobs:
         run: npm install -D typedoc
 
       - name: Generate Javadoc
-        run: npx typedoc --out docs src/index
+        run: npx typedoc --out docs src/index.ts 
           
       - name: Commit files
         id: commit
