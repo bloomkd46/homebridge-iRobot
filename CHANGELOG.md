@@ -1,3 +1,8 @@
+### 2.1.6 
+* Removed Log Spam When Reconnecting After Connection Drop
+* Made Low Battery Warnings Not Appear If Roomba Is Charging
+
+
 ### 2.1.5 
 * Removed Broken Status From Device Table In Custom UI
 
