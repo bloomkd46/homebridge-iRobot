@@ -234,7 +234,7 @@ export class iRobotPlatformAccessory {
     this.stuckStatus = data.cleanMissionStatus.phase === 'stuck';
 
     this.batteryStatus.charging = data.cleanMissionStatus.phase === 'charge';
-    this.batteryStatus.low = data.batPct < (this.platform.config.lowBattery || 20);
+    this.batteryStatus.low = this.batteryStatus.charging && data.batPct < (this.platform.config.lowBattery || 20);
     this.batteryStatus.percent = data.batPct;
     /*------------------------------------------------------------------------------------------------------------------------------------*/
     this.service.updateCharacteristic(this.platform.Characteristic.Active, this.active ? 1 : 0);
