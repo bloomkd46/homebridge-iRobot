@@ -7,26 +7,26 @@ export function getRoombas(email: string, password: string, log: Logger): Robot[
   log.info('Logging into iRobot...');
   const Robots = child_process.execFileSync(__dirname + '/scripts/getRoombaCredentials.js', [email, password]).toString();
   try{
-    log.debug(Robots);
     robots = JSON.parse(Robots);
+        log.debug(Robots);
   }catch(e){
     log.error('Faild to login to iRobot, see below for details');
     log.error(Robots);
   }
   robots.forEach(robot => {
     log.info('Getting IP address for roomba:', robot.name);
-    let robotIP = child_process.execFileSync(__dirname + '/scripts/getRoombaIP.js', [robot.blid]).toString();
-    while (robotIP === 'Request Timed Out'){
-      robotIP = child_process.execFileSync(__dirname + '/scripts/getRoombaIP.js', [robot.blid]).toString();
-    }
+    const robotIP = child_process.execFileSync(__dirname + '/scripts/getRoombaIP.js', [robot.blid]).toString();
     try{
-      log.debug(robotIP);
       const robotInfo = JSON.parse(robotIP);
+            log.debug(robotIP);
       robot.ip = robotInfo.ip;
       delete robotInfo.ip;
       robot.model = getModel(robotInfo.sku);
       robot.multiRoom = getMultiRoom(robot.model);
       robot.info = robotInfo;
+      if(robotInfo.sku.startsWith('m6'){
+         robots.splice(robots.indexOf(robot));
+         }
     }catch(e){
       log.error('Failed to fetch ip for roomba:', robot.name, 'see below for details');
       log.error(robotIP);
