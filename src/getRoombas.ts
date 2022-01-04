@@ -24,7 +24,7 @@ export function getRoombas(email: string, password: string, log: Logger): Robot[
       robot.model = getModel(robotInfo.sku);
       robot.multiRoom = getMultiRoom(robot.model);
       robot.info = robotInfo;
-      if(robotInfo.sku.startsWith('m6'){
+      if(robotInfo.sku.startsWith('m6')){
          robots.splice(robots.indexOf(robot));
          }
     }catch(e){
