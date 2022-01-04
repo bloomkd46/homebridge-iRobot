@@ -392,82 +392,82 @@ export class iRobotPlatformAccessory {
   async get(): Promise<CharacteristicValue> {
     if (this.accessory.context.connected){
     this.platform.log.debug('Updating', this.device.name, 'To', this.active ? 'On' : 'Off');
+          return this.active ? 1 : 0;
     } else {
     throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
     }
-    return this.active ? 1 : 0;
   }
 
   async getState(): Promise<CharacteristicValue> {
     if (this.accessory.context.connected){
     this.platform.log.debug('Updating', this.device.name, 'Mode To', this.state === 0 ? 'Off' : this.state === 1 ? 'Idle' : 'On');
+          return this.state;
     } else {
     throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
     }
-    return this.state;
   }
 
   async getBinfull(): Promise<CharacteristicValue> {
     if (this.accessory.context.connected){
     this.platform.log.debug('Updating', this.device.name, 'Binfull To', this.binfull === 0 ? 'OK' : 'FULL');
+          return this.binfull;
     } else {
     throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
     }
-    return this.binfull;
   }
 
   async getBinfullBoolean(): Promise<CharacteristicValue> {
     if (this.accessory.context.connected){
     this.platform.log.debug('Updating', this.device.name, 'Binfull To', this.binfull === 0 ? 'OK' : 'FULL');
+          return this.binfull === 1;
     } else {
     throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
     }
-    return this.binfull === 1;
   }
 
   async getBatteryLevel(): Promise<CharacteristicValue> {
     if (this.accessory.context.connected){
     this.platform.log.debug('Updating', this.device.name, 'Battery Level To', this.batteryStatus.percent);
+          return this.batteryStatus.percent;
     } else {
     throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
     }
-    return this.batteryStatus.percent;
-  }
+}
 
   async getBatteryStatus(): Promise<CharacteristicValue> {
     if (this.accessory.context.connected){
     this.platform.log.debug('Updating', this.device.name, 'Battery Status To', this.batteryStatus.low ? 'Low' : 'Normal');
+          return this.batteryStatus.low ? 1 : 0;
     } else {
     throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
     }
-    return this.batteryStatus.low ? 1 : 0;
   }
 
   async getChargeState(): Promise<CharacteristicValue> {
     if (this.accessory.context.connected){
     this.platform.log.debug('Updating', this.device.name, 'Charge Status To', this.batteryStatus.charging ? 'Charging' : 'Not Charging');
+          return this.batteryStatus.charging ? 1 : 0;
     } else {
     throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
     }
-    return this.batteryStatus.charging ? 1 : 0;
   }
 
   async getMode(): Promise<CharacteristicValue> {
     if (this.accessory.context.connected){
     this.platform.log.debug('Updating', this.device.name, 'Mode To', this.roomByRoom ? 'Room-By-Room' : 'Everywhere');
+          return this.roomByRoom ? 0 : 1;
     } else {
     throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
     }
-    return this.roomByRoom ? 0 : 1;
   }
 
   async getStuck(): Promise<CharacteristicValue> {
     if (this.accessory.context.connected){
     this.platform.log.debug('Updating', this.device.name, 'Stuck To', this.stuckStatus);
+          return this.stuckStatus;
     } else {
     throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
     }
-    return this.stuckStatus;
   }
 
 
