@@ -2,10 +2,10 @@ name: Build and Lint
 
 on:
   push:
-    branches: [ main ]
+    branches: [ master ]
     paths: [ src/** ] 
   pull_request:
-    branches: [ main ]
+    branches: [ master ]
     paths: [ src/** ]
   workflow_dispatch:
 
@@ -34,6 +34,26 @@ jobs:
         run: npm run build
         env:
           CI: true
+        
+      - name: Commit files if necessary
+        id: commit
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "github-actions"
+          git add --all
+          if [ -z "$(git status --porcelain)" ]; then 
+             echo "::set-output name=push::false"
+          else
+             git commit -m "Built Project" -a
+             echo "::set-output name=push::true"
+          fi
+          
+      - name: Push changes
+        if: steps.commit.outputs.push == 'true'
+        uses: ad-m/github-push-action@master
+        with:
+           github_token: ${{ secrets.GITHUB_TOKEN }}
+           
   lint:
     runs-on: ubuntu-latest
 
@@ -55,3 +75,22 @@ jobs:
 
       - name: Lint the project
         run: npm run lint
+        
+      - name: Commit files if necessary
+        id: commit
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "github-actions"
+          git add --all
+          if [ -z "$(git status --porcelain)" ]; then 
+             echo "::set-output name=push::false"
+          else
+             git commit -m "Linted Project" -a
+             echo "::set-output name=push::true"
+          fi
+          
+      - name: Push changes
+        if: steps.commit.outputs.push == 'true'
+        uses: ad-m/github-push-action@master
+        with:
+           github_token: ${{ secrets.GITHUB_TOKEN }}
