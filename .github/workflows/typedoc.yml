@@ -5,10 +5,10 @@ name: Typedoc Generator
 on:
   # Triggers the workflow on push or pull request events but only for the main branch
   push:
-    branches: [ main ]
+    branches: [ master ]
     paths: [ src/** ] 
   pull_request:
-    branches: [ main ]
+    branches: [ master ]
     paths: [ src/** ]
 
   # Allows you to run this workflow manually from the Actions tab
