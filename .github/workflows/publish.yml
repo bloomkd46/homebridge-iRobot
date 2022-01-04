@@ -4,7 +4,7 @@
 name: Package
 on:
   release:
-    types: [created]
+    types: [published]
   
 jobs:
   publish:
