@@ -35,9 +35,9 @@ function getRobotIP () {
 
   server.on('listening', () => {
     setTimeout(()=>{
-      console.log('Request Timed Out');
+      console.log(child_process.execFileSync(__dirname + '/getRoombaIP.js', [blid]).toString());
       process.exit(0);
-    }, 15000);
+    }, 5000);
   });
 
   server.bind(function () {
