@@ -46,6 +46,7 @@ jobs:
           else
              git commit -m "Built Project" -a
              echo "::set-output name=push::true"
+             git pull
           fi
           
       - name: Push changes
@@ -87,6 +88,7 @@ jobs:
           else
              git commit -m "Linted Project" -a
              echo "::set-output name=push::true"
+             git pull
           fi
           
       - name: Push changes
