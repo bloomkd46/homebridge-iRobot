@@ -3,7 +3,7 @@ name: Build and Lint
 on:
   push:
     branches: [ master ]
-    paths: [ src/** ] 
+    paths: [ src/**, .github/workflows/build.yml ] 
   pull_request:
     branches: [ master ]
     paths: [ src/** ]
@@ -40,17 +40,17 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "github-actions"
-          git pull
           git add --all
           if [ -z "$(git status --porcelain)" ]; then 
              echo "::set-output name=push::false"
           else
              git commit -m "Built Project" -a
              echo "::set-output name=push::true"
+             #git pull
           fi
           
       - name: Push changes
-        if: steps.commit.outputs.push == 'true' #&& matrix.node-version == '16.x'
+        if: steps.commit.outputs.push == 'true' && matrix.node-version == '16.x'
         uses: ad-m/github-push-action@master
         with:
            github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -82,17 +82,17 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "github-actions"
-          git pull
           git add --all
           if [ -z "$(git status --porcelain)" ]; then 
              echo "::set-output name=push::false"
           else
              git commit -m "Linted Project" -a
              echo "::set-output name=push::true"
+             #git pull
           fi
           
       - name: Push changes
-        if: steps.commit.outputs.push == 'true' #&& matrix.node-version == '16.x'
+        if: steps.commit.outputs.push == 'true' && matrix.node-version == '16.x'
         uses: ad-m/github-push-action@master
         with:
            github_token: ${{ secrets.GITHUB_TOKEN }}
