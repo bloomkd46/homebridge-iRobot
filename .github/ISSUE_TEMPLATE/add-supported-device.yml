@@ -18,7 +18,7 @@ body:
     validations:
       required: true
         
-    - type: checkboxes
+  - type: checkboxes
     id: supported
     attributes:
       label: Did It Work
