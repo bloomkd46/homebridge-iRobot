@@ -28,6 +28,13 @@ Homebridge plugin to integrate iRobot roombas into HomeKit
   - controls your devices locally
   - listens for real-time device updates when controlled externally
 
+## Supported Devices
+| Model | Supported |
+| 965 | Yes |
+| i8 | Yes |
+| j7 | No |
+
+
 ## Features:
   * On/Off Control
   * Room-By-Room Control On Models That Support It (Only Tested When Using One Map)
