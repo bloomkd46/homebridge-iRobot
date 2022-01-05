@@ -24,7 +24,6 @@ body:
       required: true
     attributes:
       label: Did It Work
-      description: "If It Didn't Work Don't Check The Box Below"
       options:
-        - "This Plug-in Worked For My Roomba"
-        - "This Plug-in didn't work for my roomba"
+        - Yes
+        - No
