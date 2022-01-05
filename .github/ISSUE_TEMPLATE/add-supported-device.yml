@@ -1,6 +1,6 @@
 name: Add Supported Device
 description: inform me of a supported device not currently known
-title: "Supported Device: "
+title: "Add Supported Device: "
 labels: [enchancment, device-support]
 assignees:
   - bloomkd46
