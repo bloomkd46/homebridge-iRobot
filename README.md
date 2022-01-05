@@ -29,6 +29,9 @@ Homebridge plugin to integrate iRobot roombas into HomeKit
   - listens for real-time device updates when controlled externally
 
 ## Supported Devices
+> Don't See Your Device Below?
+> Let Me Know If It Worked By Filling Out [This Template](https://github.com/bloomkd46/homebridge-iRobot/issues/new?assignees=bloomkd46&labels=enchancment&template=add-supported-device.yml&title=Supported+Device%3A+)
+
 | Model | Supported |
 |-|-|
 | 965 | Yes |
