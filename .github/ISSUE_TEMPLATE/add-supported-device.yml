@@ -18,11 +18,13 @@ body:
     validations:
       required: true
         
-  - type: checkboxes
+  - type: dropdown
     id: supported
+    validations:
+      required: true
     attributes:
       label: Did It Work
       description: "If It Didn't Work Don't Check The Box Below"
       options:
-        - label: This Plug-in Worked For My Roomba
-          required: true
+        - "This Plug-in Worked For My Roomba"
+        - "This Plug-in didn't work for my roomba"
