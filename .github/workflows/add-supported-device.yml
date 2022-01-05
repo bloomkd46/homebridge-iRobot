@@ -28,7 +28,7 @@ jobs:
       - uses: stefanbuck/github-issue-praser@v2
         id: issue-parser
         with:
-          template-path: .github/ISSUE_TEMPLATE/order-pizza.yml
+          template-path: .github/ISSUE_TEMPLATE/add-supported-device.yml
 
       - run: echo '${{ steps.issue-parser.outputs.jsonString }}' > order.json
 
