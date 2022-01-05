@@ -1,1 +1,28 @@
-
+name: Add Supported Device
+description: inform me of a supported device not currently known
+title: "Supported Device: "
+labels: [enchancment]
+assignees:
+  - bloomkd46
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this Supported Device Reguest!
+        
+  - type: input
+    attributes:
+      label: "Roomba Model:"
+      description: "Without Any +'s"
+      placeholder: i7
+    validations:
+      required: true
+        
+    - type: checkboxes
+    id: supported
+    attributes:
+      label: Did It Work
+      description: By submitting this issue, you are saying that his model rks
+      options:
+        - label: This Plug-in Worked For My Roomba
+          required: true
