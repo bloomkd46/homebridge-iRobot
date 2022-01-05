@@ -32,7 +32,7 @@ jobs:
 
       - run: |
           x=`echo "${{ steps.issue-parser.outputs.jsonString }}"`
-          echo "$x" > device.json
+          echo "'$x'" > device.json
           y='echo "| '$(grep -Po '"'"roomba_model"'"\s*:\s*"\K([^"]*)' device.json)' | '$(grep -Po '"'"supported"'"\s*:\s*"\K([^"]*)' device.json)' |"'
           echo "$y"
       - run: grep -Po '"'"supported"'"\s*:\s*"\K([^"]*)' device.json
