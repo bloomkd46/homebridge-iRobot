@@ -21,19 +21,10 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      - uses: actions/setup-node@v2
-        with:
-          node-version: '16'
-
-      - uses: stefanbuck/github-issue-praser@v2
-        id: issue-parser
-        with:
-          template-path: .github/ISSUE_TEMPLATE/add-supported-device.yml
-
-      - run: |
-          x=${{ steps.issue-parser.outputs.jsonString }}
-          echo "'$x'" > device.json
-          y='echo "| '$(grep -Po '"'"roomba_model"'"\s*:\s*"\K([^"]*)' device.json)' | '$(grep -Po '"'"supported"'"\s*:\s*"\K([^"]*)' device.json)' |"'
-          echo "$y"
-      - run: grep -Po '"'"supported"'"\s*:\s*"\K([^"]*)' device.json
-      - run: grep -Po '"'"roomba_model"'"\s*:\s*"\K([^"]*)' device.json
+    inputs:
+  name:
+    default: 'GitHub'
+    
+     runs:
+      using: 'node12'
+      main: 'main.js'
