@@ -1,3 +1,4 @@
+disabled: true
 name: Add Supported Device
 description: inform me of a supported device not currently known
 title: "Add Supported Device: "
