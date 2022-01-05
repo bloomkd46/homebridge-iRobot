@@ -30,6 +30,7 @@ Homebridge plugin to integrate iRobot roombas into HomeKit
 
 ## Supported Devices
 | Model | Supported |
+|-|-|
 | 965 | Yes |
 | i8 | Yes |
 | j7 | No |
