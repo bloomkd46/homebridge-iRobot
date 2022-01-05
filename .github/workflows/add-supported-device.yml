@@ -30,5 +30,8 @@ jobs:
         with:
           template-path: .github/ISSUE_TEMPLATE/add-supported-device.yml
 
-      - run: grep -Po '"'"supported"'"\s*:\s*"\K([^"]*)' ${{ steps.issue-parser.outputs.jsonString }}
-      - run: grep -Po '"'"roomba_model"'"\s*:\s*"\K([^"]*)' ${{ steps.issue-parser.outputs.jsonString }}
+      - run: |
+          x=`echo ${{ steps.issue-parser.outputs.jsonString }}`
+          echo "$x" > device.json
+      - run: grep -Po '"'"supported"'"\s*:\s*"\K([^"]*)' device.json
+      - run: grep -Po '"'"roomba_model"'"\s*:\s*"\K([^"]*)' device.json
