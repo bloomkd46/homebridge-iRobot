@@ -25,5 +25,5 @@ body:
     attributes:
       label: Did It Work
       options:
-        - Yes
-        - No
+        - "Yes"
+        - "No"
