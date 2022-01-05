@@ -23,6 +23,6 @@ jobs:
 
       # Runs a single command using the runners shell
       - name: log issue body
-        if: github.event.issue.labels == "device-support"
+        #if: github.event.issue.labels == "device-support"
         run: echo "${{ github.event.issue.body }}"
 
