@@ -10,7 +10,12 @@ if(!process.argv[2]){
 }
 
 const blid = process.argv[2];
+const attempt = proccess.argv[3] || 1
 
+if(attempt>5){
+console.log('No Roomba Found With Blid:', blid);
+    proccess.exit(0);
+}
 getRobotIP();
 
 function getRobotIP () {
@@ -35,7 +40,7 @@ function getRobotIP () {
 
   server.on('listening', () => {
     setTimeout(()=>{
-      console.log(child_process.execFileSync(__dirname + '/getRoombaIP.js', [blid]).toString());
+      console.log(child_process.execFileSync(__dirname + '/getRoombaIP.js', [blid, attempt+1]).toString());
       process.exit(0);
     }, 5000);
   });
@@ -45,33 +50,4 @@ function getRobotIP () {
     server.setBroadcast(true);
     server.send(message, 0, message.length, 5678, '255.255.255.255');
   });
-  /*
-  const server = dgram.createSocket('udp4');
-
-  server.on('error', (err) => {
-    server.close();
-    console.log(new Error(err));
-    process.exit(1);
-  });
-
-  server.on('message', (msg) => {
-    try {
-      let parsedMsg = JSON.parse(msg);
-      if (parsedMsg.hostname && parsedMsg.ip && ((parsedMsg.hostname.split('-')[0] === 'Roomba') || (parsedMsg.hostname.split('-')[0] === 'iRobot'))) {
-        parsedMsg.blid = parsedMsg.hostname.split('-')[1];
-        if(parsedMsg.blid === blid){
-            server.close();
-            console.log(parsedMsg.ip)
-            process.exit(1);
-        }
-      }
-    } catch (e) {}
-  });
-
-  server.bind(5678, function () {
-    const message = new Buffer.from('irobotmcs');
-    server.setBroadcast(true);
-    server.send(message, 0, message.length, 5678, '255.255.255.255');
-  });
-  */
 }
