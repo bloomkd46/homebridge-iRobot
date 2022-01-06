@@ -186,12 +186,11 @@ export class iRobotPlatformAccessory {
       this.accessory.context.connected = true;
       this.platform.log.info('Succefully connected to roomba', this.device.name);
     }).on('offline', () => {
-      throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
       this.accessory.context.connected = false;
       this.platform.log.warn('Roomba', this.device.name, ' went offline, disconnecting...');
       this.roomba.end();
-    }).on('close', () => {
       throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
+    }).on('close', () => {
       this.accessory.context.connected = false;
       this.roomba.removeAllListeners();
       if (this.shutdown) {
@@ -202,6 +201,7 @@ export class iRobotPlatformAccessory {
           this.platform.log.warn('Attempting To Reconnect To Roomba', this.device.name);
           this.configureRoomba();
         }, 5000);
+        throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
       }
     }).on('state', this.updateRoombaState.bind(this));
   }
@@ -214,8 +214,10 @@ export class iRobotPlatformAccessory {
         '\n batPct:', data.batPct,
         '\n bin:', JSON.stringify(data.bin),
         '\n lastCommand:', JSON.stringify(data.lastCommand));
-      if(data.phase === 'stuck'){
+      if(data.cleanMissionStatus.phase === 'stuck' && this.lastStatus.phase !== 'stuck'){
         this.platform.log.warn('Roomba', this.device.name, 'Is Stuck!');
+      } else if(this.lastStatus.phase === 'stuck' && data.cleanMissionStatus.phase !== 'stuck'){
+        this.platform.log.info('Roomba', this.device.name, 'Says "Thank You For Freeing Me"');
       }
     }
     this.lastStatus = data.cleanMissionStatus;
