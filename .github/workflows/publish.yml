@@ -52,7 +52,7 @@ jobs:
           git tag -d v${{ github.event.release.tag_name }}
           
       - name: Push changes
-        if: steps.commit.outputs.push == 'true'
+        #if: steps.commit.outputs.push == 'true'
         uses: ad-m/github-push-action@master
         with:
            github_token: ${{ secrets.GITHUB_TOKEN }}
