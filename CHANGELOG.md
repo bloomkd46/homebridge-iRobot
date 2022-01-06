@@ -1,3 +1,10 @@
+### 2.1.7 
+* Set Accessory to not responding in HomeKit when Roomba disconnects
+* Added Log for when Roomba is stuck
+* Made IP search run again after 5 seconds for up to 5 attempts
+* Prevented plugin from adding m6's
+
+
 ### 2.1.6 
 * Removed Log Spam When Reconnecting After Connection Drop
 * Made Low Battery Warnings Not Appear If Roomba Is Charging
