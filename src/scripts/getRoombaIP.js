@@ -10,11 +10,11 @@ if(!process.argv[2]){
 }
 
 const blid = process.argv[2];
-const attempt = proccess.argv[3] || 1
+const attempt = process.argv[3] || 1
 
 if(attempt>5){
 console.log('No Roomba Found With Blid:', blid);
-    proccess.exit(0);
+    process.exit(0);
 }
 getRobotIP();
 
