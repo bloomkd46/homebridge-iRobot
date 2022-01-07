@@ -189,7 +189,7 @@ export class iRobotPlatformAccessory {
       this.accessory.context.connected = false;
       this.platform.log.warn('Roomba', this.device.name, ' went offline, disconnecting...');
       this.roomba.end();
-      throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
+      //throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
     }).on('close', () => {
       this.accessory.context.connected = false;
       this.roomba.removeAllListeners();
@@ -201,7 +201,7 @@ export class iRobotPlatformAccessory {
           this.platform.log.warn('Attempting To Reconnect To Roomba', this.device.name);
           this.configureRoomba();
         }, 5000);
-        throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
+        //throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
       }
     }).on('state', this.updateRoombaState.bind(this));
   }
