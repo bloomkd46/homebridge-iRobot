@@ -30,6 +30,7 @@ export function getRoombas(email: string, password: string, log: Logger): Robot[
     }catch(e){
       log.error('Failed to fetch ip for roomba:', robot.name, 'see below for details');
       log.error(robotIP);
+      robots.splice(robots.indexOf(robot));
     }
   });
   return robots;
