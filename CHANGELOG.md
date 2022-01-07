@@ -1,3 +1,8 @@
+### 2.1.10 
+* Fixed crash when starting second IP sweep
+* Removed devices if it fails to find IP
+
+
 ### 2.1.9 
 * Fixed homebridge crash on offline
 
