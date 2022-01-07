@@ -50,8 +50,8 @@ export class iRobotPlatformAccessory {
     // set accessory information
     this.accessory.getService(this.platform.Service.AccessoryInformation)!
       .setCharacteristic(this.platform.Characteristic.Manufacturer, 'iRobot')
-      .setCharacteristic(this.platform.Characteristic.Model, this.device.model || 'N/A')
-      .setCharacteristic(this.platform.Characteristic.SerialNumber, 'N/A')
+      .setCharacteristic(this.platform.Characteristic.Model, this.platform.config.model || this.device.model)
+      .setCharacteristic(this.platform.Characteristic.SerialNumber, this.platform.config.serial || 'N/A')
       .setCharacteristic(this.platform.Characteristic.FirmwareRevision, this.device.info.sw || this.device.info.ver || 'N/A')
       .getCharacteristic(this.platform.Characteristic.Identify).on('set', this.identify.bind(this));
 
