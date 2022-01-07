@@ -1,3 +1,7 @@
+### 2.1.9 
+* Fixed homebridge crash on offline
+
+
 ### 2.1.8 
 * Fixed typo during Roomba IP discovery. Thanks @rcoletti116 
 
