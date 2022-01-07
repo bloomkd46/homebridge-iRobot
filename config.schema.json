@@ -28,6 +28,16 @@
           "type": "password"
         }
       },
+      "serial": {
+        "title": "Serial Number",
+        "type": "string",
+        "required": false
+    },
+      "model": {
+        "title": "Robot Model",
+        "type": "string",
+        "required": false
+    },
       "lowBattery": {
         "title": "Low Battery Warning",
         "type": "integer",
