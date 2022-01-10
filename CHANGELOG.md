@@ -1,3 +1,8 @@
+### 2.1.11 
+* Fixed Stuck Sensor, Thanks @Ghost108
+* Changed on/off logs from debug to info
+
+
 ### 2.1.10 
 * Fixed crash when starting second IP sweep
 * Removed devices if it fails to find IP
