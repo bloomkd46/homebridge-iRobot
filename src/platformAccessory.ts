@@ -254,11 +254,11 @@ export class iRobotPlatformAccessory {
     if (this.binConfig.includes('motion')) {
       this.binMotion.updateCharacteristic(this.platform.Characteristic.MotionDetected, this.binfull === 1);
     }
-    
+
     if (this.platform.config.hideStuckSensor){
-    this.stuck.updateCharacteristic(this.platform.Characteristic.MotionDetected, this.stuckStatus);
+      this.stuck.updateCharacteristic(this.platform.Characteristic.MotionDetected, this.stuckStatus);
     }
-      
+
     this.battery.updateCharacteristic(this.platform.Characteristic.BatteryLevel, this.batteryStatus.percent);
     this.battery.updateCharacteristic(this.platform.Characteristic.StatusLowBattery, this.batteryStatus.low);
     this.battery.updateCharacteristic(this.platform.Characteristic.ChargingState, this.batteryStatus.charging);
