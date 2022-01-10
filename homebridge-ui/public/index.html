@@ -64,6 +64,10 @@
           <td id="model">Loading...</td>
         </tr>
         <tr>
+          <th scope="row">Software Version</th>
+          <td id="sw">Loading...</td>
+        </tr>
+        <tr>
           <th scope="row">MAC Address</th>
           <td id="mac_address">Loading...</td>
         </tr>
@@ -215,6 +219,7 @@
           document.getElementById('model').innerHTML = context.device.model || 'N/A'
           document.getElementById('ip_address').innerHTML = context.device.ip || 'N/A'
           document.getElementById('mac_address').innerHTML = context.device.info.mac || 'N/A'
+          document.getElementById('sw').innerHRML = context.device.info.sw || 'NA'
           document.getElementById('room_by_room').innerHTML = context.device.multiRoom || false
           document.getElementById('mapCount').style.display = 'none'
           document.getElementById('regionCount').style.display = 'none'
