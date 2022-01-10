@@ -1,3 +1,7 @@
+### 2.1.12 
+* Added software version to custom ui
+
+
 ### 2.1.11 
 * Fixed Stuck Sensor, Thanks @Ghost108
 * Changed on/off logs from debug to info
