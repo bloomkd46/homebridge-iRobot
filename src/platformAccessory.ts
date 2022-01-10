@@ -254,9 +254,11 @@ export class iRobotPlatformAccessory {
     if (this.binConfig.includes('motion')) {
       this.binMotion.updateCharacteristic(this.platform.Characteristic.MotionDetected, this.binfull === 1);
     }
-
+    
+    if (this.platform.config.hideStuckSensor){
     this.stuck.updateCharacteristic(this.platform.Characteristic.MotionDetected, this.stuckStatus);
-
+    }
+      
     this.battery.updateCharacteristic(this.platform.Characteristic.BatteryLevel, this.batteryStatus.percent);
     this.battery.updateCharacteristic(this.platform.Characteristic.StatusLowBattery, this.batteryStatus.low);
     this.battery.updateCharacteristic(this.platform.Characteristic.ChargingState, this.batteryStatus.charging);
@@ -530,11 +532,11 @@ export class iRobotPlatformAccessory {
             eventEmitter.removeAllListeners();
           });
         }
-        this.platform.log.debug('Set', this.device.name, 'To',
+        this.platform.log.info('Set', this.device.name, 'To',
           value === 0 ? configOffAction[0] + (configOffAction[1] !== 'none' ? ' and ' + configOffAction[1] : '') : 'Clean',
           this.roomByRoom ? 'With args:' + JSON.stringify(args) : '');
       } catch (err) {
-        this.platform.log.debug('Error Seting', this.device.name, 'To',
+        this.platform.log.warn('Error Seting', this.device.name, 'To',
           value === 0 ? configOffAction[0] + (configOffAction[1] !== 'none' ? ' and ' + configOffAction[1] : '') : 'Clean',
           this.roomByRoom ? 'With args:' + JSON.stringify(args) : '');
         this.platform.log.error(err as string);
