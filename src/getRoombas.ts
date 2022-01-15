@@ -13,8 +13,9 @@ export function getRoombas(email: string, password: string, log: Logger): Robot[
     log.error('Faild to login to iRobot, see below for details');
     log.error(Robots);
   }
+  const badRoombas: number[] = [];
   robots.forEach(robot => {
-    log.info('Getting IP address for roomba:', robot.name);
+    log.info('Configuring roomba:', robot.name);
     const robotIP = child_process.execFileSync(__dirname + '/scripts/getRoombaIP.js', [robot.blid]).toString();
     try{
       const robotInfo = JSON.parse(robotIP);
@@ -25,14 +26,23 @@ export function getRoombas(email: string, password: string, log: Logger): Robot[
       robot.multiRoom = getMultiRoom(robot.model);
       robot.info = robotInfo;
       if(robotInfo.sku.startsWith('m6')){
-        robots.splice(robots.indexOf(robot));
+        badRoombas.push(robots.indexOf(robot));
       }
     }catch(e){
-      log.error('Failed to fetch ip for roomba:', robot.name, 'see below for details');
+      log.error('Failed to configure roomba:', robot.name, 'see below for details');
       log.error(robotIP);
-      robots.splice(robots.indexOf(robot));
+      badRoombas.push(robots.indexOf(robot));
     }
   });
+  for(const roomba of badRoombas){
+    log.warn('Ignoring Unconfigured Roomba:', robots[roomba].name);
+    try{
+      robots.splice(roomba);
+    }catch(e){
+      log.error('Failed To Remove Unconfigured Roomba:', robots[roomba].name, 'see below for details');
+      log.error(e as string);
+    }
+  }
   return robots;
 
 }
