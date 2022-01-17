@@ -32,7 +32,7 @@ jobs:
           git config --global user.email "github-actions[bot]@users.noreply.github.com" && \
           git config --global user.name "github-actions[bot]" && \
           git add README.md && \
-          git commit -m 'Add (Un)Supported Device' && \
+          git commit -m 'Added Device To Supported Devices Table' && \
           git push
       - uses: peter-evans/close-issue@v1
         with:
