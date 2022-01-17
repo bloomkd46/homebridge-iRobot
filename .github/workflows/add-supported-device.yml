@@ -36,5 +36,6 @@ jobs:
           git commit -m 'Added Device To Supported Devices Table' && \
           git push
       - uses: peter-evans/close-issue@v1
+        if: github.events.labels == update-devices
         with:
           comment: Thank you for your input! Check out the <a href="../">README</a> to see your device show up.
