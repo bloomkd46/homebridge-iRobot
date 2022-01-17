@@ -4,6 +4,7 @@ name: Add Supported Device To Readme
 on:
   issues:
     types: opened
+    label: update-devices
 concurrency: 'main'
 jobs:
   place_order:
@@ -27,7 +28,7 @@ jobs:
       - run: node .github/workflows/add-model.js
 
       - name: Commit changes
-        if: github.events.labels == update-devices
+        if: github.events.label == update-devices
         shell: bash
         run: |
           git config --global user.email "github-actions[bot]@users.noreply.github.com" && \
@@ -36,6 +37,6 @@ jobs:
           git commit -m 'Added Device To Supported Devices Table' && \
           git push
       - uses: peter-evans/close-issue@v1
-        if: github.events.labels == update-devices
+        if: github.events.label == update-devices
         with:
           comment: Thank you for your input! Check out the <a href="../">README</a> to see your device show up.
