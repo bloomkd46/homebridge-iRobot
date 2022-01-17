@@ -31,11 +31,12 @@ jobs:
       - name: Commit changes
         shell: bash
         run: |
-          git config --global user.email "github-actions[bot]@users.noreply.github.com" && \
-          git config --global user.name "github-actions[bot]" && \
-          git add README.md && \
-          git commit -m 'Added Device To Supported Devices Table' && \
+          git config --global user.email "action@github.com"
+          git config --global user.name "github-actions"
+          git add README.md
+          git commit -m 'Added Device To Supported Devices Table'
           git push
+          
       - uses: peter-evans/close-issue@v1
         with:
           comment: Thank you for your input! Check out the <a href="../">README</a> to see your device show up.
