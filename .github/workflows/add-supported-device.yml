@@ -3,7 +3,7 @@
 name: Add Supported Device To Readme
 on:
   issues:
-    types: labled
+    types: labeled
 concurrency: 'main'
 jobs:
   update_devices:
