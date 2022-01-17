@@ -12,8 +12,8 @@ const content = `1. [@${user}](https://github.com/${user}) orders ${amount} ${si
 
 fs.appendFileSync('README.md', content);
 */
-const eventPayload = require(process.env.GITHUB_WORKSPACE);
-const device = require('../../device.json');
+const eventPayload = require('../../'+process.env.GITHUB_EVENT_PATH);
+const device = require('./device.json');
 const [roomba_model, supported] = Object.values(device);
 var fs = require('fs');
 var lineNumber = 36;
