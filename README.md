@@ -32,14 +32,10 @@ Homebridge plugin to integrate iRobot roombas into HomeKit
 > Don't See Your Device Below?
 > Let Me Know If It Worked By Filling Out [This Template](https://github.com/bloomkd46/homebridge-iRobot/issues/new?assignees=bloomkd46&labels=enchancment&template=add-supported-device.yml&title=Supported+Device%3A+)
 
-| Model | Supported |
-|-|-|
-| test | No | @bloomkd46 |
-| 980 | Yes |
-| 965 | Yes |
-| i8 | Yes |
-| i7 | Yes |
-| j7 | No |
+| Model | Supported | Reported By |
+|-|-|-|
+| 965 | Yes | [bloomkd46](https://github.com/bloomkd46) |
+| i8 | Yes | [bloomkd46](https://github.com/bloomkd46) |
 
 
 ## Features:
