@@ -32,8 +32,8 @@ jobs:
           git config --global user.email "github-actions[bot]@users.noreply.github.com" && \
           git config --global user.name "github-actions[bot]" && \
           git add README.md && \
-          git commit -m 'Place order' && \
+          git commit -m 'Add (Un)Supported Device' && \
           git push
       - uses: peter-evans/close-issue@v1
         with:
-          comment: Tank you for your input! Check out the <a href="../">README</a> to see your device show up.
+          comment: Thank you for your input! Check out the <a href="../">README</a> to see your device show up.
