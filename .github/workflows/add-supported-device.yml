@@ -6,11 +6,12 @@ on:
     types: opened
 concurrency: 'main'
 jobs:
-  place_order:
+  update_devices:
+    if: github.event.label.name == 'update-devices'
     runs-on: ubuntu-latest
+    
     steps:
       - uses: actions/checkout@v2
-        if: github.event.label.name == update-devices
 
       - uses: actions/setup-node@v2
         with:
@@ -28,7 +29,6 @@ jobs:
       - run: node .github/workflows/add-model.js
 
       - name: Commit changes
-        if: github.event.label.name == update-devices
         shell: bash
         run: |
           git config --global user.email "github-actions[bot]@users.noreply.github.com" && \
@@ -37,6 +37,5 @@ jobs:
           git commit -m 'Added Device To Supported Devices Table' && \
           git push
       - uses: peter-evans/close-issue@v1
-        if: github.event.label.name == update-devices
         with:
           comment: Thank you for your input! Check out the <a href="../">README</a> to see your device show up.
