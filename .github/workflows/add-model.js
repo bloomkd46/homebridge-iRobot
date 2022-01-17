@@ -12,13 +12,14 @@ const content = `1. [@${user}](https://github.com/${user}) orders ${amount} ${si
 
 fs.appendFileSync('README.md', content);
 */
-const eventPayload = require('../../'+process.env.GITHUB_EVENT_PATH);
+const eventPayload = require(process.env.GITHUB_EVENT_PATH);
 const device = require('./device.json');
+const user = eventPayload.sender.login;
 const [roomba_model, supported] = Object.values(device);
 var fs = require('fs');
 var lineNumber = 36;
 var data = fs.readFileSync('README.md').toString().split("\n");
-data.splice(lineNumber, 0, ("| " + roomba_model + " | " + supported + " | " + user + " |"));
+data.splice(lineNumber, 0, ("| " + roomba_model + " | " + supported + " | @" + user + " |"));
 var text = data.join("\n");
 
 fs.writeFile('README.md', text, function (err) {
