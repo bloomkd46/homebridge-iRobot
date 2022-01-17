@@ -4,6 +4,7 @@ name: Add Supported Device To Readme
 on:
   issues:
     types: opened
+    labels: update-devices
 concurrency: 'main'
 jobs:
   place_order:
