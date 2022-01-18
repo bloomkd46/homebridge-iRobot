@@ -34,6 +34,7 @@ Homebridge plugin to integrate iRobot roombas into HomeKit
 
 | Model | Supported | Reported By |
 |-|-|-|
+| 960 | Yes | [NateUT99](https://github.com/NateUT99) |
 | 965 | Yes | [bloomkd46](https://github.com/bloomkd46) |
 | i8 | Yes | [bloomkd46](https://github.com/bloomkd46) |
 
