@@ -3,7 +3,7 @@
 
 
 ### 2.1.14 Beta 2 
-* Fixed home bridge crash when reading variable ver
+* Fixed homebridge crash when reading variable ver
 
 
 ### 2.1.14 Beta 1 
@@ -11,7 +11,7 @@
 
 
 ### 2.1.13 
-* Fixed how getRoombas.ts handles unconfigured rumbas to address issues #23 and #34 
+* Fixed how getRoombas.ts handles unconfigured Roombas to address issues #23 and #34 
 
 
 ### 2.1.12 
