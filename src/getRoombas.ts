@@ -5,6 +5,7 @@ export function getRoombas(email: string, password: string, log: Logger, config:
   let robots: Robot[] = [];
 
   if(config.manualDiscovery){
+    log.info('Using manual discovery due to config');
     robots = config.roombas || [];
   }else{
     log.info('Logging into iRobot...');
@@ -34,10 +35,15 @@ export function getRoombas(email: string, password: string, log: Logger, config:
           badRoombas.push(robots.indexOf(robot));
         }
       }catch(e){
-        log.error('Failed to configure roomba:', robot.name, 'see below for details');
-        log.error(robotIP);
-        badRoombas.push(robots.indexOf(robot));
+        try{
+          log.error('Failed to configure roomba:', robot.name, 'see below for details');
+          log.error(robotIP);
+        } finally{
+          badRoombas.push(robots.indexOf(robot));
+        }
       }
+    } else {
+      log.info('Skipping configuration for roomba:', robot.name, 'due to config');
     }
   });
   for(const roomba of badRoombas){
@@ -69,7 +75,7 @@ function getMultiRoom(model:string){
     case 's':
     case 'j':
     case 'i':
-      if(model.charAt(1) as unknown as number > 4){
+      if(parseInt(model.charAt(1)) > 4){
         return true;
       } else{
         return false;
