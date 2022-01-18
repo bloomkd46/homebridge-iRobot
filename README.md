@@ -16,7 +16,7 @@ Homebridge plugin to integrate iRobot roombas into HomeKit
 [![npm](https://img.shields.io/npm/v/homebridge-irobot/beta?label=beta)](../../wiki/Beta-Version)  
  
 [![build workflow](https://github.com/bloomkd46/homebridge-iRobot/actions/workflows/build.yml/badge.svg)](../../actions/workflows/build.yml)
-[![license](https://badgen.net/github/license/bloomkd46/homebridge-irobot)](https://github.com/bloomkd46/homebridge-irobot/blob/master/LICENSE.md)
+[![license](https://badgen.net/github/license/bloomkd46/homebridge-irobot)](/LICENSE)
 
 
 </span>
@@ -50,7 +50,7 @@ Homebridge plugin to integrate iRobot roombas into HomeKit
   - [x] Stuck Sensor
   
 ## TODO: 
-  - [ ] Add ability for rooms to show up with naes instead of id number
+  - [ ] Add ability for rooms to show up with names instead of id number
 ### Prerequisites
 
 - To use this plugin, you will need to already have [Homebridge](https://homebridge.io) (at least v1.3.5) or [HOOBS](https://hoobs.org) (at least v4) installed. Refer to the links for more information and installation instructions.
