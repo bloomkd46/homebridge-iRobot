@@ -50,8 +50,8 @@ export class iRobotPlatformAccessory {
     // set accessory information
     this.accessory.getService(this.platform.Service.AccessoryInformation)!
       .setCharacteristic(this.platform.Characteristic.Manufacturer, 'iRobot')
-      .setCharacteristic(this.platform.Characteristic.Model, this.device.model || 'N/A')
-      .setCharacteristic(this.platform.Characteristic.SerialNumber, 'N/A')
+      .setCharacteristic(this.platform.Characteristic.Model, this.device.model || this.device.info.sku || 'N/A')
+      .setCharacteristic(this.platform.Characteristic.SerialNumber, this.device.info.serialNum || this.accessory.UUID || 'N/A')
       .setCharacteristic(this.platform.Characteristic.FirmwareRevision, this.device.info.sw || this.device.info.ver || 'N/A')
       .getCharacteristic(this.platform.Characteristic.Identify).on('set', this.identify.bind(this));
 
@@ -181,7 +181,7 @@ export class iRobotPlatformAccessory {
   async configureRoomba() {
     this.roomba = null;
     this.accessory.context.connected = false;
-    this.roomba = new dorita980.Local(this.device.blid, this.device.password, this.device.ip/*, 2, this.config.interval*/);
+    this.roomba = new dorita980.Local(this.device.blid, this.device.password, this.device.ip, this.device.info.ver || 2);
     this.roomba.on('connect', () => {
       this.accessory.context.connected = true;
       this.platform.log.info('Succefully connected to roomba', this.device.name);

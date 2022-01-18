@@ -9,6 +9,7 @@
     "properties": {
       "name": {
         "title": "Name",
+        "description": "For logging purposes",
         "type": "string",
         "required": true,
         "default": "iRobot"
@@ -18,7 +19,10 @@
         "type": "string",
         "required": true,
         "placeholder": "email@example.com",
-        "format": "email"
+        "format": "email",
+        "condition": {
+          "functionBody": "return !model.manualDiscovery"
+        }
       },
       "password": {
         "title": "Password",
@@ -26,7 +30,126 @@
         "required": true,
         "x-schema-form": {
           "type": "password"
+        },
+        "condition": {
+          "functionBody": "return !model.manualDiscovery"
         }
+      },
+      "roombas": {
+        "title": "Roomba's",
+        "type": "array",
+        "buttonText": "Add Roomba",
+        "items": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "title": "Device Name",
+              "description": "Name to display in custom ui and Homekit",
+              "type": "string",
+              "required": true,
+              "placeholder": "Roomba"
+            },
+            "blid": {
+              "title": "Blid",
+              "description": "Your roomba's blid/username (Hint: if you enter your iRobot credentials above you can find your roomba's blid/username in the devices tab above)",
+              "type": "string",
+              "required": true
+            },
+            "password": {
+              "title": "Password",
+              "description": "Your roomba's password (Hint: if you enter your iRobot credentials above you can find your roomba's password in the devices tab above)",
+              "required": true,
+              "type": "string"
+            },
+            "autoConfig": {
+              "title": "Automatic Configuration",
+              "description": "Disable this to manually enter roomba credentials (IP, model, etc)",
+              "type": "boolean",
+              "default": true,
+              "required": true
+            },
+            "ip": {
+              "title": "IP Address",
+              "description": "Your roomba's ip address (Hint: if you enter your iRobot credentials above you can find your roomba's ip address in the devices tab above)",
+              "type": "string",
+              "format": "ipv4",
+              "required": true,
+              "condition": {
+                "functionBody": "return !model.roombas[arrayIndices].autoConfig"
+              }
+            },
+            "model": {
+              "title": "Model",
+              "description": "Your roomba's model (Hint: if you enter your iRobot credentials above you can find your roomba's model in the devices tab above)",
+              "type": "string",
+              "required": true,
+              "condition": {
+                "functionBody": "return !model.roombas[arrayIndices].autoConfig"
+              }
+            },
+            "multiRoom": {
+              "title": "Room-By-Room Support",
+              "description": "Does your roomba support room-by-room cleaning",
+              "type": "boolean",
+              "required": true,
+              "condition": {
+                "functionBody": "return !model.roombas[arrayIndices].autoConfig"
+              }
+            },
+            "info": {
+              "title": "Additional Information",
+              "type": "object",
+              "properties": {
+                "sw": {
+                  "title": "Software Version",
+                  "description": "Your Roomba's software version",
+                  "type": "string",
+                  "required": false
+                },
+                "serialNum": {
+                  "title": "Serial Number",
+                  "description": "Your Roomba's serial number",
+                  "type": "string",
+                  "required": false
+                },
+                "mac": {
+                  "title": "Mac Address",
+                  "description": "Your Roomba's mac address",
+                  "type": "string",
+                  "required": false
+                },
+                "ver": {
+                  "title": "Protocol Version",
+                  "description": "Your Roomba's protocol version (defualt 2)",
+                  "type": "number",
+                  "default": 2,
+                  "max": 3,
+                  "min": 1,
+                  "required": false
+                },
+                "sku": {
+                  "title": "sku",
+                  "description": "Your Roomba's sku",
+                  "type": "string",
+                  "required": false
+                }
+              },
+              "condition": {
+                "functionBody": "return !model.roombas[arrayIndices].autoConfig"
+              }
+            }
+          }
+        },
+        "condition": {
+          "functionBody": "return model.manualDiscovery"
+        }
+      },
+      "manualDiscovery": {
+        "title": "Manual Configuration",
+        "description": "Select this to manually configure your roomba's instead of using an email & password",
+        "type": "boolean",
+        "default": false,
+        "required": true
       },
       "lowBattery": {
         "title": "Low Battery Warning",
@@ -225,7 +348,6 @@
               "none"
             ]
           }
-
         ],
         "required": true,
         "description": "What To Use To Display If The Roomba's Bin Is Full \n(Filters only show up in eve,\n Contact Sensors give you a notification when the bin is full and when you empty it,\n Motion Sensors only notify you if the bin is full.)"

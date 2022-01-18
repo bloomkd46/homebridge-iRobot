@@ -62,7 +62,7 @@ export class iRobotPlatform implements DynamicPlatformPlugin {
     // or a user-defined array in the platform config.
 
     // loop over the discovered devices and register each one if it has not already been registered
-    for (const device of getRoombas(this.config.email, this.config.password, this.log)) {
+    for (const device of getRoombas(this.config.email, this.config.password, this.log, this.config)) {
       if(this.config.disableMultiRoom){
         device.multiRoom = false;
       }
