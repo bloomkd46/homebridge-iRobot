@@ -1,3 +1,7 @@
+### 2.1.13 
+* Fixed how getRoombas.ts handles unconfigured rumbas to address issues #23 and #34 
+
+
 ### 2.1.12 
 * Added software version to custom ui
 

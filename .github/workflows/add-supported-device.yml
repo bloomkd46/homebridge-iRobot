@@ -3,11 +3,13 @@
 name: Add Supported Device To Readme
 on:
   issues:
-    types: opened
+    types: labeled
 concurrency: 'main'
 jobs:
-  place_order:
+  update_devices:
+    if: github.event.label.name == 'update-devices'
     runs-on: ubuntu-latest
+    
     steps:
       - uses: actions/checkout@v2
 
@@ -29,11 +31,12 @@ jobs:
       - name: Commit changes
         shell: bash
         run: |
-          git config --global user.email "github-actions[bot]@users.noreply.github.com" && \
-          git config --global user.name "github-actions[bot]" && \
-          git add README.md && \
-          git commit -m 'Place order' && \
+          git config --global user.email "action@github.com"
+          git config --global user.name "github-actions"
+          git add README.md
+          git commit -m 'Added Device To Supported Devices Table'
           git push
+          
       - uses: peter-evans/close-issue@v1
         with:
-          comment: Tank you for your input! Check out the <a href="../">README</a> to see your device show up.
+          comment: Thank you for your input! Check out the <a href="../">README</a> to see your device show up.

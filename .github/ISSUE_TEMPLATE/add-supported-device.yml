@@ -2,8 +2,6 @@ name: Add Supported Device
 description: inform me of a supported device not currently known
 title: "Add Supported Device: "
 labels: update-devices
-assignees:
-  - bloomkd46
 body:
   - type: markdown
     attributes:
