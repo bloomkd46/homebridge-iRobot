@@ -181,7 +181,8 @@ export class iRobotPlatformAccessory {
   async configureRoomba() {
     this.roomba = null;
     this.accessory.context.connected = false;
-    this.roomba = new dorita980.Local(this.device.blid, this.device.password, this.device.ip, this.device.info.ver?.charAt(1) || 2);
+    this.roomba = new dorita980.Local(this.device.blid, this.device.password, this.device.ip,
+      (this.device.info !== undefined && this.device.info.ver !== undefined) ? this.device.info.ver.charAt(1) : 2);
     this.roomba.on('connect', () => {
       this.accessory.context.connected = true;
       this.platform.log.info('Succefully connected to roomba', this.device.name);
@@ -197,7 +198,7 @@ export class iRobotPlatformAccessory {
         this.platform.log.info('Roomba', this.device.name, 'connection closed');
       } else {
         this.platform.log.warn('Roomba', this.device.name, ' connection closed, reconnecting in 5 seconds');
-        setTimeout(() =>{
+        setTimeout(() => {
           this.platform.log.warn('Attempting To Reconnect To Roomba', this.device.name);
           this.configureRoomba();
         }, 5000);
@@ -214,9 +215,9 @@ export class iRobotPlatformAccessory {
         '\n batPct:', data.batPct,
         '\n bin:', JSON.stringify(data.bin),
         '\n lastCommand:', JSON.stringify(data.lastCommand));
-      if(data.cleanMissionStatus.phase === 'stuck' && this.lastStatus.phase !== 'stuck'){
+      if (data.cleanMissionStatus.phase === 'stuck' && this.lastStatus.phase !== 'stuck') {
         this.platform.log.warn('Roomba', this.device.name, 'Is Stuck!');
-      } else if(this.lastStatus.phase === 'stuck' && data.cleanMissionStatus.phase !== 'stuck'){
+      } else if (this.lastStatus.phase === 'stuck' && data.cleanMissionStatus.phase !== 'stuck') {
         this.platform.log.info('Roomba', this.device.name, 'Says "Thank You For Freeing Me"');
       }
     }
@@ -255,7 +256,7 @@ export class iRobotPlatformAccessory {
       this.binMotion.updateCharacteristic(this.platform.Characteristic.MotionDetected, this.binfull === 1);
     }
 
-    if (this.platform.config.hideStuckSensor){
+    if (this.platform.config.hideStuckSensor) {
       this.stuck.updateCharacteristic(this.platform.Characteristic.MotionDetected, this.stuckStatus);
     }
 
@@ -276,8 +277,8 @@ export class iRobotPlatformAccessory {
         //const oldRegions = this.accessory.context.maps[index].regions;
         for (const region of lastCommand.regions) {
           let exists = false;
-          for (const region_ of this.accessory.context.maps[index].regions){
-            if(region_.region_id === region.region_id){
+          for (const region_ of this.accessory.context.maps[index].regions) {
+            if (region_.region_id === region.region_id) {
               exists = true;
             }
           }
@@ -394,7 +395,7 @@ export class iRobotPlatformAccessory {
    * this.service.updateCharacteristic(this.platform.Characteristic.On, true)
    */
   async get(): Promise<CharacteristicValue> {
-    if (this.accessory.context.connected){
+    if (this.accessory.context.connected) {
       this.platform.log.debug('Updating', this.device.name, 'To', this.active ? 'On' : 'Off');
       return this.active ? 1 : 0;
     } else {
@@ -403,7 +404,7 @@ export class iRobotPlatformAccessory {
   }
 
   async getState(): Promise<CharacteristicValue> {
-    if (this.accessory.context.connected){
+    if (this.accessory.context.connected) {
       this.platform.log.debug('Updating', this.device.name, 'Mode To', this.state === 0 ? 'Off' : this.state === 1 ? 'Idle' : 'On');
       return this.state;
     } else {
@@ -412,7 +413,7 @@ export class iRobotPlatformAccessory {
   }
 
   async getBinfull(): Promise<CharacteristicValue> {
-    if (this.accessory.context.connected){
+    if (this.accessory.context.connected) {
       this.platform.log.debug('Updating', this.device.name, 'Binfull To', this.binfull === 0 ? 'OK' : 'FULL');
       return this.binfull;
     } else {
@@ -421,7 +422,7 @@ export class iRobotPlatformAccessory {
   }
 
   async getBinfullBoolean(): Promise<CharacteristicValue> {
-    if (this.accessory.context.connected){
+    if (this.accessory.context.connected) {
       this.platform.log.debug('Updating', this.device.name, 'Binfull To', this.binfull === 0 ? 'OK' : 'FULL');
       return this.binfull === 1;
     } else {
@@ -430,7 +431,7 @@ export class iRobotPlatformAccessory {
   }
 
   async getBatteryLevel(): Promise<CharacteristicValue> {
-    if (this.accessory.context.connected){
+    if (this.accessory.context.connected) {
       this.platform.log.debug('Updating', this.device.name, 'Battery Level To', this.batteryStatus.percent);
       return this.batteryStatus.percent;
     } else {
@@ -439,7 +440,7 @@ export class iRobotPlatformAccessory {
   }
 
   async getBatteryStatus(): Promise<CharacteristicValue> {
-    if (this.accessory.context.connected){
+    if (this.accessory.context.connected) {
       this.platform.log.debug('Updating', this.device.name, 'Battery Status To', this.batteryStatus.low ? 'Low' : 'Normal');
       return this.batteryStatus.low ? 1 : 0;
     } else {
@@ -448,7 +449,7 @@ export class iRobotPlatformAccessory {
   }
 
   async getChargeState(): Promise<CharacteristicValue> {
-    if (this.accessory.context.connected){
+    if (this.accessory.context.connected) {
       this.platform.log.debug('Updating', this.device.name, 'Charge Status To', this.batteryStatus.charging ? 'Charging' : 'Not Charging');
       return this.batteryStatus.charging ? 1 : 0;
     } else {
@@ -457,7 +458,7 @@ export class iRobotPlatformAccessory {
   }
 
   async getMode(): Promise<CharacteristicValue> {
-    if (this.accessory.context.connected){
+    if (this.accessory.context.connected) {
       this.platform.log.debug('Updating', this.device.name, 'Mode To', this.roomByRoom ? 'Room-By-Room' : 'Everywhere');
       return this.roomByRoom ? 0 : 1;
     } else {
@@ -466,7 +467,7 @@ export class iRobotPlatformAccessory {
   }
 
   async getStuck(): Promise<CharacteristicValue> {
-    if (this.accessory.context.connected){
+    if (this.accessory.context.connected) {
       this.platform.log.debug('Updating', this.device.name, 'Stuck To', this.stuckStatus);
       return this.stuckStatus;
     } else {
