@@ -19,7 +19,7 @@ export function getRoombas(email: string, password: string, log: Logger, config:
   }
   const badRoombas: number[] = [];
   robots.forEach(robot => {
-    if(robot.autoConfig){
+    if(robot.autoConfig || !config.autoDiscovery){
       log.info('Configuring roomba:', robot.name);
       const robotIP = child_process.execFileSync(__dirname + '/scripts/getRoombaIP.js', [robot.blid]).toString();
       try{
