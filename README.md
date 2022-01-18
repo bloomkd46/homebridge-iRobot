@@ -40,17 +40,17 @@ Homebridge plugin to integrate iRobot roombas into HomeKit
 
 
 ## Features:
-  * On/Off Control
-  * Room-By-Room Control On Models That Support It (Only Tested When Using One Map)
-  * Auto-Dicovery Of All Devices On Your Acount
-  * Battery Percent/Charging ifo
-  * Binfull Detection In The Form Of Filter/Contact/Motion Sensor
-  * Stuck Sensor
+  - [x] Approved By Homebridge
+  - [x] Custom UI For Viewing Devices
+  - [x] On/Off Control
+  - [x] Room-By-Room Control On Models That Support It (Only Tested When Using One Map)
+  - [x] Auto-Dicovery Of All Devices On Your Acount
+  - [x] Battery Percent/Charging ifo
+  - [x] Binfull Detection In The Form Of Filter/Contact/Motion Sensor
+  - [x] Stuck Sensor
   
 ## TODO: 
-  * Get Approved By Homebridge
-  * Add Custom UI For Viewing Devices
-
+  - [ ] Add ability for rooms to show up with naes instead of id number
 ### Prerequisites
 
 - To use this plugin, you will need to already have [Homebridge](https://homebridge.io) (at least v1.3.5) or [HOOBS](https://hoobs.org) (at least v4) installed. Refer to the links for more information and installation instructions.
