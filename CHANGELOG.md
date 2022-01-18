@@ -1,3 +1,7 @@
+### 2.1.14 Beta 2 
+* Fixed home bridge crash when reading variable ver
+
+
 ### 2.1.14 Beta 1 
 * Added support for manually configuring Roomba's instead of entering your Roomba credentials
 
