@@ -1,3 +1,7 @@
+### 2.1.14 Beta 3 
+* Fixed homebridge crash due to logic error when configuring Roomba's
+
+
 ### 2.1.14 Beta 2 
 * Fixed home bridge crash when reading variable ver
 
