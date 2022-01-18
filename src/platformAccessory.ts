@@ -181,7 +181,7 @@ export class iRobotPlatformAccessory {
   async configureRoomba() {
     this.roomba = null;
     this.accessory.context.connected = false;
-    this.roomba = new dorita980.Local(this.device.blid, this.device.password, this.device.ip, this.device.info.ver || 2);
+    this.roomba = new dorita980.Local(this.device.blid, this.device.password, this.device.ip, this.device.info.ver?.charAt(1) || 2);
     this.roomba.on('connect', () => {
       this.accessory.context.connected = true;
       this.platform.log.info('Succefully connected to roomba', this.device.name);
