@@ -1,7 +1,7 @@
 {
   "displayName": "Hombrige iRobot",
   "name": "homebridge-irobot",
-  "version": "2.1.13",
+  "version": "2.1.14-beta.1",
   "description": "A homebridge plugin for controlling iRobot devices",
   "license": "Apache-2.0",
   "repository": {

@@ -1,3 +1,7 @@
+### 2.1.14 Beta 1 
+* Added support for manually configuring Roomba's instead of entering your Roomba credentials
+
+
 ### 2.1.13 
 * Fixed how getRoombas.ts handles unconfigured rumbas to address issues #23 and #34 
 
