@@ -4,7 +4,7 @@ import events from 'events';
 const eventEmitter = new events.EventEmitter();
 
 import { Robot } from './getRoombas';
-import dorita980 from 'dorita980';
+import dorita980, { Local } from 'dorita980';
 
 
 /**
@@ -23,7 +23,7 @@ export class iRobotPlatformAccessory {
 
 
   private binConfig: string[] = this.device.multiRoom && this.platform.config.ignoreMultiRoomBin ? [] : this.platform.config.bin.split(':');
-  private roomba;
+  private roomba!: dorita980.Local;
   private active = false;
   private lastStatus = { cycle: '', phase: '' };
   private lastCommandStatus = { pmap_id: null };
@@ -179,21 +179,22 @@ export class iRobotPlatformAccessory {
   }
 
   async configureRoomba() {
-    this.roomba = null;
     this.accessory.context.connected = false;
     this.roomba = new dorita980.Local(this.device.blid, this.device.password, this.device.ip,
       this.device.info.ver !== undefined ? parseInt(this.device.info.ver) : 2);
     this.roomba.on('connect', () => {
       this.accessory.context.connected = true;
       this.platform.log.info('Succefully connected to roomba', this.device.name);
-    }).on('offline', () => {
+    });
+    this.roomba.on('offline', () => {
       this.accessory.context.connected = false;
       this.platform.log.warn('Roomba', this.device.name, ' went offline, disconnecting...');
       this.roomba.end();
       //throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
-    }).on('close', () => {
+    });
+    this.roomba.on('close', () => {
       this.accessory.context.connected = false;
-      this.roomba.removeAllListeners();
+      //this.roomba.removeAllListeners();
       if (this.shutdown) {
         this.platform.log.info('Roomba', this.device.name, 'connection closed');
       } else {
@@ -204,7 +205,8 @@ export class iRobotPlatformAccessory {
         }, 5000);
         //throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
       }
-    }).on('state', this.updateRoombaState.bind(this));
+    });
+    this.roomba.on('state', this.updateRoombaState.bind(this));
   }
 
   updateRoombaState(data) {
