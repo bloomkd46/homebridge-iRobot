@@ -181,20 +181,18 @@ export class iRobotPlatformAccessory {
   async configureRoomba() {
     this.accessory.context.connected = false;
     this.roomba = new dorita980.Local(this.device.blid, this.device.password, this.device.ip,
-      this.device.info.ver !== undefined ? parseInt(this.device.info.ver) : 2);
+      this.device.info.ver !== undefined ? parseInt(this.device.info.ver) as 2 | 3 : 2);
     this.roomba.on('connect', () => {
       this.accessory.context.connected = true;
       this.platform.log.info('Succefully connected to roomba', this.device.name);
-    });
-    this.roomba.on('offline', () => {
+    }).on('offline', () => {
       this.accessory.context.connected = false;
       this.platform.log.warn('Roomba', this.device.name, ' went offline, disconnecting...');
       this.roomba.end();
       //throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
-    });
-    this.roomba.on('close', () => {
+    }).on('close', () => {
       this.accessory.context.connected = false;
-      //this.roomba.removeAllListeners();
+      this.roomba.removeAllListeners();
       if (this.shutdown) {
         this.platform.log.info('Roomba', this.device.name, 'connection closed');
       } else {
@@ -205,8 +203,7 @@ export class iRobotPlatformAccessory {
         }, 5000);
         //throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
       }
-    });
-    this.roomba.on('state', this.updateRoombaState.bind(this));
+    }).on('state', this.updateRoombaState.bind(this));
   }
 
   updateRoombaState(data) {
