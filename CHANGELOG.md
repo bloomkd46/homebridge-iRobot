@@ -1,3 +1,7 @@
+### 2.1.14 
+* Added the ability to manually configure Roomba's instead of using your iRobot credentials
+
+
 ### 2.1.14 Beta 4 
 * Improved logging when using manual configuration
 * Fixed logic when determining if device supports room-by-room cleaning
