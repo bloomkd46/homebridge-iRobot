@@ -177,9 +177,11 @@ export class iRobotPlatformAccessory {
      */
     //let motionDetected = false;
   }
-
   async configureRoomba() {
     this.accessory.context.connected = false;
+    /*if(this.device.info.sku?.startsWith('j')){
+      process.env.
+    }*/
     this.roomba = new dorita980.Local(this.device.blid, this.device.password, this.device.ip,
       this.device.info.ver !== undefined ? parseInt(this.device.info.ver) as 2 | 3 : 2);
     this.roomba.on('connect', () => {
@@ -498,6 +500,7 @@ export class iRobotPlatformAccessory {
           //give scenes a chance to run
           setTimeout(async () => {
             if (this.roomByRoom) {
+              await this.roomba.stop();
               if (this.accessory.context.activeRooms !== undefined) {
                 args = {
                   'ordered': 1,
@@ -518,6 +521,7 @@ export class iRobotPlatformAccessory {
               }
             } else {
               await this.roomba.clean();
+              await this.roomba.resume();
             }
           }, this.device.multiRoom ? 1000 : 0);
         } else {
