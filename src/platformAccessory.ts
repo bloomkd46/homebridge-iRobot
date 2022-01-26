@@ -177,11 +177,12 @@ export class iRobotPlatformAccessory {
      */
     //let motionDetected = false;
   }
+
   async configureRoomba() {
     this.accessory.context.connected = false;
-    /*if(this.device.info.sku?.startsWith('j')){
-      process.env.
-    }*/
+    if (this.device.info.sku?.startsWith('j')) {
+      process.env.ROBOT_CIPHERS = 'TLS_AES_256_GCM_SHA384';
+    }
     this.roomba = new dorita980.Local(this.device.blid, this.device.password, this.device.ip,
       this.device.info.ver !== undefined ? parseInt(this.device.info.ver) as 2 | 3 : 2);
     this.roomba.on('connect', () => {
