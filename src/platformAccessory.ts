@@ -4,7 +4,7 @@ import events from 'events';
 const eventEmitter = new events.EventEmitter();
 
 import { Robot } from './getRoombas';
-import dorita980, { Local } from 'dorita980';
+import dorita980 from 'dorita980';
 
 
 /**
