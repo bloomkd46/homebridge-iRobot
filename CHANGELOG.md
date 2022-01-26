@@ -1,3 +1,8 @@
+### 2.1.15 
+* Set program to resume robot if job is already active
+* Set program to stop Roomba if room-by-room request received
+
+
 ### 2.1.14 
 * Added the ability to manually configure Roomba's instead of using your iRobot credentials
 
