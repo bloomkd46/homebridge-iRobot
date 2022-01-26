@@ -1,6 +1,11 @@
+### 2.1.16 
+* This release represents releases 2.1.14 and 2.1.15
+
+
 ### 2.1.15 
 * Set program to resume robot if job is already active
 * Set program to stop Roomba if room-by-room request received
+* Added j7 support (hopefully 🤞)
 
 
 ### 2.1.14 
