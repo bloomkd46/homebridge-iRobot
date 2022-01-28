@@ -1,3 +1,4 @@
+/*
 import { Service, PlatformAccessory, CharacteristicValue } from 'homebridge';
 import dorita980 from 'dorita980';
 import { iRobotPlatform } from './platform';
@@ -71,3 +72,4 @@ export class iRobotPlatformAccessoryProto3 {
       .getCharacteristic(this.platform.Characteristic.Identify).on('set', this.identify.bind(this));
   }
 }
+*/
