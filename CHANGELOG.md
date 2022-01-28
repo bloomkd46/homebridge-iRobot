@@ -1,3 +1,7 @@
+### 2.1.17 Beta 1 
+* Whitelisted Bravva jets
+
+
 ### 2.1.16 
 * This release represents releases 2.1.14 and 2.1.15
 
