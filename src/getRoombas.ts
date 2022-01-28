@@ -31,9 +31,9 @@ export function getRoombas(email: string, password: string, log: Logger, config:
         robot.model = getModel(robotInfo.sku);
         robot.multiRoom = getMultiRoom(robot.model);
         robot.info = robotInfo;
-        if(robotInfo.sku.startsWith('m6')){
+        /*if(robotInfo.sku.startsWith('m6')){
           badRoombas.push(robots.indexOf(robot));
-        }
+        }*/
       }catch(e){
         try{
           log.error('Failed to configure roomba:', robot.name, 'see below for details');
