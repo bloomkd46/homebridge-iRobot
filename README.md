@@ -13,9 +13,9 @@ Homebridge plugin to integrate iRobot roombas into HomeKit
 [![downloads](https://img.shields.io/npm/dt/homebridge-irobot)](https://npmcharts.com/compare/homebridge-irobot?log=true&interval=1&minimal=true)
 
 [![npm](https://img.shields.io/npm/v/homebridge-irobot/latest?label=latest)](https://www.npmjs.com/package/homebridge-irobot)
-[![npm](https://img.shields.io/npm/v/homebridge-irobot/beta?label=beta)](../../wiki/Beta-Version)  
+[![npm](https://img.shields.io/npm/v/homebridge-irobot/beta?label=beta)](https://github.com/bloomkd46/homebridge-iRobot/wiki/Beta-Version)  
  
-[![build workflow](https://github.com/bloomkd46/homebridge-iRobot/actions/workflows/build.yml/badge.svg)](../../actions/workflows/build.yml)
+[![build workflow](https://github.com/bloomkd46/homebridge-iRobot/actions/workflows/build.yml/badge.svg)](https://github.com/bloomkd46/homebridge-iRobot/actions/workflows/build.yml)
 [![license](https://badgen.net/github/license/bloomkd46/homebridge-irobot)](/LICENSE)
 
 
@@ -72,16 +72,16 @@ Homebridge plugin to integrate iRobot roombas into HomeKit
 
 ### Setup
 
-- [Installation](../../wiki/Installation)
-- [Configuration](../../wiki/Configuration)
-- [Beta Version](../../wiki/Beta-Version)
-- [Node Version](../../wiki/Node-Version)
-- [Uninstallation](../../wiki/Uninstallation)
+- [Installation](https://github.com/bloomkd46/homebridge-iRobot/wiki/Installation)
+- [Configuration](https://github.com/bloomkd46/homebridge-iRobot/wiki/Configuration)
+- [Beta Version](https://github.com/bloomkd46/homebridge-iRobot/wiki/Beta-Version)
+- [Node Version](https://github.com/bloomkd46/homebridge-iRobot/wiki/Node-Version)
+- [Uninstallation](https://github.com/bloomkd46/homebridge-iRobot/wiki/Uninstallation)
 
 ### Help/About
 
-- [Common Errors](../../wiki/Common-Errors)
-- [Support Request](../../issues/new/choose)
+- [Common Errors](https://github.com/bloomkd46/homebridge-iRobot/wiki/Common-Errors)
+- [Support Request](https://github.com/bloomkd46/homebridge-iRobot/issues/new/choose)
 - [Changelog](/CHANGELOG.md)
 
 ### Credits
