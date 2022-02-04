@@ -6,9 +6,7 @@
 # homebridge-iRobot
 
 Homebridge plugin to integrate iRobot roombas into HomeKit
- 
-(Wiki Links Don't Work Yet)
- 
+  
  [![verified-by-homebridge](https://badgen.net/badge/homebridge/verified/purple)](https://github.com/homebridge/homebridge/wiki/Verified-Plugins)
 [![downloads](https://img.shields.io/npm/dt/homebridge-irobot)](https://npmcharts.com/compare/homebridge-irobot?log=true&interval=1&minimal=true)
 
