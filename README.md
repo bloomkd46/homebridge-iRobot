@@ -77,6 +77,7 @@ Homebridge plugin to integrate iRobot roombas into HomeKit
 - [Beta Version](https://github.com/bloomkd46/homebridge-iRobot/wiki/Beta-Version)
 - [Node Version](https://github.com/bloomkd46/homebridge-iRobot/wiki/Node-Version)
 - [Uninstallation](https://github.com/bloomkd46/homebridge-iRobot/wiki/Uninstallation)
+- [Room By Room](https://github.com/bloomkd46/homebridge-iRobot/wiki/Room-By-Room)
 
 ### Help/About
 
