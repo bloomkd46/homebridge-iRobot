@@ -34,6 +34,7 @@ Homebridge plugin to integrate iRobot roombas into HomeKit
 |-|-|-|
 | i3 | Yes | [nilsstreedain](https://github.com/nilsstreedain) |
 | e6 | Yes | [Dav97480](https://github.com/Dav97480) |
+| i7 | No | [rtdevnet](https://github.com/rtdevnet) |
 | S9 | No | [kip1539](https://github.com/kip1539) |
 | 671 | Yes | [Geek-MD](https://github.com/Geek-MD) |
 | 980 | Yes | [Drewbacca2](https://github.com/Drewbacca2) |
