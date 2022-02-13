@@ -98,7 +98,7 @@ export class iRobotPlatform implements DynamicPlatformPlugin {
           // store a copy of the device object in the `accessory.context`
           // the `context` property can be used to store any data about the accessory you may need
           accessory.context.device = device;
-
+          accessory.context.pluginVersion = 3;
           // create the accessory handler for the newly create accessory
           // this is imported from `platformAccessory.ts`
           //new iRobotPlatformAccessory(this, accessory, device);

@@ -1,6 +1,6 @@
-import { Service, PlatformAccessory, CharacteristicValue } from 'homebridge';
+import { Service, PlatformAccessory } from 'homebridge';
 import { iRobotPlatform } from './platform';
-import { RoombaV1, RoombaV2, MissionV1 } from './RoombaController';
+import { RoombaV1, RoombaV2, MissionV1, MissionV2 } from './RoombaController';
 import { EventEmitter } from 'events';
 
 const events = new EventEmitter();
@@ -11,7 +11,7 @@ const events = new EventEmitter();
  */
 export class iRobotPlatformAccessoryV1 {
   private service: Service;
-  private logPrefix = '[{this.accessory.context.displayName}]';
+  private logPrefix = '[${this.accessory.context.displayName}]';
   private roomba = new RoombaV1(this.accessory.context.blid, this.accessory.context.password, this.accessory.context.ip);
   private state: MissionV1 = {
     ok: {
@@ -20,8 +20,7 @@ export class iRobotPlatformAccessoryV1 {
       batPct: 99,
       idle: true,
       binFull: false,
-      binRemoved: false,
-      beeping: false,
+      binPresent: true,
     },
   };
 
@@ -66,20 +65,20 @@ export class iRobotPlatformAccessoryV1 {
           this.roomba.getMission().then(mission => {
             this.state = mission;
             events.emit('update', mission);
-            resolve(status[0] === 'inverted' ? mission.ok[status[1]] !== status[2]:mission.ok[status[0]] === status[1]);
+            resolve(status[0] === 'inverted' ? mission.ok[status[1]] !== status[2] : mission.ok[status[0]] === status[1]);
           }).catch(err => reject(err));
         });
       });
     events.on('update', (mission) => {
       const status = this.platform.config.status !== undefined ? this.platform.config.status.split(':') : ['phase', 'run'];
       this.service.updateCharacteristic(this.platform.Characteristic.On,
-        status[0] === 'inverted' ? mission.ok[status[1]] !== status[2]:mission.ok[status[0]] === status[1]);
+        status[0] === 'inverted' ? mission.ok[status[1]] !== status[2] : mission.ok[status[0]] === status[1]);
     });
     for (const sensor of this.platform.config.sensors) {
       const sensorType: 'contact' | 'motion' | 'filter' = sensor.type;
-      const value = (mission: MissionV1)=>{
+      const value = (mission: MissionV1) => {
         const conditions = sensor.codition.split[':'];
-        if(conditions[0] === 'inverted'){
+        if (conditions[0] === 'inverted') {
           return mission.ok[conditions[1]] !== conditions[2];
         } else {
           return mission.ok[conditions[0]] === conditions[1];
@@ -99,8 +98,8 @@ export class iRobotPlatformAccessoryV1 {
 
       } else if (sensorType === 'motion') {
         const motion = this.accessory.getService(this.accessory.displayName + ' ' + sensor.condition) ||
-        this.accessory.addService(this.platform.Service.MotionSensor, this.accessory.displayName + ' ' + sensor.condition,
-          'Motion-' + sensor.condition);
+          this.accessory.addService(this.platform.Service.MotionSensor, this.accessory.displayName + ' ' + sensor.condition,
+            'Motion-' + sensor.condition);
         motion.getCharacteristic(this.platform.Characteristic.MotionDetected)
           .onGet(() => {
             return value(this.state);
@@ -122,7 +121,7 @@ export class iRobotPlatformAccessoryV1 {
         });
       }
     }
-    const interval = setInterval(()=>{
+    const interval = setInterval(() => {
       this.roomba.getMission()
         .then(mission => events.emit('update', mission))
         .catch(err => this.platform.log.error(this.logPrefix, 'Failed To Update State:\n', err));
@@ -132,20 +131,19 @@ export class iRobotPlatformAccessoryV1 {
     });
   }
 }
-export class iRobotPlatformAccessoryV2{
+
+//------------------------------------------------------------------------------------------------------------------------------------------
+
+export class iRobotPlatformAccessoryV2 {
   private service: Service;
-  private logPrefix = '[{this.accessory.context.displayName}]';
+  private logPrefix = '[${this.accessory.context.displayName}]';
   private roomba = new RoombaV2(this.accessory.context.blid, this.accessory.context.password, this.accessory.context.ip);
-  private state: MissionV1 = {
-    ok: {
-      cycle: 'none',
-      phase: 'charge',
-      batPct: 99,
-      idle: true,
-      binFull: false,
-      binRemoved: false,
-      beeping: false,
-    },
+  private state: MissionV2 = {
+    cycle: 'none',
+    phase: 'charge',
+    batPct: 99,
+    binPresent: true,
+    binFull: false
   };
 
   constructor(
@@ -157,7 +155,7 @@ export class iRobotPlatformAccessoryV2{
       .setCharacteristic(this.platform.Characteristic.Manufacturer, 'iRobot')
       .setCharacteristic(this.platform.Characteristic.Model, this.accessory.context.device.sku || 'N/A')
       .setCharacteristic(this.platform.Characteristic.SerialNumber, this.accessory.context.device.serialNum || this.accessory.UUID || 'N/A')
-      .setCharacteristic(this.platform.Characteristic.FirmwareRevision, 1)
+      .setCharacteristic(this.platform.Characteristic.FirmwareRevision, 2)
       .getCharacteristic(this.platform.Characteristic.Identify).on('set', () => {
         this.platform.log.error(this.logPrefix, 'Identification not supported');
       });
@@ -173,12 +171,12 @@ export class iRobotPlatformAccessoryV2{
       .onSet((value) => {
         const stopActions = this.platform.config.offAction !== undefined ? this.platform.config.offAction.split(':') : ['pause', 'dock'];
         if (value as boolean) {
-          this.roomba.start();
+          this.roomba.clean();
           this.roomba.resume();
         } else {
           this.roomba[stopActions[0]];
           setTimeout(() => {
-            if (stopActions[1] !== 'none' && stopActions[1] !== 'find') {
+            if (stopActions[1] !== 'none') {
               this.roomba[stopActions[1]];
             }
           }, 5000);
@@ -189,23 +187,23 @@ export class iRobotPlatformAccessoryV2{
           this.roomba.getMission().then(mission => {
             this.state = mission;
             events.emit('update', mission);
-            resolve(status[0] === 'inverted' ? mission.ok[status[1]] !== status[2]:mission.ok[status[0]] === status[1]);
+            resolve(status[0] === 'inverted' ? mission[status[1]] !== status[2] : mission[status[0]] === status[1]);
           }).catch(err => reject(err));
         });
       });
     events.on('update', (mission) => {
       const status = this.platform.config.status !== undefined ? this.platform.config.status.split(':') : ['phase', 'run'];
       this.service.updateCharacteristic(this.platform.Characteristic.On,
-        status[0] === 'inverted' ? mission.ok[status[1]] !== status[2]:mission.ok[status[0]] === status[1]);
+        status[0] === 'inverted' ? mission.ok[status[1]] !== status[2] : mission.ok[status[0]] === status[1]);
     });
     for (const sensor of this.platform.config.sensors) {
       const sensorType: 'contact' | 'motion' | 'filter' = sensor.type;
-      const value = (mission: Mission)=>{
+      const value = (mission: MissionV2) => {
         const conditions = sensor.codition.split[':'];
-        if(conditions[0] === 'inverted'){
-          return mission.ok[conditions[1]] !== conditions[2];
+        if (conditions[0] === 'inverted') {
+          return mission[conditions[1]] !== conditions[2];
         } else {
-          return mission.ok[conditions[0]] === conditions[1];
+          return mission[conditions[0]] === conditions[1];
         }
       };
       if (sensorType === 'contact') {
@@ -222,8 +220,8 @@ export class iRobotPlatformAccessoryV2{
 
       } else if (sensorType === 'motion') {
         const motion = this.accessory.getService(this.accessory.displayName + ' ' + sensor.condition) ||
-        this.accessory.addService(this.platform.Service.MotionSensor, this.accessory.displayName + ' ' + sensor.condition,
-          'Motion-' + sensor.condition);
+          this.accessory.addService(this.platform.Service.MotionSensor, this.accessory.displayName + ' ' + sensor.condition,
+            'Motion-' + sensor.condition);
         motion.getCharacteristic(this.platform.Characteristic.MotionDetected)
           .onGet(() => {
             return value(this.state);
@@ -245,7 +243,7 @@ export class iRobotPlatformAccessoryV2{
         });
       }
     }
-    const interval = setInterval(()=>{
+    const interval = setInterval(() => {
       this.roomba.getMission()
         .then(mission => events.emit('update', mission))
         .catch(err => this.platform.log.error(this.logPrefix, 'Failed To Update State:\n', err));
