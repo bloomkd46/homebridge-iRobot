@@ -65,7 +65,6 @@
               "title": "Automatic Configuration",
               "description": "Disable this to manually enter roomba credentials (IP, model, etc)",
               "type": "boolean",
-              "default": true,
               "required": true
             },
             "ip": {
@@ -120,9 +119,9 @@
                 },
                 "ver": {
                   "title": "Protocol Version",
-                  "description": "Your Roomba's protocol version (defualt 2)",
+                  "description": "Your Roomba's protocol version",
                   "type": "number",
-                  "default": 2,
+                  "placeholder": 2,
                   "max": 3,
                   "min": 1,
                   "required": false

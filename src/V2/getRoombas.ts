@@ -1,31 +1,50 @@
 import request from 'request';
-import dgram from 'dgram';
+import { createSocket } from 'dgram';
 
-
-export async function getRoombas(config): Promise<ConfiguredRoomba[]> {
+export function getRoombas(config): Promise<ConfiguredRoomba[]> {
+  let index = 0;
   return new Promise((resolve, reject) => {
-    let robots: Roomba[];
-    if(!config.manualConfiguration || config.manualConfiguration === undefined){
-      getiRobotDevices(config.email, config.password).then(async robots => {
-        for(const robot of robots) {
-          await getDeviceCredentials(robot.blid).then(credentials => {
+    let robots: ConfiguredRoomba[] = [];
+    if (!config.manualConfiguration || config.manualConfiguration === undefined) {
+      getiRobotDevices(config.email, config.password).then(devices => {
+        for (const robot of devices) {
+          getDeviceCredentials(robot.blid).then(credentials => {
             robots.push(Object.assign(robot, credentials));
-          }).catch(err => reject(err));
+            index++;
+            if (index === devices.length) {
+              resolve(robots);
+            }
+          });//.catch(err => reject(err));
         }
       }).catch(error => {
         reject(error);
       });
-    }else {
+    } else {
       robots = config.roombas;
+      for (const robot of robots) {
+        if (!config.autoConfig && config.autoConfig !== undefined) {
+          robots.push(robot);
+        } else {
+          for (const robot of robots) {
+            getDeviceCredentials(robot.blid).then(credentials => {
+              robots.push(Object.assign(robot, credentials));
+            });//.catch(err => reject(err));
+          }
+        }
+        index++;
+        if (index === config.roombas.length) {
+          resolve(robots);
+        }
+      }
     }
   });
 }
 
 
-async function getDeviceCredentials(blid: string): Promise<ConfiguredRoomba>{
+function getDeviceCredentials(blid: string): Promise<ConfiguredRoomba> {
   return new Promise((resolve, reject) => {
     let broadcastInterval;
-    const server = dgram.createSocket('udp4');
+    const server = createSocket('udp4');
 
     server.on('error', (err) => {
       reject(err);
@@ -36,8 +55,9 @@ async function getDeviceCredentials(blid: string): Promise<ConfiguredRoomba>{
       try {
         const parsedMsg = JSON.parse(msg.toString());
         if (parsedMsg.hostname && parsedMsg.ip &&
-					((parsedMsg.hostname.split('-')[0] === 'Roomba') || (parsedMsg.hostname.split('-')[0] === 'iRobot'))) {
-          if(parsedMsg.hostname.split('-')[1] === blid){
+          ((parsedMsg.hostname.split('-')[0] === 'Roomba') || (parsedMsg.hostname.split('-')[0] === 'iRobot'))) {
+          if (parsedMsg.hostname.split('-')[1] === blid) {
+            clearInterval(broadcastInterval);
             server.close();
             resolve(parsedMsg);
             //console.log(JSON.stringify(parsedMsg));
@@ -49,13 +69,13 @@ async function getDeviceCredentials(blid: string): Promise<ConfiguredRoomba>{
       }
     });
     /*
-    server.on('listening', () => {
-      setTimeout(()=>{
-        //console.log(child_process.execFileSync(__dirname + '/getRoombaIP.js', [blid, attempt+1]).toString());
-        //process.exit(0);
-      }, 5000);
-    });
-		*/
+        server.on('listening', () => {
+            setTimeout(()=>{
+                //console.log(child_process.execFileSync(__dirname + '/getRoombaIP.js', [blid, attempt+1]).toString());
+                //process.exit(0);
+            }, 5000);
+        });
+        */
 
     server.bind(() => {
       const message = Buffer.from('irobotmcs');
@@ -64,10 +84,10 @@ async function getDeviceCredentials(blid: string): Promise<ConfiguredRoomba>{
       let attempts = 0;
       broadcastInterval = setInterval(() => {
         attempts++;
-        if(attempts > 5){
+        if (attempts > 5) {
           reject('No Roomba Found');
           clearInterval(broadcastInterval);
-        } else{
+        } else {
           server.send(message, 0, message.length, 5678, '255.255.255.255');
         }
       }, 5000);
@@ -77,7 +97,7 @@ async function getDeviceCredentials(blid: string): Promise<ConfiguredRoomba>{
 }
 
 
-async function getiRobotDevices(email: string, password: string): Promise<Roomba[]> {
+function getiRobotDevices(email: string, password: string): Promise<Roomba[]> {
   return new Promise((resolve, reject) => {
     const apiKey = '3_rWtvxmUKwgOzu3AUPTMLnM46lj-LxURGflmu5PcE_sGptTbD-wMeshVbLvYpq01K';
 
@@ -130,7 +150,7 @@ async function getiRobotDevices(email: string, password: string): Promise<Roomba
           //process.exit(0);
         }
         if (body && body.statusCode && body.statusCode === 200 && body.errorCode === 0 && body.UID && body.UIDSignature &&
-           body.signatureTimestamp && body.sessionInfo && body.sessionInfo.sessionToken) {
+          body.signatureTimestamp && body.sessionInfo && body.sessionInfo.sessionToken) {
           const iRobotLoginOptions = {
             'method': 'POST',
             'uri': 'https://unauth2.prod.iot.irobotapi.com/v2/login',
@@ -190,7 +210,7 @@ interface Roomba {
   name: string;
   blid: string;
   password: string;
-	ver: string;
+  ver: string;
   sku: string;
   softwareVer: string;
   cap: unknown;
@@ -198,13 +218,21 @@ interface Roomba {
   user_cert: boolean;
 }
 export interface ConfiguredRoomba {
-	name: string;
-	ip: string;
+  name: string;
+  ip: string;
   blid: string;
   password: string;
+  ver: string;
   sku: string;
   softwareVer: string;
   cap: unknown;
   svcDeplId: string;
   user_cert: boolean;
+  hostname: string;
+  robotname: string;
+  robotid?: string;
+  mac: string;
+  sw: string;
+  nc: number;
+  proto: string;
 }
