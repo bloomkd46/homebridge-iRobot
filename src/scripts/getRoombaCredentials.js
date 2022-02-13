@@ -96,6 +96,7 @@ function loginIrobotResponseHandler (error, response, body) {
   if (body && body.robots) {
     const robotCount = Object.keys(body.robots).length;
     //console.log('Found ' + robotCount + ' robot(s)!');
+    console.log(body.robots);
     console.log('[')
     Object.keys(body.robots).map(function (r) {
       index++;

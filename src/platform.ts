@@ -1,8 +1,8 @@
 import { API, DynamicPlatformPlugin, Logger, PlatformAccessory, PlatformConfig, Service, Characteristic } from 'homebridge';
 
 import { PLATFORM_NAME, PLUGIN_NAME } from './settings';
-import { iRobotPlatformAccessory } from './platformAccessory';
-import { getRoombas } from './getRoombas';
+import { iRobotPlatformAccessory } from './V1/platformAccessory';
+import { getRoombas } from './V1/getRoombas';
 
 /**
  * HomebridgePlatform

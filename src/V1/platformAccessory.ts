@@ -1,5 +1,5 @@
 import { Service, PlatformAccessory, CharacteristicValue } from 'homebridge';
-import { iRobotPlatform } from './platform';
+import { iRobotPlatform } from '../platform';
 import events from 'events';
 const eventEmitter = new events.EventEmitter();
 
