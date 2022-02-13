@@ -207,7 +207,7 @@
       "status": {
         "title": "Homekit Active",
         "type": "string",
-        "default": "cycle:clean",
+        "default": "phase:run",
         "oneOf": [
           {
             "title": "Job Active",

@@ -1,7 +1,7 @@
 import request from 'request';
 import { createSocket } from 'dgram';
-
-export function getRoombas(config): Promise<ConfiguredRoomba[]> {
+import { PlatformConfig } from 'homebridge';
+export function getRoombas(config: PlatformConfig): Promise<ConfiguredRoomba[]> {
   let index = 0;
   return new Promise((resolve, reject) => {
     const robots: ConfiguredRoomba[] = [];
@@ -29,7 +29,7 @@ export function getRoombas(config): Promise<ConfiguredRoomba[]> {
             robots.push(Object.assign(robot, credentials));
           }).catch(() => {
             //do nothing
-          }).then(() => {
+          }).finally(() => {
             index++;
             if (index === robots.length) {
               resolve(robots);
@@ -40,7 +40,7 @@ export function getRoombas(config): Promise<ConfiguredRoomba[]> {
             robots.push(Object.assign(robot, credentials));
           }).catch(() => {
             //do nothing
-          }).then(() => {
+          }).finally(() => {
             index++;
             if (index === robots.length) {
               resolve(robots);
@@ -223,7 +223,7 @@ interface Roomba {
   name: string;
   blid: string;
   password: string;
-  ver: string;
+  ver: '1' | '2' | '3';
   sku: string;
   softwareVer: string;
   cap: unknown;
@@ -235,7 +235,7 @@ export interface ConfiguredRoomba {
   ip: string;
   blid: string;
   password: string;
-  ver: string;
+  ver: '1' | '2' | '3';
   sku: string;
   softwareVer: string;
   cap: unknown;
