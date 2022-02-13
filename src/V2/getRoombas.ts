@@ -4,36 +4,49 @@ import { createSocket } from 'dgram';
 export function getRoombas(config): Promise<ConfiguredRoomba[]> {
   let index = 0;
   return new Promise((resolve, reject) => {
-    let robots: ConfiguredRoomba[] = [];
-    if (!config.manualConfiguration || config.manualConfiguration === undefined) {
+    const robots: ConfiguredRoomba[] = [];
+    if (config.password !== undefined && config.email !== undefined) {
       getiRobotDevices(config.email, config.password).then(devices => {
         for (const robot of devices) {
           getDeviceCredentials(robot.blid).then(credentials => {
             robots.push(Object.assign(robot, credentials));
+          }).catch(() => {
+            //do nothing
+          }).then(() => {
             index++;
             if (index === devices.length) {
               resolve(robots);
             }
-          });//.catch(err => reject(err));
+          });
         }
       }).catch(error => {
         reject(error);
       });
     } else {
-      robots = config.roombas;
-      for (const robot of robots) {
-        if (!config.autoConfig && config.autoConfig !== undefined) {
-          robots.push(robot);
+      for (const robot of config.roombas) {
+        if (robot.ip !== undefined) {
+          getDeviceCredentials(robot.blid, robot.ip).then(credentials => {
+            robots.push(Object.assign(robot, credentials));
+          }).catch(() => {
+            //do nothing
+          }).then(() => {
+            index++;
+            if (index === robots.length) {
+              resolve(robots);
+            }
+          });
         } else {
-          for (const robot of robots) {
-            getDeviceCredentials(robot.blid).then(credentials => {
-              robots.push(Object.assign(robot, credentials));
-            });//.catch(err => reject(err));
-          }
-        }
-        index++;
-        if (index === config.roombas.length) {
-          resolve(robots);
+          getDeviceCredentials(robot.blid).then(credentials => {
+            robots.push(Object.assign(robot, credentials));
+          }).catch(() => {
+            //do nothing
+          }).then(() => {
+            index++;
+            if (index === robots.length) {
+              resolve(robots);
+            }
+          });
+
         }
       }
     }
@@ -41,7 +54,7 @@ export function getRoombas(config): Promise<ConfiguredRoomba[]> {
 }
 
 
-function getDeviceCredentials(blid: string): Promise<ConfiguredRoomba> {
+function getDeviceCredentials(blid: string, ip?: string): Promise<ConfiguredRoomba> {
   return new Promise((resolve, reject) => {
     let broadcastInterval;
     const server = createSocket('udp4');
@@ -79,8 +92,8 @@ function getDeviceCredentials(blid: string): Promise<ConfiguredRoomba> {
 
     server.bind(() => {
       const message = Buffer.from('irobotmcs');
-      server.setBroadcast(true);
-      server.send(message, 0, message.length, 5678, '255.255.255.255');
+      server.setBroadcast(ip === undefined);
+      server.send(message, 0, message.length, 5678, ip || '255.255.255.255');
       let attempts = 0;
       broadcastInterval = setInterval(() => {
         attempts++;
@@ -88,7 +101,7 @@ function getDeviceCredentials(blid: string): Promise<ConfiguredRoomba> {
           reject('No Roomba Found');
           clearInterval(broadcastInterval);
         } else {
-          server.send(message, 0, message.length, 5678, '255.255.255.255');
+          server.send(message, 0, message.length, 5678, ip || '255.255.255.255');
         }
       }, 5000);
     });
