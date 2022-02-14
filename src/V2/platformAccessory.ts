@@ -148,7 +148,7 @@ export class iRobotPlatformAccessoryV1 {
       }
     }
     const interval = setInterval(() => {
-      this.platform.log.debug('Auto-Updating state');
+      this.platform.log.debug(this.logPrefix, 'Auto-Updating state');
       this.roomba.getMission()
         .then(mission => events.emit('update', mission))
         .catch(err => this.platform.log.error(this.logPrefix, 'Failed To Auto Update State:\n', err));
@@ -298,7 +298,7 @@ export class iRobotPlatformAccessoryV2 {
       }
     }
     const interval = setInterval(() => {
-      this.platform.log.debug('Auto-Updating state');
+      this.platform.log.debug(this.logPrefix, 'Auto-Updating state');
       this.roomba.getMission()
         .then(mission => events.emit('update', mission))
         .catch(err => this.platform.log.error(this.logPrefix, 'Failed To Update State:\n', err));
@@ -450,7 +450,7 @@ export class iRobotPlatformAccessoryV3 {
       }
     }
     const interval = setInterval(() => {
-      this.platform.log.debug('Auto-Updating state');
+      this.platform.log.debug(this.logPrefix, 'Auto-Updating state');
       this.roomba.getMission()
         .then(mission => events.emit('update', mission))
         .catch(err => this.platform.log.error(this.logPrefix, 'Failed To Update State:\n', err));
