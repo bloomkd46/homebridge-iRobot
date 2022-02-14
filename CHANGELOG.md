@@ -1,3 +1,14 @@
+### v3.0.0 Beta 1 
+Lots of bug fixes 
+## TODO:
+* add multi-room support
+* Add keep alive option
+* Better logging
+
+# WARNING!
+Updating to version 3.0.0 will reset your Roomba’s in HomeKit due to new setup
+
+
 ### 2.1.17 Beta 1 
 * Whitelisted Bravva jets
 
