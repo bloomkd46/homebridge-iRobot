@@ -71,7 +71,9 @@ export class iRobotPlatformAccessoryV1 {
             this.state = mission;
             events.emit('update', mission);
             resolve(status[0] === 'inverted' ? mission.ok[status[1]] !== status[2] : mission.ok[status[0]] === status[1]);
-          }).catch(err => reject(err));
+          }).catch(err => {
+            this.platform.log.error('Failed To Fetch Robot Status\n', err); reject(this.platform.api.hap.HapStatusError);
+          });
         });
       });
     this.battery.getCharacteristic(this.platform.Characteristic.BatteryLevel)
@@ -148,7 +150,7 @@ export class iRobotPlatformAccessoryV1 {
     const interval = setInterval(() => {
       this.roomba.getMission()
         .then(mission => events.emit('update', mission))
-        .catch(err => this.platform.log.error(this.logPrefix, 'Failed To Update State:\n', err));
+        .catch(err => this.platform.log.error(this.logPrefix, 'Failed To Auto Update State:\n', err));
     }, this.platform.config.interval || 5000);
     this.platform.api.on('shutdown', () => {
       clearInterval(interval);
