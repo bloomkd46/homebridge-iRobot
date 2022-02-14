@@ -1,11 +1,11 @@
-import {Local} from 'dorita980';
+import dorita980, { Local } from 'dorita980';
 
 
 export class RoombaV1 {
   public roomba = new Local(this.blid, this.password, this.ip, 1);
 
   constructor(private readonly blid: string, private readonly password: string, private readonly ip: string) {
-    //super(blid, password, ip, 1);
+    process.env.ROBOT_CIPHERS = 'AES128-SHA256';
   }
 
   async start() {
@@ -62,16 +62,17 @@ export class RoombaV2 {
   public roomba?: Local;
 
   constructor(private readonly blid: string, private readonly password: string, private readonly ip: string) {
-    //super(blid, password, ip, 2);
+    process.env.ROBOT_CIPHERS = 'AES128-SHA256';
   }
 
   connect(): Promise<Local> {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       if (!this.connected) {
         this.roomba = new Local(this.blid, this.password, this.ip, 2);
         this.roomba.on('offline', () => {
           this.connected = false;
           this.roomba.end();
+          reject('Roomba Offline');
         }).on('close', () => {
           this.connected = false;
         }).on('connect', () => {
@@ -133,7 +134,8 @@ export class RoombaV2 {
         roomba.getRobotState(['cleanMissionStatus', 'bin', 'batPct'])
           .then(state => resolve(Object.assign(mission, state.cleanMissionStatus, state.bin, state)))
           .catch(err => reject(err));
-      });
+        roomba.end();
+      }).catch(err => reject(err));
     });
   }
 }
@@ -148,17 +150,18 @@ export class RoombaV3 {
   private connected = false;
   public roomba?: Local;
 
-  constructor(private readonly blid: string, private readonly password: string, private readonly ip: string) {
-    //super(blid, password, ip, 2);
+  constructor(private readonly blid: string, private readonly password: string, private readonly ip: string, private readonly sku: string) {
+    process.env.ROBOT_CIPHERS = this.sku.startsWith('j') ? 'TLS_AES_256_GCM_SHA384' : 'AES128-SHA256';
   }
 
   connect(): Promise<Local> {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       if (!this.connected) {
         this.roomba = new Local(this.blid, this.password, this.ip, 2);
         this.roomba.on('offline', () => {
           this.connected = false;
           this.roomba.end();
+          reject('Roomba Offline');
         }).on('close', () => {
           this.connected = false;
         }).on('connect', () => {
@@ -218,9 +221,10 @@ export class RoombaV3 {
     return new Promise((resolve, reject) => {
       this.connect().then(async (roomba) => {
         roomba.getRobotState(['cleanMissionStatus', 'bin', 'batPct'])
-          .then(state => resolve(Object.assign(mission, state.cleanMissionStatus, state.lastCommand, state.bin, state)))
+          .then(state => resolve(Object.assign(mission, state.cleanMissionStatus, /*state.lastCommand,*/ state.bin, state)))
           .catch(err => reject(err));
-      });
+        roomba.end();
+      }).catch(err => reject(err));
     });
   }
 }
@@ -232,7 +236,8 @@ export interface MissionV3 {
   binFull: boolean;
   pmap_id: string | null;
   regions: [{
-    region_id: string; type: 'rid' | 'zid';},
+    region_id: string; type: 'rid' | 'zid';
+  },
   ] | null;
   user_pmapv_id: string | null;
 }
@@ -240,7 +245,7 @@ export interface Map {
   ordered: 1;
   pmap_id: string;
   regions: [
-    { region_id: string; type: 'rid' | 'zid'},
+    { region_id: string; type: 'rid' | 'zid' },
   ];
   user_pmapv_id: string;
 }
