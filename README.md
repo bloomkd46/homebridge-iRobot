@@ -65,9 +65,7 @@ Homebridge plugin to integrate iRobot roombas into HomeKit
   - [x] Battery Percent/Charging ifo
   - [x] Binfull Detection In The Form Of Filter/Contact/Motion Sensor
   - [x] Stuck Sensor
-  
-## TODO: 
-  - [ ] Add ability for rooms to show up with names instead of id number
+
 ### Prerequisites
 
 - To use this plugin, you will need to already have [Homebridge](https://homebridge.io) (at least v1.3.5) or [HOOBS](https://hoobs.org) (at least v4) installed. Refer to the links for more information and installation instructions.
