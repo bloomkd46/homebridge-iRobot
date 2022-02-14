@@ -12,7 +12,7 @@ const events = new EventEmitter();
 export class iRobotPlatformAccessoryV1 {
   private service: Service;
   private battery: Service;
-  private logPrefix = '['+this.accessory.displayName+']';
+  private logPrefix = '[' + this.accessory.displayName + ']';
   private roomba = new RoombaV1(this.accessory.context.device.blid,
     this.accessory.context.device.password, this.accessory.context.device.ip);
 
@@ -95,52 +95,54 @@ export class iRobotPlatformAccessoryV1 {
       this.battery.updateCharacteristic(this.platform.Characteristic.StatusLowBattery,
         mission.phase === 'charge' ? 0 : mission.batPct < this.platform.config.lowBattery ? 1 : 0);
     });
-    for (const sensor of this.platform.config.sensors) {
-      const sensorType: 'contact' | 'motion' | 'filter' = sensor.type;
-      const value = (mission: MissionV1) => {
-        const conditions = sensor.condition.split(':');
-        conditions[1] = conditions[1] === 'true' ? true : conditions[1] === 'false' ? false : conditions[1];
-        if (conditions[0] === 'inverted') {
-          return mission.ok[conditions[1]] !== conditions[2];
-        } else {
-          return mission.ok[conditions[0]] === conditions[1];
+    if (this.platform.config.sensors !== undefined && this.platform.config.sensors !== []) {
+      for (const sensor of this.platform.config.sensors) {
+        const sensorType: 'contact' | 'motion' | 'filter' = sensor.type;
+        const value = (mission: MissionV1) => {
+          const conditions = sensor.condition.split(':');
+          conditions[1] = conditions[1] === 'true' ? true : conditions[1] === 'false' ? false : conditions[1];
+          if (conditions[0] === 'inverted') {
+            return mission.ok[conditions[1]] !== conditions[2];
+          } else {
+            return mission.ok[conditions[0]] === conditions[1];
+          }
+        };
+        if (sensorType === 'contact') {
+          const contact = this.accessory.getService(this.accessory.displayName + ' ' + sensor.condition) ||
+            this.accessory.addService(this.platform.Service.ContactSensor, this.accessory.displayName + ' ' + sensor.condition,
+              'Contact-' + sensor.condition);
+          contact.getCharacteristic(this.platform.Characteristic.ContactSensorState)
+            .onGet(() => {
+              return value(this.state) ? 1 : 0;
+            });
+          events.on('update', (mission) => {
+            contact.updateCharacteristic(this.platform.Characteristic.ContactSensorState, value(mission) ? 1 : 0);
+          });
+
+        } else if (sensorType === 'motion') {
+          const motion = this.accessory.getService(this.accessory.displayName + ' ' + sensor.condition) ||
+            this.accessory.addService(this.platform.Service.MotionSensor, this.accessory.displayName + ' ' + sensor.condition,
+              'Motion-' + sensor.condition);
+          motion.getCharacteristic(this.platform.Characteristic.MotionDetected)
+            .onGet(() => {
+              return value(this.state);
+            });
+          events.on('update', (mission) => {
+            motion.updateCharacteristic(this.platform.Characteristic.ContactSensorState, value(mission));
+          });
+
+        } else if (sensorType === 'filter') {
+          const filter = this.accessory.getService(this.accessory.displayName + ' ' + sensor.condition) ||
+            this.accessory.addService(this.platform.Service.FilterMaintenance, this.accessory.displayName + ' ' + sensor.condition,
+              'Filter-' + sensor.condition);
+          filter.getCharacteristic(this.platform.Characteristic.FilterChangeIndication)
+            .onGet(() => {
+              return value(this.state) ? 1 : 0;
+            });
+          events.on('update', (mission) => {
+            filter.updateCharacteristic(this.platform.Characteristic.ContactSensorState, value(mission) ? 1 : 0);
+          });
         }
-      };
-      if (sensorType === 'contact') {
-        const contact = this.accessory.getService(this.accessory.displayName + ' ' + sensor.condition) ||
-          this.accessory.addService(this.platform.Service.ContactSensor, this.accessory.displayName + ' ' + sensor.condition,
-            'Contact-' + sensor.condition);
-        contact.getCharacteristic(this.platform.Characteristic.ContactSensorState)
-          .onGet(() => {
-            return value(this.state) ? 1 : 0;
-          });
-        events.on('update', (mission) => {
-          contact.updateCharacteristic(this.platform.Characteristic.ContactSensorState, value(mission) ? 1 : 0);
-        });
-
-      } else if (sensorType === 'motion') {
-        const motion = this.accessory.getService(this.accessory.displayName + ' ' + sensor.condition) ||
-          this.accessory.addService(this.platform.Service.MotionSensor, this.accessory.displayName + ' ' + sensor.condition,
-            'Motion-' + sensor.condition);
-        motion.getCharacteristic(this.platform.Characteristic.MotionDetected)
-          .onGet(() => {
-            return value(this.state);
-          });
-        events.on('update', (mission) => {
-          motion.updateCharacteristic(this.platform.Characteristic.ContactSensorState, value(mission));
-        });
-
-      } else if (sensorType === 'filter') {
-        const filter = this.accessory.getService(this.accessory.displayName + ' ' + sensor.condition) ||
-          this.accessory.addService(this.platform.Service.FilterMaintenance, this.accessory.displayName + ' ' + sensor.condition,
-            'Filter-' + sensor.condition);
-        filter.getCharacteristic(this.platform.Characteristic.FilterChangeIndication)
-          .onGet(() => {
-            return value(this.state) ? 1 : 0;
-          });
-        events.on('update', (mission) => {
-          filter.updateCharacteristic(this.platform.Characteristic.ContactSensorState, value(mission) ? 1 : 0);
-        });
       }
     }
     const interval = setInterval(() => {
@@ -159,7 +161,7 @@ export class iRobotPlatformAccessoryV1 {
 export class iRobotPlatformAccessoryV2 {
   private service: Service;
   private battery: Service;
-  private logPrefix = '['+this.accessory.displayName+']';
+  private logPrefix = '[' + this.accessory.displayName + ']';
   private roomba = new RoombaV2(this.accessory.context.device.blid,
     this.accessory.context.device.password, this.accessory.context.device.ip);
 
@@ -240,52 +242,54 @@ export class iRobotPlatformAccessoryV2 {
       this.battery.updateCharacteristic(this.platform.Characteristic.StatusLowBattery,
         mission.phase === 'charge' ? 0 : mission.batPct < this.platform.config.lowBattery ? 1 : 0);
     });
-    for (const sensor of this.platform.config.sensors) {
-      const sensorType: 'contact' | 'motion' | 'filter' = sensor.type;
-      const value = (mission: MissionV2) => {
-        const conditions = sensor.condition.split(':');
-        conditions[1] = conditions[1] === 'true' ? true : conditions[1] === 'false' ? false : conditions[1];
-        if (conditions[0] === 'inverted') {
-          return mission[conditions[1]] !== conditions[2];
-        } else {
-          return mission[conditions[0]] === conditions[1];
+    if (this.platform.config.sensors !== undefined && this.platform.config.sensors !== []) {
+      for (const sensor of this.platform.config.sensors) {
+        const sensorType: 'contact' | 'motion' | 'filter' = sensor.type;
+        const value = (mission: MissionV2) => {
+          const conditions = sensor.condition.split(':');
+          conditions[1] = conditions[1] === 'true' ? true : conditions[1] === 'false' ? false : conditions[1];
+          if (conditions[0] === 'inverted') {
+            return mission[conditions[1]] !== conditions[2];
+          } else {
+            return mission[conditions[0]] === conditions[1];
+          }
+        };
+        if (sensorType === 'contact') {
+          const contact = this.accessory.getService(this.accessory.displayName + ' ' + sensor.condition) ||
+            this.accessory.addService(this.platform.Service.ContactSensor, this.accessory.displayName + ' ' + sensor.condition,
+              'Contact-' + sensor.condition);
+          contact.getCharacteristic(this.platform.Characteristic.ContactSensorState)
+            .onGet(() => {
+              return value(this.state) ? 1 : 0;
+            });
+          events.on('update', (mission) => {
+            contact.updateCharacteristic(this.platform.Characteristic.ContactSensorState, value(mission) ? 1 : 0);
+          });
+
+        } else if (sensorType === 'motion') {
+          const motion = this.accessory.getService(this.accessory.displayName + ' ' + sensor.condition) ||
+            this.accessory.addService(this.platform.Service.MotionSensor, this.accessory.displayName + ' ' + sensor.condition,
+              'Motion-' + sensor.condition);
+          motion.getCharacteristic(this.platform.Characteristic.MotionDetected)
+            .onGet(() => {
+              return value(this.state);
+            });
+          events.on('update', (mission) => {
+            motion.updateCharacteristic(this.platform.Characteristic.ContactSensorState, value(mission));
+          });
+
+        } else if (sensorType === 'filter') {
+          const filter = this.accessory.getService(this.accessory.displayName + ' ' + sensor.condition) ||
+            this.accessory.addService(this.platform.Service.FilterMaintenance, this.accessory.displayName + ' ' + sensor.condition,
+              'Filter-' + sensor.condition);
+          filter.getCharacteristic(this.platform.Characteristic.FilterChangeIndication)
+            .onGet(() => {
+              return value(this.state) ? 1 : 0;
+            });
+          events.on('update', (mission) => {
+            filter.updateCharacteristic(this.platform.Characteristic.ContactSensorState, value(mission) ? 1 : 0);
+          });
         }
-      };
-      if (sensorType === 'contact') {
-        const contact = this.accessory.getService(this.accessory.displayName + ' ' + sensor.condition) ||
-          this.accessory.addService(this.platform.Service.ContactSensor, this.accessory.displayName + ' ' + sensor.condition,
-            'Contact-' + sensor.condition);
-        contact.getCharacteristic(this.platform.Characteristic.ContactSensorState)
-          .onGet(() => {
-            return value(this.state) ? 1 : 0;
-          });
-        events.on('update', (mission) => {
-          contact.updateCharacteristic(this.platform.Characteristic.ContactSensorState, value(mission) ? 1 : 0);
-        });
-
-      } else if (sensorType === 'motion') {
-        const motion = this.accessory.getService(this.accessory.displayName + ' ' + sensor.condition) ||
-          this.accessory.addService(this.platform.Service.MotionSensor, this.accessory.displayName + ' ' + sensor.condition,
-            'Motion-' + sensor.condition);
-        motion.getCharacteristic(this.platform.Characteristic.MotionDetected)
-          .onGet(() => {
-            return value(this.state);
-          });
-        events.on('update', (mission) => {
-          motion.updateCharacteristic(this.platform.Characteristic.ContactSensorState, value(mission));
-        });
-
-      } else if (sensorType === 'filter') {
-        const filter = this.accessory.getService(this.accessory.displayName + ' ' + sensor.condition) ||
-          this.accessory.addService(this.platform.Service.FilterMaintenance, this.accessory.displayName + ' ' + sensor.condition,
-            'Filter-' + sensor.condition);
-        filter.getCharacteristic(this.platform.Characteristic.FilterChangeIndication)
-          .onGet(() => {
-            return value(this.state) ? 1 : 0;
-          });
-        events.on('update', (mission) => {
-          filter.updateCharacteristic(this.platform.Characteristic.ContactSensorState, value(mission) ? 1 : 0);
-        });
       }
     }
     const interval = setInterval(() => {
@@ -304,7 +308,7 @@ export class iRobotPlatformAccessoryV2 {
 export class iRobotPlatformAccessoryV3 {
   private service: Service;
   private battery: Service;
-  private logPrefix = '['+this.accessory.displayName+']';
+  private logPrefix = '[' + this.accessory.displayName + ']';
   private roomba = new RoombaV3(this.accessory.context.device.blid,
     this.accessory.context.device.password, this.accessory.context.device.ip, this.accessory.context.device.sku);
 
@@ -387,52 +391,54 @@ export class iRobotPlatformAccessoryV3 {
       this.battery.updateCharacteristic(this.platform.Characteristic.StatusLowBattery,
         mission.phase === 'charge' ? 0 : mission.batPct < this.platform.config.lowBattery ? 1 : 0);
     });
-    for (const sensor of this.platform.config.sensors) {
-      const sensorType: 'contact' | 'motion' | 'filter' = sensor.type;
-      const value = (mission: MissionV3) => {
-        const conditions = sensor.condition.split(':');
-        conditions[1] = conditions[1] === 'true' ? true : conditions[1] === 'false' ? false : conditions[1];
-        if (conditions[0] === 'inverted') {
-          return mission[conditions[1]] !== conditions[2];
-        } else {
-          return mission[conditions[0]] === conditions[1];
+    if (this.platform.config.sensors !== undefined && this.platform.config.sensors !== []) {
+      for (const sensor of this.platform.config.sensors) {
+        const sensorType: 'contact' | 'motion' | 'filter' = sensor.type;
+        const value = (mission: MissionV3) => {
+          const conditions = sensor.condition.split(':');
+          conditions[1] = conditions[1] === 'true' ? true : conditions[1] === 'false' ? false : conditions[1];
+          if (conditions[0] === 'inverted') {
+            return mission[conditions[1]] !== conditions[2];
+          } else {
+            return mission[conditions[0]] === conditions[1];
+          }
+        };
+        if (sensorType === 'contact') {
+          const contact = this.accessory.getService(this.accessory.displayName + ' ' + sensor.condition) ||
+            this.accessory.addService(this.platform.Service.ContactSensor, this.accessory.displayName + ' ' + sensor.condition,
+              'Contact-' + sensor.condition);
+          contact.getCharacteristic(this.platform.Characteristic.ContactSensorState)
+            .onGet(() => {
+              return value(this.state) ? 1 : 0;
+            });
+          events.on('update', (mission) => {
+            contact.updateCharacteristic(this.platform.Characteristic.ContactSensorState, value(mission) ? 1 : 0);
+          });
+
+        } else if (sensorType === 'motion') {
+          const motion = this.accessory.getService(this.accessory.displayName + ' ' + sensor.condition) ||
+            this.accessory.addService(this.platform.Service.MotionSensor, this.accessory.displayName + ' ' + sensor.condition,
+              'Motion-' + sensor.condition);
+          motion.getCharacteristic(this.platform.Characteristic.MotionDetected)
+            .onGet(() => {
+              return value(this.state);
+            });
+          events.on('update', (mission) => {
+            motion.updateCharacteristic(this.platform.Characteristic.ContactSensorState, value(mission));
+          });
+
+        } else if (sensorType === 'filter') {
+          const filter = this.accessory.getService(this.accessory.displayName + ' ' + sensor.condition) ||
+            this.accessory.addService(this.platform.Service.FilterMaintenance, this.accessory.displayName + ' ' + sensor.condition,
+              'Filter-' + sensor.condition);
+          filter.getCharacteristic(this.platform.Characteristic.FilterChangeIndication)
+            .onGet(() => {
+              return value(this.state) ? 1 : 0;
+            });
+          events.on('update', (mission) => {
+            filter.updateCharacteristic(this.platform.Characteristic.ContactSensorState, value(mission) ? 1 : 0);
+          });
         }
-      };
-      if (sensorType === 'contact') {
-        const contact = this.accessory.getService(this.accessory.displayName + ' ' + sensor.condition) ||
-          this.accessory.addService(this.platform.Service.ContactSensor, this.accessory.displayName + ' ' + sensor.condition,
-            'Contact-' + sensor.condition);
-        contact.getCharacteristic(this.platform.Characteristic.ContactSensorState)
-          .onGet(() => {
-            return value(this.state) ? 1 : 0;
-          });
-        events.on('update', (mission) => {
-          contact.updateCharacteristic(this.platform.Characteristic.ContactSensorState, value(mission) ? 1 : 0);
-        });
-
-      } else if (sensorType === 'motion') {
-        const motion = this.accessory.getService(this.accessory.displayName + ' ' + sensor.condition) ||
-          this.accessory.addService(this.platform.Service.MotionSensor, this.accessory.displayName + ' ' + sensor.condition,
-            'Motion-' + sensor.condition);
-        motion.getCharacteristic(this.platform.Characteristic.MotionDetected)
-          .onGet(() => {
-            return value(this.state);
-          });
-        events.on('update', (mission) => {
-          motion.updateCharacteristic(this.platform.Characteristic.ContactSensorState, value(mission));
-        });
-
-      } else if (sensorType === 'filter') {
-        const filter = this.accessory.getService(this.accessory.displayName + ' ' + sensor.condition) ||
-          this.accessory.addService(this.platform.Service.FilterMaintenance, this.accessory.displayName + ' ' + sensor.condition,
-            'Filter-' + sensor.condition);
-        filter.getCharacteristic(this.platform.Characteristic.FilterChangeIndication)
-          .onGet(() => {
-            return value(this.state) ? 1 : 0;
-          });
-        events.on('update', (mission) => {
-          filter.updateCharacteristic(this.platform.Characteristic.ContactSensorState, value(mission) ? 1 : 0);
-        });
       }
     }
     const interval = setInterval(() => {
