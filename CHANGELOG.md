@@ -1,4 +1,4 @@
-### v3.0.0 Beta 1 
+### 3.0.0 Beta 1 
 Lots of bug fixes 
 ## TODO:
 * add multi-room support
