@@ -60,13 +60,15 @@ export class iRobotPlatform implements DynamicPlatformPlugin {
    */
   discoverDevices() {
     // loop over the discovered devices and register each one if it has not already been registered
+    this.log.info('Logging into iRobot...');
     getRoombas(this.config).then(devices => {
       for (const device of devices) {
+        this.log.debug('Configuring device: \n', JSON.stringify(device));
         // generate a unique id for the accessory this should be generated from
         // something globally unique, but constant, for example, the device serial
         // number or MAC address
         const uuid = this.api.hap.uuid.generate(device.blid);
-
+        //const accessoryType = 'iRobotPlatformAccesoryV'+device.ver;
         // see if an accessory with the same uuid has already been registered and restored from
         // the cached devices we stored in the `configureAccessory` method above
         const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);
@@ -82,8 +84,18 @@ export class iRobotPlatform implements DynamicPlatformPlugin {
           // create the accessory handler for the restored accessory
           // this is imported from `platformAccessory.ts`
           //new iRobotPlatformAccessory(this, existingAccessory, device);
-          new platformAccessory['iRobotPlatformAccesoryV'+device.ver](this, existingAccessory);
-
+          //new platformAccessory[accessoryType](this, existingAccessory);
+          switch (device.ver){
+            case '1':
+              new platformAccessory.iRobotPlatformAccessoryV1(this, existingAccessory);
+              break;
+            case '2':
+              new platformAccessory.iRobotPlatformAccessoryV2(this, existingAccessory);
+              break;
+            case '3':
+              new platformAccessory.iRobotPlatformAccessoryV3(this, existingAccessory);
+              break;
+          }
           // it is possible to remove platform accessories at any time using `api.unregisterPlatformAccessories`, eg.:
           // remove platform accessories when no longer present
           // this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [existingAccessory]);
@@ -102,7 +114,18 @@ export class iRobotPlatform implements DynamicPlatformPlugin {
           // create the accessory handler for the newly create accessory
           // this is imported from `platformAccessory.ts`
           //new iRobotPlatformAccessory(this, accessory, device);
-
+          //new platformAccessory[accessoryType](this, accessory);
+          switch (device.ver){
+            case '1':
+              new platformAccessory.iRobotPlatformAccessoryV1(this, accessory);
+              break;
+            case '2':
+              new platformAccessory.iRobotPlatformAccessoryV2(this, accessory);
+              break;
+            case '3':
+              new platformAccessory.iRobotPlatformAccessoryV3(this, accessory);
+              break;
+          }
           // link the accessory to your platform
           this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
         }

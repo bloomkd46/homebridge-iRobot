@@ -1,8 +1,8 @@
-import dorita980 from 'dorita980';
+import {Local} from 'dorita980';
 
 
 export class RoombaV1 {
-  public roomba = new dorita980(this.blid, this.password, this.ip, 1);
+  public roomba = new Local(this.blid, this.password, this.ip, 1);
 
   constructor(private readonly blid: string, private readonly password: string, private readonly ip: string) {
     //super(blid, password, ip, 1);
@@ -59,16 +59,16 @@ export interface MissionV1 {
 
 export class RoombaV2 {
   private connected = false;
-  public roomba?: dorita980;
+  public roomba?: Local;
 
   constructor(private readonly blid: string, private readonly password: string, private readonly ip: string) {
     //super(blid, password, ip, 2);
   }
 
-  connect(): Promise<dorita980> {
+  connect(): Promise<Local> {
     return new Promise((resolve) => {
       if (!this.connected) {
-        this.roomba = new dorita980(this.blid, this.password, this.ip, 2);
+        this.roomba = new Local(this.blid, this.password, this.ip, 2);
         this.roomba.on('offline', () => {
           this.connected = false;
           this.roomba.end();
@@ -146,16 +146,16 @@ export interface MissionV2 {
 }
 export class RoombaV3 {
   private connected = false;
-  public roomba?: dorita980;
+  public roomba?: Local;
 
   constructor(private readonly blid: string, private readonly password: string, private readonly ip: string) {
     //super(blid, password, ip, 2);
   }
 
-  connect(): Promise<dorita980> {
+  connect(): Promise<Local> {
     return new Promise((resolve) => {
       if (!this.connected) {
-        this.roomba = new dorita980(this.blid, this.password, this.ip, 2);
+        this.roomba = new Local(this.blid, this.password, this.ip, 2);
         this.roomba.on('offline', () => {
           this.connected = false;
           this.roomba.end();

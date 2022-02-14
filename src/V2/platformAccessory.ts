@@ -13,7 +13,9 @@ export class iRobotPlatformAccessoryV1 {
   private service: Service;
   private battery: Service;
   private logPrefix = '[${this.accessory.context.displayName}]';
-  private roomba = new RoombaV1(this.accessory.context.blid, this.accessory.context.password, this.accessory.context.ip);
+  private roomba = new RoombaV1(this.accessory.context.device.blid,
+    this.accessory.context.device.password, this.accessory.context.device.ip);
+
   private state: MissionV1 = {
     ok: {
       cycle: 'none',
@@ -34,7 +36,7 @@ export class iRobotPlatformAccessoryV1 {
       .setCharacteristic(this.platform.Characteristic.Manufacturer, 'iRobot')
       .setCharacteristic(this.platform.Characteristic.Model, this.accessory.context.device.sku || 'N/A')
       .setCharacteristic(this.platform.Characteristic.SerialNumber, this.accessory.context.device.serialNum || this.accessory.UUID || 'N/A')
-      .setCharacteristic(this.platform.Characteristic.FirmwareRevision, 1)
+      .setCharacteristic(this.platform.Characteristic.FirmwareRevision, '1')
       .getCharacteristic(this.platform.Characteristic.Identify).on('set', () => {
         this.platform.log.error(this.logPrefix, 'Identification not supported');
       });
@@ -96,7 +98,7 @@ export class iRobotPlatformAccessoryV1 {
     for (const sensor of this.platform.config.sensors) {
       const sensorType: 'contact' | 'motion' | 'filter' = sensor.type;
       const value = (mission: MissionV1) => {
-        const conditions = sensor.codition.split[':'];
+        const conditions = sensor.codition.split(':');
         conditions[1] = conditions[1] === 'true' ? true : conditions[1] === 'false' ? false : conditions[1];
         if (conditions[0] === 'inverted') {
           return mission.ok[conditions[1]] !== conditions[2];
@@ -158,7 +160,9 @@ export class iRobotPlatformAccessoryV2 {
   private service: Service;
   private battery: Service;
   private logPrefix = '[${this.accessory.context.displayName}]';
-  private roomba = new RoombaV2(this.accessory.context.blid, this.accessory.context.password, this.accessory.context.ip);
+  private roomba = new RoombaV2(this.accessory.context.device.blid,
+    this.accessory.context.device.password, this.accessory.context.device.ip);
+
   private state: MissionV2 = {
     cycle: 'none',
     phase: 'charge',
@@ -176,9 +180,9 @@ export class iRobotPlatformAccessoryV2 {
       .setCharacteristic(this.platform.Characteristic.Manufacturer, 'iRobot')
       .setCharacteristic(this.platform.Characteristic.Model, this.accessory.context.device.sku || 'N/A')
       .setCharacteristic(this.platform.Characteristic.SerialNumber, this.accessory.context.device.serialNum || this.accessory.UUID || 'N/A')
-      .setCharacteristic(this.platform.Characteristic.FirmwareRevision, 2)
+      .setCharacteristic(this.platform.Characteristic.FirmwareRevision, '2')
       .getCharacteristic(this.platform.Characteristic.Identify).on('set', () => {
-        this.platform.log.error(this.logPrefix, 'Identifying... (Might not work if device is docked)');
+        this.platform.log.info(this.logPrefix, 'Identifying... (Might not work if device is docked)');
         this.roomba.find();
       });
 
@@ -239,7 +243,7 @@ export class iRobotPlatformAccessoryV2 {
     for (const sensor of this.platform.config.sensors) {
       const sensorType: 'contact' | 'motion' | 'filter' = sensor.type;
       const value = (mission: MissionV2) => {
-        const conditions = sensor.codition.split[':'];
+        const conditions = sensor.codition.split(':');
         conditions[1] = conditions[1] === 'true' ? true : conditions[1] === 'false' ? false : conditions[1];
         if (conditions[0] === 'inverted') {
           return mission[conditions[1]] !== conditions[2];
@@ -301,7 +305,9 @@ export class iRobotPlatformAccessoryV3 {
   private service: Service;
   private battery: Service;
   private logPrefix = '[${this.accessory.context.displayName}]';
-  private roomba = new RoombaV3(this.accessory.context.blid, this.accessory.context.password, this.accessory.context.ip);
+  private roomba = new RoombaV3(this.accessory.context.device.blid,
+    this.accessory.context.device.password, this.accessory.context.device.ip);
+
   private state: MissionV3 = {
     cycle: 'none',
     phase: 'charge',
@@ -322,9 +328,9 @@ export class iRobotPlatformAccessoryV3 {
       .setCharacteristic(this.platform.Characteristic.Manufacturer, 'iRobot')
       .setCharacteristic(this.platform.Characteristic.Model, this.accessory.context.device.sku || 'N/A')
       .setCharacteristic(this.platform.Characteristic.SerialNumber, this.accessory.context.device.serialNum || this.accessory.UUID || 'N/A')
-      .setCharacteristic(this.platform.Characteristic.FirmwareRevision, 2)
+      .setCharacteristic(this.platform.Characteristic.FirmwareRevision, '3')
       .getCharacteristic(this.platform.Characteristic.Identify).on('set', () => {
-        this.platform.log.error(this.logPrefix, 'Identifying... (Might not work if device is docked)');
+        this.platform.log.info(this.logPrefix, 'Identifying...');
         this.roomba.find();
       });
 
@@ -384,7 +390,7 @@ export class iRobotPlatformAccessoryV3 {
     for (const sensor of this.platform.config.sensors) {
       const sensorType: 'contact' | 'motion' | 'filter' = sensor.type;
       const value = (mission: MissionV3) => {
-        const conditions = sensor.codition.split[':'];
+        const conditions = sensor.codition.split(':');
         conditions[1] = conditions[1] === 'true' ? true : conditions[1] === 'false' ? false : conditions[1];
         if (conditions[0] === 'inverted') {
           return mission[conditions[1]] !== conditions[2];
