@@ -35,6 +35,13 @@
           "functionBody": "return !model.manualDiscovery"
         }
       },
+      "manualDiscovery": {
+        "title": "Manual Configuration",
+        "description": "Select this to manually configure your roomba's instead of using an email & password",
+        "type": "boolean",
+        "default": false,
+        "required": true
+      },
       "roombas": {
         "title": "Roomba's",
         "type": "array",
@@ -61,94 +68,18 @@
               "required": true,
               "type": "string"
             },
-            "autoConfig": {
-              "title": "Automatic Configuration",
-              "description": "Disable this to manually enter roomba credentials (IP, model, etc)",
-              "type": "boolean",
-              "required": true
-            },
             "ip": {
               "title": "IP Address",
               "description": "Your roomba's ip address (Hint: if you enter your iRobot credentials above you can find your roomba's ip address in the devices tab above)",
               "type": "string",
               "format": "ipv4",
-              "required": true,
-              "condition": {
-                "functionBody": "return !model.roombas[arrayIndices].autoConfig"
-              }
-            },
-            "model": {
-              "title": "Model",
-              "description": "Your roomba's model (Hint: if you enter your iRobot credentials above you can find your roomba's model in the devices tab above)",
-              "type": "string",
-              "required": true,
-              "condition": {
-                "functionBody": "return !model.roombas[arrayIndices].autoConfig"
-              }
-            },
-            "multiRoom": {
-              "title": "Room-By-Room Support",
-              "description": "Does your roomba support room-by-room cleaning",
-              "type": "boolean",
-              "required": true,
-              "condition": {
-                "functionBody": "return !model.roombas[arrayIndices].autoConfig"
-              }
-            },
-            "info": {
-              "title": "Additional Information",
-              "type": "object",
-              "properties": {
-                "sw": {
-                  "title": "Software Version",
-                  "description": "Your Roomba's software version",
-                  "type": "string",
-                  "required": false
-                },
-                "serialNum": {
-                  "title": "Serial Number",
-                  "description": "Your Roomba's serial number",
-                  "type": "string",
-                  "required": false
-                },
-                "mac": {
-                  "title": "Mac Address",
-                  "description": "Your Roomba's mac address",
-                  "type": "string",
-                  "required": false
-                },
-                "ver": {
-                  "title": "Protocol Version",
-                  "description": "Your Roomba's protocol version",
-                  "type": "number",
-                  "placeholder": 2,
-                  "max": 3,
-                  "min": 1,
-                  "required": false
-                },
-                "sku": {
-                  "title": "sku",
-                  "description": "Your Roomba's sku",
-                  "type": "string",
-                  "required": false
-                }
-              },
-              "condition": {
-                "functionBody": "return !model.roombas[arrayIndices].autoConfig"
-              }
+              "required": false            
             }
           }
         },
         "condition": {
           "functionBody": "return model.manualDiscovery"
         }
-      },
-      "manualDiscovery": {
-        "title": "Manual Configuration",
-        "description": "Select this to manually configure your roomba's instead of using an email & password",
-        "type": "boolean",
-        "default": false,
-        "required": true
       },
       "lowBattery": {
         "title": "Low Battery Warning",
@@ -205,7 +136,7 @@
         "description": "What To Do When You Set The Switch To Off"
       },
       "status": {
-        "title": "Homekit Active",
+        "title": "Status",
         "type": "string",
         "default": "phase:run",
         "oneOf": [
@@ -226,148 +157,62 @@
             "enum": [
               "inverted:phase:charge"
             ]
-          },
-          {
-            "title": "Always Off",
-            "enum": [
-              false
-            ]
-          },
-          {
-            "title": "Always On",
-            "enum": [
-              true
-            ]
           }
         ],
         "required": true,
         "description": "What To Make Homekit Display As Active"
       },
-      "eveStatus": {
-        "title": "Eve Inactive",
-        "type": "string",
-        "default": "inverted:cycle:clean",
-        "oneOf": [
-          {
-            "title": "No Job Active",
-            "enum": [
-              "inverted:cycle:clean"
-            ]
-          },
-          {
-            "title": "Not Cleaning",
-            "enum": [
-              "inverted:phase:run"
-            ]
-          },
-          {
-            "title": "Stopped",
-            "enum": [
-              "phase:stop"
-            ]
-          },
-          {
-            "title": "Charging",
-            "enum": [
-              "phase:charge"
-            ]
-          },
-          {
-            "title": "Docking",
-            "enum": [
-              "cycle:dock"
-            ]
-          },
-          {
-            "title": "Stuck",
-            "enum": [
-              "phase:stuck"
-            ]
-          },
-          {
-            "title": "Always Inactive",
-            "enum": [
-              false
-            ]
+      "sensors": {
+        "title": "Sensors",
+        "type": "array",
+        "buttonText": "Add sensor",
+        "items": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "title": "Sensor Type",
+              "description": "What type of sensor to display",
+              "type": "string",
+              "required": true,
+              "oneOf": [
+                {
+                  "title": "Contact Sensor",
+                  "enum": [
+                    "contact"
+                  ]
+                },
+                {
+                  "title": "Motion Sensor",
+                  "enum": [
+                    "motion"
+                  ]
+                },
+                {
+                  "title": "Filter",
+                  "enum": [
+                    "filter"
+                  ]
+                }
+              ]
+            },
+            "condition":{
+              "title": "Condition",
+              "description": "What triggers the sensor",
+              "type": "string",
+              "required": true,
+              "typeahead":{
+              "source": [
+                "binFull:true",
+                "binPresent:false",
+                "phase:run",
+                "phase:stuck"
+              ]
+            }
+
+            }
           }
-        ],
-        "required": true,
-        "description": "What To Make Eve Display As Inactive"
-      },
-      "bin": {
-        "title": "Roomba Bin",
-        "type": "string",
-        "default": "filter:contact",
-        "oneOf": [
-          {
-            "title": "Filter, Contact, And Motion",
-            "enum": [
-              "filter:contact:motion"
-            ]
-          },
-          {
-            "title": "Filter And Contact",
-            "enum": [
-              "filter:contact"
-            ]
-          },
-          {
-            "title": "Filter And Motion",
-            "enum": [
-              "filter:motion"
-            ]
-          },
-          {
-            "title": "Contact And Motion",
-            "enum": [
-              "contact:motion"
-            ]
-          },
-          {
-            "title": "Filter",
-            "enum": [
-              "filter"
-            ]
-          },
-          {
-            "title": "Contact",
-            "enum": [
-              "contact"
-            ]
-          },
-          {
-            "title": "Motion",
-            "enum": [
-              "motion"
-            ]
-          },
-          {
-            "title": "None",
-            "enum": [
-              "none"
-            ]
-          }
-        ],
-        "required": true,
-        "description": "What To Use To Display If The Roomba's Bin Is Full \n(Filters only show up in eve,\n Contact Sensors give you a notification when the bin is full and when you empty it,\n Motion Sensors only notify you if the bin is full.)"
-      },
-      "ignoreMultiRoomBin": {
-        "title": "Ignore Bin On Multi-Room Roomba's",
-        "type": "boolean",
-        "default": true,
-        "required": true
-      },
-      "hideStuckSensor": {
-        "title": "Hide Stuck Sensor",
-        "type": "boolean",
-        "required": true,
-        "default": false
-      },
-      "disableMultiRoom": {
-        "title": "Disable Multi-Room Support",
-        "type": "boolean",
-        "required": true,
-        "default": false
+        }
+
       }
     }
   }

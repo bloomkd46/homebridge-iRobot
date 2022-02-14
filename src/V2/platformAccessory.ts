@@ -11,6 +11,7 @@ const events = new EventEmitter();
  */
 export class iRobotPlatformAccessoryV1 {
   private service: Service;
+  private battery: Service;
   private logPrefix = '[${this.accessory.context.displayName}]';
   private roomba = new RoombaV1(this.accessory.context.blid, this.accessory.context.password, this.accessory.context.ip);
   private state: MissionV1 = {
@@ -41,8 +42,10 @@ export class iRobotPlatformAccessoryV1 {
 
     this.service = this.accessory.getService(this.accessory.context.device.name) ||
       this.accessory.addService(this.platform.Service.Fan, this.accessory.context.device.name, 'Main-Service');
-
     this.service.setPrimaryService(true);
+
+    this.battery = this.accessory.getService(this.accessory.displayName + ' battery') ||
+      this.accessory.addService(this.platform.Service.Battery, this.accessory.displayName + ' battery', 'Battery');
 
 
     this.service.getCharacteristic(this.platform.Characteristic.On)
@@ -69,16 +72,32 @@ export class iRobotPlatformAccessoryV1 {
           }).catch(err => reject(err));
         });
       });
+    this.battery.getCharacteristic(this.platform.Characteristic.BatteryLevel)
+      .onGet(() => {
+        return this.state.ok.batPct;
+      });
+    this.battery.getCharacteristic(this.platform.Characteristic.ChargingState)
+      .onGet(() => {
+        return this.state.ok.phase === 'charge' ? 1 : 0;
+      });
+    this.battery.getCharacteristic(this.platform.Characteristic.StatusLowBattery)
+      .onGet(() => {
+        return this.state.ok.phase === 'charge' ? 0 : this.state.ok.batPct < this.platform.config.lowBattery ? 1 : 0;
+      });
     events.on('update', (mission) => {
       const status = this.platform.config.status !== undefined ? this.platform.config.status.split(':') : ['phase', 'run'];
       this.service.updateCharacteristic(this.platform.Characteristic.On,
         status[0] === 'inverted' ? mission.ok[status[1]] !== status[2] : mission.ok[status[0]] === status[1]);
+      this.battery.updateCharacteristic(this.platform.Characteristic.BatteryLevel, mission.ok.batPct);
+      this.battery.updateCharacteristic(this.platform.Characteristic.ChargingState, mission.ok.phase === 'charge' ? 1 : 0);
+      this.battery.updateCharacteristic(this.platform.Characteristic.StatusLowBattery,
+        mission.phase === 'charge' ? 0 : mission.batPct < this.platform.config.lowBattery ? 1 : 0);
     });
     for (const sensor of this.platform.config.sensors) {
       const sensorType: 'contact' | 'motion' | 'filter' = sensor.type;
       const value = (mission: MissionV1) => {
         const conditions = sensor.codition.split[':'];
-        conditions[1] = conditions[1]==='true' ? true : conditions[1] === 'false' ? false : conditions[1];
+        conditions[1] = conditions[1] === 'true' ? true : conditions[1] === 'false' ? false : conditions[1];
         if (conditions[0] === 'inverted') {
           return mission.ok[conditions[1]] !== conditions[2];
         } else {
@@ -137,6 +156,7 @@ export class iRobotPlatformAccessoryV1 {
 
 export class iRobotPlatformAccessoryV2 {
   private service: Service;
+  private battery: Service;
   private logPrefix = '[${this.accessory.context.displayName}]';
   private roomba = new RoombaV2(this.accessory.context.blid, this.accessory.context.password, this.accessory.context.ip);
   private state: MissionV2 = {
@@ -165,8 +185,10 @@ export class iRobotPlatformAccessoryV2 {
 
     this.service = this.accessory.getService(this.accessory.context.device.name) ||
       this.accessory.addService(this.platform.Service.Fan, this.accessory.context.device.name, 'Main-Service');
-
     this.service.setPrimaryService(true);
+
+    this.battery = this.accessory.getService(this.accessory.displayName + ' battery') ||
+      this.accessory.addService(this.platform.Service.Battery, this.accessory.displayName + ' battery', 'Battery');
 
 
     this.service.getCharacteristic(this.platform.Characteristic.On)
@@ -193,16 +215,32 @@ export class iRobotPlatformAccessoryV2 {
           }).catch(err => reject(err));
         });
       });
+    this.battery.getCharacteristic(this.platform.Characteristic.BatteryLevel)
+      .onGet(() => {
+        return this.state.batPct;
+      });
+    this.battery.getCharacteristic(this.platform.Characteristic.ChargingState)
+      .onGet(() => {
+        return this.state.phase === 'charge' ? 1 : 0;
+      });
+    this.battery.getCharacteristic(this.platform.Characteristic.StatusLowBattery)
+      .onGet(() => {
+        return this.state.phase === 'charge' ? 0 : this.state.batPct < this.platform.config.lowBattery ? 1 : 0;
+      });
     events.on('update', (mission) => {
       const status = this.platform.config.status !== undefined ? this.platform.config.status.split(':') : ['phase', 'run'];
       this.service.updateCharacteristic(this.platform.Characteristic.On,
         status[0] === 'inverted' ? mission.ok[status[1]] !== status[2] : mission.ok[status[0]] === status[1]);
+      this.battery.updateCharacteristic(this.platform.Characteristic.BatteryLevel, mission.batPct);
+      this.battery.updateCharacteristic(this.platform.Characteristic.ChargingState, mission.phase === 'charge' ? 1 : 0);
+      this.battery.updateCharacteristic(this.platform.Characteristic.StatusLowBattery,
+        mission.phase === 'charge' ? 0 : mission.batPct < this.platform.config.lowBattery ? 1 : 0);
     });
     for (const sensor of this.platform.config.sensors) {
       const sensorType: 'contact' | 'motion' | 'filter' = sensor.type;
       const value = (mission: MissionV2) => {
         const conditions = sensor.codition.split[':'];
-        conditions[1] = conditions[1]==='true' ? true : conditions[1] === 'false' ? false : conditions[1];
+        conditions[1] = conditions[1] === 'true' ? true : conditions[1] === 'false' ? false : conditions[1];
         if (conditions[0] === 'inverted') {
           return mission[conditions[1]] !== conditions[2];
         } else {
@@ -261,6 +299,7 @@ export class iRobotPlatformAccessoryV2 {
 
 export class iRobotPlatformAccessoryV3 {
   private service: Service;
+  private battery: Service;
   private logPrefix = '[${this.accessory.context.displayName}]';
   private roomba = new RoombaV3(this.accessory.context.blid, this.accessory.context.password, this.accessory.context.ip);
   private state: MissionV3 = {
@@ -292,9 +331,10 @@ export class iRobotPlatformAccessoryV3 {
 
     this.service = this.accessory.getService(this.accessory.context.device.name) ||
       this.accessory.addService(this.platform.Service.Fan, this.accessory.context.device.name, 'Main-Service');
-
     this.service.setPrimaryService(true);
 
+    this.battery = this.accessory.getService(this.accessory.displayName + ' battery') ||
+      this.accessory.addService(this.platform.Service.Battery, this.accessory.displayName + ' battery', 'Battery');
 
     this.service.getCharacteristic(this.platform.Characteristic.On)
       .onSet((value) => {
@@ -320,16 +360,32 @@ export class iRobotPlatformAccessoryV3 {
           }).catch(err => reject(err));
         });
       });
+    this.battery.getCharacteristic(this.platform.Characteristic.BatteryLevel)
+      .onGet(() => {
+        return this.state.batPct;
+      });
+    this.battery.getCharacteristic(this.platform.Characteristic.ChargingState)
+      .onGet(() => {
+        return this.state.phase === 'charge' ? 1 : 0;
+      });
+    this.battery.getCharacteristic(this.platform.Characteristic.StatusLowBattery)
+      .onGet(() => {
+        return this.state.phase === 'charge' ? 0 : this.state.batPct < this.platform.config.lowBattery ? 1 : 0;
+      });
     events.on('update', (mission) => {
       const status = this.platform.config.status !== undefined ? this.platform.config.status.split(':') : ['phase', 'run'];
       this.service.updateCharacteristic(this.platform.Characteristic.On,
         status[0] === 'inverted' ? mission.ok[status[1]] !== status[2] : mission.ok[status[0]] === status[1]);
+      this.battery.updateCharacteristic(this.platform.Characteristic.BatteryLevel, mission.batPct);
+      this.battery.updateCharacteristic(this.platform.Characteristic.ChargingState, mission.phase === 'charge' ? 1 : 0);
+      this.battery.updateCharacteristic(this.platform.Characteristic.StatusLowBattery,
+        mission.phase === 'charge' ? 0 : mission.batPct < this.platform.config.lowBattery ? 1 : 0);
     });
     for (const sensor of this.platform.config.sensors) {
       const sensorType: 'contact' | 'motion' | 'filter' = sensor.type;
       const value = (mission: MissionV3) => {
         const conditions = sensor.codition.split[':'];
-        conditions[1] = conditions[1]==='true' ? true : conditions[1] === 'false' ? false : conditions[1];
+        conditions[1] = conditions[1] === 'true' ? true : conditions[1] === 'false' ? false : conditions[1];
         if (conditions[0] === 'inverted') {
           return mission[conditions[1]] !== conditions[2];
         } else {
