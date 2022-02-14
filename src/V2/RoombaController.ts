@@ -1,4 +1,4 @@
-import dorita980, { Local } from 'dorita980';
+import { Local } from 'dorita980';
 
 
 export class RoombaV1 {
