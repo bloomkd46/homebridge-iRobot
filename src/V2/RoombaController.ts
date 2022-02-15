@@ -85,45 +85,50 @@ export class RoombaV2 {
     });
   }
 
+  disconnect(roomba: Local){
+    roomba.end();
+    this.connected = false;
+  }
+
   clean() {
     this.connect().then(async (roomba) => {
       await roomba.clean();
-      await roomba.end();
+      await this.disconnect(roomba);
     });
   }
 
   pause() {
     this.connect().then(async (roomba) => {
       await roomba.pause();
-      await roomba.end();
+      await this.disconnect(roomba);
     });
   }
 
   stop() {
     this.connect().then(async (roomba) => {
       await roomba.stop();
-      await roomba.end();
+      await this.disconnect(roomba);
     });
   }
 
   resume() {
     this.connect().then(async (roomba) => {
       await roomba.resume();
-      await roomba.end();
+      await this.disconnect(roomba);
     });
   }
 
   dock() {
     this.connect().then(async (roomba) => {
       await roomba.dock();
-      await roomba.end();
+      await this.disconnect(roomba);
     });
   }
 
   find() {
     this.connect().then(async (roomba) => {
       await roomba.find();
-      await roomba.end();
+      await this.disconnect(roomba);
     });
   }
 
@@ -134,7 +139,7 @@ export class RoombaV2 {
         roomba.getRobotState(['cleanMissionStatus', 'bin', 'batPct'])
           .then(state => resolve(Object.assign(mission, state.cleanMissionStatus, state.bin, state)))
           .catch(err => reject(err));
-        roomba.end();
+        this.disconnect(roomba);
       }).catch(err => reject(err));
     });
   }
@@ -174,45 +179,50 @@ export class RoombaV3 {
     });
   }
 
+  disconnect(roomba: Local){
+    roomba.end();
+    this.connected = false;
+  }
+
   clean() {
     this.connect().then(async (roomba) => {
       await roomba.clean();
-      await roomba.end();
+      await this.disconnect(roomba);
     });
   }
 
   pause() {
     this.connect().then(async (roomba) => {
       await roomba.pause();
-      await roomba.end();
+      await this.disconnect(roomba);
     });
   }
 
   stop() {
     this.connect().then(async (roomba) => {
       await roomba.stop();
-      await roomba.end();
+      await this.disconnect(roomba);
     });
   }
 
   resume() {
     this.connect().then(async (roomba) => {
       await roomba.resume();
-      await roomba.end();
+      await this.disconnect(roomba);
     });
   }
 
   dock() {
     this.connect().then(async (roomba) => {
       await roomba.dock();
-      await roomba.end();
+      await this.disconnect(roomba);
     });
   }
 
   find() {
     this.connect().then(async (roomba) => {
       await roomba.find();
-      await roomba.end();
+      await this.disconnect(roomba);
     });
   }
 
@@ -221,9 +231,9 @@ export class RoombaV3 {
     return new Promise((resolve, reject) => {
       this.connect().then(async (roomba) => {
         roomba.getRobotState(['cleanMissionStatus', 'bin', 'batPct'])
-          .then(state => resolve(Object.assign(mission, state.cleanMissionStatus, /*state.lastCommand,*/ state.bin, state)))
+          .then(state => resolve(Object.assign(mission, state.cleanMissionStatus, state.lastCommand || {}, state.bin, state)))
           .catch(err => reject(err));
-        roomba.end();
+        this.disconnect(roomba);
       }).catch(err => reject(err));
     });
   }
