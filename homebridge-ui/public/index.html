@@ -216,10 +216,10 @@
           document.getElementById('status').innerHTML = (context.connected || false)
             ? '<i class="fas fa-circle mr-1 green-text"></i> Online'
             : '<i class="fas fa-circle mr-1 red-text"></i> Offline'
-          document.getElementById('model').innerHTML = context.device.model || 'N/A'
+          document.getElementById('model').innerHTML = context.device.sku || 'N/A'
           document.getElementById('ip_address').innerHTML = context.device.ip || 'N/A'
-          document.getElementById('mac_address').innerHTML = context.device.info.mac || 'N/A'
-          document.getElementById('sw').innerHRML = context.device.info.sw || 'NA'
+          document.getElementById('mac_address').innerHTML = context.device.mac || 'N/A'
+          document.getElementById('sw').innerHRML = context.device.sw || 'NA'
           document.getElementById('room_by_room').innerHTML = context.device.multiRoom || false
           document.getElementById('mapCount').style.display = 'none'
           document.getElementById('regionCount').style.display = 'none'
