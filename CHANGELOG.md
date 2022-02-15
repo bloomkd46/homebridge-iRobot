@@ -1,3 +1,7 @@
+### 3.0.0 Beta 3 
+* Fixed custom ui
+
+
 ### 3.0.0 Beta 2 
 * Fixed crash if sensors aren't added to config
 
