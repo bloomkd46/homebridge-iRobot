@@ -72,7 +72,18 @@ function getDeviceCredentials(blid: string, ip?: string): Promise<ConfiguredRoom
           if (parsedMsg.hostname.split('-')[1] === blid) {
             clearInterval(broadcastInterval);
             server.close();
-            resolve(parsedMsg);
+            for(const key in parsedMsg.sw.split()){
+              if(key === '1'){
+                parsedMsg.swMajor = 1;
+                resolve(parsedMsg);
+              } else if(key === '2'){
+                parsedMsg.swMajor = 2;
+                resolve(parsedMsg);
+              } else if(key === '3'){
+                parsedMsg.swMajor = 3;
+                resolve(parsedMsg);
+              }
+            }
             //console.log(JSON.stringify(parsedMsg));
             //process.exit(0);
           }
@@ -248,4 +259,5 @@ export interface ConfiguredRoomba {
   sw: string;
   nc: number;
   proto: string;
+  swMajor: number;
 }

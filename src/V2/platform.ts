@@ -85,14 +85,14 @@ export class iRobotPlatform implements DynamicPlatformPlugin {
           // this is imported from `platformAccessory.ts`
           //new iRobotPlatformAccessory(this, existingAccessory, device);
           //new platformAccessory[accessoryType](this, existingAccessory);
-          switch (device.ver){
-            case '1':
+          switch (device.swMajor){
+            case 1:
               new platformAccessory.iRobotPlatformAccessoryV1(this, existingAccessory);
               break;
-            case '2':
+            case 2:
               new platformAccessory.iRobotPlatformAccessoryV2(this, existingAccessory);
               break;
-            case '3':
+            case 3:
               new platformAccessory.iRobotPlatformAccessoryV3(this, existingAccessory);
               break;
           }
