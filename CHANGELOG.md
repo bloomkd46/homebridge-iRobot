@@ -1,3 +1,8 @@
+### 3.0.0 Beta 4 
+* Hopefully fixed connection and disconnection process
+* Fixed version identification
+
+
 ### 3.0.0 Beta 3 
 * Fixed custom ui
 
