@@ -1,4 +1,5 @@
 import { Local } from 'dorita980';
+import { EventEmitter } from 'stream';
 
 
 export class RoombaV1 {
@@ -57,15 +58,20 @@ export interface MissionV1 {
 
 //------------------------------------------------------------------------------------------------------------------------------------------
 
-export class RoombaV2 {
+export class RoombaV2 extends EventEmitter{
   private connected = false;
   public roomba?: Local;
+  private timeout?: NodeJS.Timeout;
 
   constructor(private readonly blid: string, private readonly password: string, private readonly ip: string) {
+    super();
     process.env.ROBOT_CIPHERS = 'AES128-SHA256';
   }
 
-  connect(): Promise<Local> {
+  connect(): Promise<Local>{
+    if(this.timeout) {
+      clearTimeout(this.timeout);
+    }
     return new Promise((resolve, reject) => {
       if (!this.connected) {
         this.roomba = new Local(this.blid, this.password, this.ip, 2);
@@ -78,6 +84,8 @@ export class RoombaV2 {
         }).on('connect', () => {
           this.connected = true;
           resolve(this.roomba);
+        }).on('state', (state: MissionV3) => {
+          this.emit('update', state);
         });
       } else {
         resolve(this.roomba);
@@ -86,8 +94,13 @@ export class RoombaV2 {
   }
 
   disconnect(roomba: Local){
-    roomba.end();
-    this.connected = false;
+    if(this.timeout){
+      clearTimeout(this.timeout);
+    }
+    this.timeout = setTimeout(()=>{
+      roomba.end();
+      this.connected = false;
+    }, 5000);
   }
 
   clean() {
@@ -151,16 +164,21 @@ export interface MissionV2 {
   binPresent: boolean;
   binFull: boolean;
 }
-export class RoombaV3 {
+export class RoombaV3 extends EventEmitter{
   private connected = false;
   public roomba?: Local;
+  private timeout?: NodeJS.Timeout;
 
   constructor(private readonly blid: string, private readonly password: string, private readonly ip: string, private readonly sku: string) {
+    super();
     process.env.ROBOT_CIPHERS = this.sku.startsWith('j') ? 'TLS_AES_256_GCM_SHA384' : 'AES128-SHA256';
   }
 
   connect(): Promise<Local> {
     return new Promise((resolve, reject) => {
+      if(this.timeout) {
+        clearTimeout(this.timeout);
+      }
       if (!this.connected) {
         this.roomba = new Local(this.blid, this.password, this.ip, 2);
         this.roomba.on('offline', () => {
@@ -172,6 +190,8 @@ export class RoombaV3 {
         }).on('connect', () => {
           this.connected = true;
           resolve(this.roomba);
+        }).on('state', (state: MissionV3) => {
+          this.emit('update', state);
         });
       } else {
         resolve(this.roomba);
@@ -180,8 +200,13 @@ export class RoombaV3 {
   }
 
   disconnect(roomba: Local){
-    roomba.end();
-    this.connected = false;
+    if(this.timeout){
+      clearTimeout(this.timeout);
+    }
+    this.timeout = setTimeout(()=>{
+      roomba.end();
+      this.connected = false;
+    }, 5000);
   }
 
   clean() {

@@ -302,9 +302,14 @@ export class iRobotPlatformAccessoryV2 {
       this.roomba.getMission()
         .then(mission => events.emit('update', mission))
         .catch(err => this.platform.log.error(this.logPrefix, 'Failed To Update State:\n', err));
-    }, this.platform.config.interval || 5000);
+    }, this.platform.config.interval || 60000);
     this.platform.api.on('shutdown', () => {
       clearInterval(interval);
+    });
+    this.roomba.on('update', (mission: MissionV3) => {
+      const status = this.platform.config.status !== undefined ? this.platform.config.status.split(':') : ['phase', 'run'];
+      this.service.updateCharacteristic(this.accessory.displayName,
+        status[0] === 'inverted' ? mission[status[1]] !== status[2] : mission[status[0]] === status[1]);
     });
   }
 }
@@ -345,8 +350,8 @@ export class iRobotPlatformAccessoryV3 {
       });
 
 
-    this.service = this.accessory.getService(this.accessory.context.device.name) ||
-      this.accessory.addService(this.platform.Service.Fan, this.accessory.context.device.name, 'Main-Service');
+    this.service = this.accessory.getService(this.accessory.displayName) ||
+      this.accessory.addService(this.platform.Service.Fan, this.accessory.displayName, 'Main-Service');
     this.service.setPrimaryService(true);
 
     this.battery = this.accessory.getService(this.accessory.displayName + ' battery') ||
@@ -454,9 +459,14 @@ export class iRobotPlatformAccessoryV3 {
       this.roomba.getMission()
         .then(mission => events.emit('update', mission))
         .catch(err => this.platform.log.error(this.logPrefix, 'Failed To Update State:\n', err));
-    }, this.platform.config.interval || 5000);
+    }, this.platform.config.interval || 60000);
     this.platform.api.on('shutdown', () => {
       clearInterval(interval);
+    });
+    this.roomba.on('update', (mission: MissionV3) => {
+      const status = this.platform.config.status !== undefined ? this.platform.config.status.split(':') : ['phase', 'run'];
+      this.service.updateCharacteristic(this.accessory.displayName,
+        status[0] === 'inverted' ? mission[status[1]] !== status[2] : mission[status[0]] === status[1]);
     });
   }
 }
