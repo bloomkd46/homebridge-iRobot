@@ -272,7 +272,14 @@ export class RoombaV3 extends EventEmitter {
   }
 
   async getMission(): Promise<MissionV3> {
-    let mission: MissionV3;
+    let mission: MissionV3 = {
+    cycle: 'none',
+    phase: 'charge',
+    batPct: 99,
+    binPresent: true,
+    binFull: false,
+  };
+
     return new Promise((resolve, reject) => {
       this.connect().then(async (roomba) => {
         roomba.getRobotState(['cleanMissionStatus', 'bin', 'batPct'])
