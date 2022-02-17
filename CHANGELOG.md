@@ -1,3 +1,7 @@
+### 3.0.0 Beta 7 
+* Hopefully fixed undefined object error
+
+
 ### 3.0.0 Beta 6 
 * Fixed get mission function on v3 Roomba's
 * Fixed update event
