@@ -72,7 +72,7 @@ function getDeviceCredentials(blid: string, ip?: string): Promise<ConfiguredRoom
           if (parsedMsg.hostname.split('-')[1] === blid) {
             clearInterval(broadcastInterval);
             server.close();
-            for(const key in parsedMsg.sw.split()){
+            for(const key in parsedMsg.sw.split('')){
               if(key === '1'){
                 parsedMsg.swMajor = 1;
                 resolve(parsedMsg);
@@ -82,8 +82,10 @@ function getDeviceCredentials(blid: string, ip?: string): Promise<ConfiguredRoom
               } else if(key === '3'){
                 parsedMsg.swMajor = 3;
                 resolve(parsedMsg);
-              }
+              } 
             }
+            parsedMsg.swMajor = 2;
+            resolve(parsedMsg);
             //console.log(JSON.stringify(parsedMsg));
             //process.exit(0);
           }
