@@ -1,3 +1,8 @@
+### 3.0.0 Beta 6 
+* Fixed get mission function on v3 Roomba's
+* Fixed update event
+
+
 ### 3.0.0 Beta 5 
 * Hopefully fixed configuration error
 
