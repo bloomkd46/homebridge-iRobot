@@ -305,11 +305,10 @@ export class iRobotPlatformAccessoryV2 {
     }, this.platform.config.interval || 60000);
     this.platform.api.on('shutdown', () => {
       clearInterval(interval);
+      this.roomba.end();
     });
     this.roomba.on('update', (mission: MissionV3) => {
-      const status = this.platform.config.status !== undefined ? this.platform.config.status.split(':') : ['phase', 'run'];
-      this.service.updateCharacteristic(this.accessory.displayName,
-        status[0] === 'inverted' ? mission[status[1]] !== status[2] : mission[status[0]] === status[1]);
+      events.emit('update', mission);
     });
   }
 }
@@ -329,9 +328,6 @@ export class iRobotPlatformAccessoryV3 {
     batPct: 99,
     binPresent: true,
     binFull: false,
-    pmap_id: null,
-    regions: null,
-    user_pmapv_id: null,
   };
 
   constructor(
@@ -462,11 +458,10 @@ export class iRobotPlatformAccessoryV3 {
     }, this.platform.config.interval || 60000);
     this.platform.api.on('shutdown', () => {
       clearInterval(interval);
+      this.roomba.end();
     });
     this.roomba.on('update', (mission: MissionV3) => {
-      const status = this.platform.config.status !== undefined ? this.platform.config.status.split(':') : ['phase', 'run'];
-      this.service.updateCharacteristic(this.accessory.displayName,
-        status[0] === 'inverted' ? mission[status[1]] !== status[2] : mission[status[0]] === status[1]);
+      events.emit('update', mission);
     });
   }
 }
