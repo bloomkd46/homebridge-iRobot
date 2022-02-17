@@ -1,3 +1,7 @@
+### 3.0.0 Beta 5 
+* Hopefully fixed configuration error
+
+
 ### 3.0.0 Beta 4 
 * Hopefully fixed connection and disconnection process
 * Fixed version identification
