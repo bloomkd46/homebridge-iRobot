@@ -1,3 +1,8 @@
+### 3.0.0 Beta 8 
+* simplified returned state object
+* Fixed update event object
+
+
 ### 3.0.0 Beta 7 
 * Hopefully fixed undefined object error
 
