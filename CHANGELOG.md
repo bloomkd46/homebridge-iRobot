@@ -1,3 +1,7 @@
+### 3.0.0 Beta 10 
+* Fixed conflicting states error
+
+
 ### 3.0.0 Beta 9 
 * Fixed error when updating switch state
 
