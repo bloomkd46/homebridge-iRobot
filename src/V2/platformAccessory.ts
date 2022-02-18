@@ -239,6 +239,7 @@ export class iRobotPlatformAccessoryV2 {
         return this.state.phase === 'charge' ? 0 : this.state.batPct < this.platform.config.lowBattery ? 1 : 0;
       });
     events.on('update', (mission: MissionV2) => {
+      this.state = mission;
       const status = this.platform.config.status !== undefined ? this.platform.config.status.split(':') : ['phase', 'run'];
       this.service.updateCharacteristic(this.platform.Characteristic.On,
         status[0] === 'inverted' ? mission[status[1]] !== status[2] : mission[status[0]] === status[1]);
@@ -392,6 +393,7 @@ export class iRobotPlatformAccessoryV3 {
         return this.state.phase === 'charge' ? 0 : this.state.batPct < this.platform.config.lowBattery ? 1 : 0;
       });
     events.on('update', (mission: MissionV3) => {
+      this.state = mission;
       const status = this.platform.config.status !== undefined ? this.platform.config.status.split(':') : ['phase', 'run'];
       this.service.updateCharacteristic(this.platform.Characteristic.On,
         status[0] === 'inverted' ? mission[status[1]] !== status[2] : mission[status[0]] === status[1]);
