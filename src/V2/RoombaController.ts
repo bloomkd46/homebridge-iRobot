@@ -86,7 +86,7 @@ export class RoombaV2 extends EventEmitter {
           this.connected = true;
           resolve(this.roomba);
         }).on('state', (state: MissionV3) => {
-          this.emit('update', state);
+          this.emit('update', Object.assign(state, state.cleanMissionStatus, state.bin));
         });
       } else {
         resolve(this.roomba);
@@ -153,18 +153,10 @@ export class RoombaV2 extends EventEmitter {
   }
 
   async getMission(): Promise<MissionV2> {
-    let mission: MissionV2 = {
-    cycle: 'none',
-    phase: 'charge',
-    batPct: 99,
-    binPresent: true,
-    binFull: false,
-  };
-
     return new Promise((resolve, reject) => {
       this.connect().then(async (roomba) => {
         roomba.getRobotState(['cleanMissionStatus', 'bin', 'batPct'])
-          .then(state => resolve(Object.assign(mission, state.cleanMissionStatus, state.bin, state)))
+          .then(state => resolve(Object.assign(state, state.cleanMissionStatus, state.bin)))
           .catch(err => reject(err));
         this.disconnect(roomba);
       }).catch(err => reject(err));
@@ -205,7 +197,7 @@ export class RoombaV3 extends EventEmitter {
           this.connected = true;
           resolve(this.roomba);
         }).on('state', (state: MissionV3) => {
-          this.emit('update', state);
+          this.emit('update', Object.assign(state, state.cleanMissionStatus, state.bin));
         });
       } else {
         resolve(this.roomba);
@@ -272,18 +264,10 @@ export class RoombaV3 extends EventEmitter {
   }
 
   async getMission(): Promise<MissionV3> {
-    let mission: MissionV3 = {
-    cycle: 'none',
-    phase: 'charge',
-    batPct: 99,
-    binPresent: true,
-    binFull: false,
-  };
-
     return new Promise((resolve, reject) => {
       this.connect().then(async (roomba) => {
         roomba.getRobotState(['cleanMissionStatus', 'bin', 'batPct'])
-          .then(state => resolve(Object.assign(mission, state.cleanMissionStatus, state.bin, state)))
+          .then(state => resolve(Object.assign(state, state.cleanMissionStatus, state.bin)))
           .catch(err => reject(err));
         this.disconnect(roomba);
       }).catch(err => reject(err));
