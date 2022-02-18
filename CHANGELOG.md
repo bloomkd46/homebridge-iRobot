@@ -1,3 +1,7 @@
+### 3.0.0 Beta 9 
+* Fixed error when updating switch state
+
+
 ### 3.0.0 Beta 8 
 * Simplified state parse
 * Fixed update event
