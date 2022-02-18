@@ -85,7 +85,7 @@ export class RoombaV2 extends EventEmitter {
         }).on('connect', () => {
           this.connected = true;
           resolve(this.roomba);
-        }).on('state', (state: MissionV3) => {
+        }).on('state', (state) => {
           this.emit('update', Object.assign(state, state.cleanMissionStatus, state.bin));
         });
       } else {
@@ -196,7 +196,7 @@ export class RoombaV3 extends EventEmitter {
         }).on('connect', () => {
           this.connected = true;
           resolve(this.roomba);
-        }).on('state', (state: MissionV3) => {
+        }).on('state', (state) => {
           this.emit('update', Object.assign(state, state.cleanMissionStatus, state.bin));
         });
       } else {
