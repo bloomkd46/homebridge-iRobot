@@ -238,10 +238,10 @@ export class iRobotPlatformAccessoryV2 {
       .onGet(() => {
         return this.state.phase === 'charge' ? 0 : this.state.batPct < this.platform.config.lowBattery ? 1 : 0;
       });
-    events.on('update', (mission) => {
+    events.on('update', (mission: MissionV2) => {
       const status = this.platform.config.status !== undefined ? this.platform.config.status.split(':') : ['phase', 'run'];
       this.service.updateCharacteristic(this.platform.Characteristic.On,
-        status[0] === 'inverted' ? mission.ok[status[1]] !== status[2] : mission.ok[status[0]] === status[1]);
+        status[0] === 'inverted' ? mission[status[1]] !== status[2] : mission.[status[0]] === status[1]);
       this.battery.updateCharacteristic(this.platform.Characteristic.BatteryLevel, mission.batPct);
       this.battery.updateCharacteristic(this.platform.Characteristic.ChargingState, mission.phase === 'charge' ? 1 : 0);
       this.battery.updateCharacteristic(this.platform.Characteristic.StatusLowBattery,
@@ -391,10 +391,10 @@ export class iRobotPlatformAccessoryV3 {
       .onGet(() => {
         return this.state.phase === 'charge' ? 0 : this.state.batPct < this.platform.config.lowBattery ? 1 : 0;
       });
-    events.on('update', (mission) => {
+    events.on('update', (mission: MissionV3) => {
       const status = this.platform.config.status !== undefined ? this.platform.config.status.split(':') : ['phase', 'run'];
       this.service.updateCharacteristic(this.platform.Characteristic.On,
-        status[0] === 'inverted' ? mission.ok[status[1]] !== status[2] : mission.ok[status[0]] === status[1]);
+        status[0] === 'inverted' ? mission[status[1]] !== status[2] : mission[status[0]] === status[1]);
       this.battery.updateCharacteristic(this.platform.Characteristic.BatteryLevel, mission.batPct);
       this.battery.updateCharacteristic(this.platform.Characteristic.ChargingState, mission.phase === 'charge' ? 1 : 0);
       this.battery.updateCharacteristic(this.platform.Characteristic.StatusLowBattery,
