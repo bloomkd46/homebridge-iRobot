@@ -1,4 +1,3 @@
-import { AnyRecord } from 'dns';
 import { Local } from 'dorita980';
 import { EventEmitter } from 'stream';
 
@@ -60,7 +59,6 @@ export interface MissionV1 {
 //------------------------------------------------------------------------------------------------------------------------------------------
 
 export class RoombaV2 extends EventEmitter {
-  private connected = false;
   public roomba?: Local;
   private timeout?: NodeJS.Timeout;
 
@@ -72,24 +70,23 @@ export class RoombaV2 extends EventEmitter {
   connect(): Promise<Local> {
     if (this.timeout) {
       clearTimeout(this.timeout);
+      this.timeout = undefined;
     }
     return new Promise((resolve, reject) => {
-      if (!this.connected) {
+      if (this.roomba) {
+        resolve(this.roomba);
+      } else {
         this.roomba = new Local(this.blid, this.password, this.ip, 2);
         this.roomba.on('offline', () => {
-          this.connected = false;
           this.roomba.end();
           reject('Roomba Offline');
         }).on('close', () => {
-          this.connected = false;
+          this.roomba = undefined;
         }).on('connect', () => {
-          this.connected = true;
           resolve(this.roomba);
         }).on('state', (state) => {
           this.emit('update', Object.assign(state, state.cleanMissionStatus, state.bin));
         });
-      } else {
-        resolve(this.roomba);
       }
     });
   }
@@ -97,14 +94,14 @@ export class RoombaV2 extends EventEmitter {
   disconnect(roomba: Local) {
     if (this.timeout) {
       clearTimeout(this.timeout);
+      this.timeout = undefined;
     }
     this.timeout = setTimeout(() => {
       roomba.end();
-      this.connected = false;
     }, 5000);
   }
 
-  end(){
+  end() {
     this.connect().then((roomba) => {
       roomba.end();
     });
@@ -113,42 +110,42 @@ export class RoombaV2 extends EventEmitter {
   clean() {
     this.connect().then(async (roomba) => {
       await roomba.clean();
-      await this.disconnect(roomba);
+      this.disconnect(roomba);
     });
   }
 
   pause() {
     this.connect().then(async (roomba) => {
       await roomba.pause();
-      await this.disconnect(roomba);
+      this.disconnect(roomba);
     });
   }
 
   stop() {
     this.connect().then(async (roomba) => {
       await roomba.stop();
-      await this.disconnect(roomba);
+      this.disconnect(roomba);
     });
   }
 
   resume() {
     this.connect().then(async (roomba) => {
       await roomba.resume();
-      await this.disconnect(roomba);
+      this.disconnect(roomba);
     });
   }
 
   dock() {
     this.connect().then(async (roomba) => {
       await roomba.dock();
-      await this.disconnect(roomba);
+      this.disconnect(roomba);
     });
   }
 
   find() {
     this.connect().then(async (roomba) => {
       await roomba.find();
-      await this.disconnect(roomba);
+      this.disconnect(roomba);
     });
   }
 
@@ -171,7 +168,6 @@ export interface MissionV2 {
   binFull: boolean;
 }
 export class RoombaV3 extends EventEmitter {
-  private connected = false;
   public roomba?: Local;
   private timeout?: NodeJS.Timeout;
 
@@ -181,26 +177,25 @@ export class RoombaV3 extends EventEmitter {
   }
 
   connect(): Promise<Local> {
+    if (this.timeout) {
+      clearTimeout(this.timeout);
+      this.timeout = undefined;
+    }
     return new Promise((resolve, reject) => {
-      if (this.timeout) {
-        clearTimeout(this.timeout);
-      }
-      if (!this.connected) {
+      if (this.roomba) {
+        resolve(this.roomba);
+      } else {
         this.roomba = new Local(this.blid, this.password, this.ip, 2);
         this.roomba.on('offline', () => {
-          this.connected = false;
           this.roomba.end();
           reject('Roomba Offline');
         }).on('close', () => {
-          this.connected = false;
+          this.roomba = undefined;
         }).on('connect', () => {
-          this.connected = true;
           resolve(this.roomba);
         }).on('state', (state) => {
           this.emit('update', Object.assign(state, state.cleanMissionStatus, state.bin));
         });
-      } else {
-        resolve(this.roomba);
       }
     });
   }
@@ -208,14 +203,14 @@ export class RoombaV3 extends EventEmitter {
   disconnect(roomba: Local) {
     if (this.timeout) {
       clearTimeout(this.timeout);
+      this.timeout = undefined;
     }
     this.timeout = setTimeout(() => {
       roomba.end();
-      this.connected = false;
     }, 5000);
   }
 
-  end(){
+  end() {
     this.connect().then((roomba) => {
       roomba.end();
     });
@@ -224,42 +219,42 @@ export class RoombaV3 extends EventEmitter {
   clean() {
     this.connect().then(async (roomba) => {
       await roomba.clean();
-      await this.disconnect(roomba);
+      this.disconnect(roomba);
     });
   }
 
   pause() {
     this.connect().then(async (roomba) => {
       await roomba.pause();
-      await this.disconnect(roomba);
+      this.disconnect(roomba);
     });
   }
 
   stop() {
     this.connect().then(async (roomba) => {
       await roomba.stop();
-      await this.disconnect(roomba);
+      this.disconnect(roomba);
     });
   }
 
   resume() {
     this.connect().then(async (roomba) => {
       await roomba.resume();
-      await this.disconnect(roomba);
+      this.disconnect(roomba);
     });
   }
 
   dock() {
     this.connect().then(async (roomba) => {
       await roomba.dock();
-      await this.disconnect(roomba);
+      this.disconnect(roomba);
     });
   }
 
   find() {
     this.connect().then(async (roomba) => {
       await roomba.find();
-      await this.disconnect(roomba);
+      this.disconnect(roomba);
     });
   }
 
@@ -274,7 +269,7 @@ export class RoombaV3 extends EventEmitter {
     });
   }
 }
-export interface MissionV3{
+export interface MissionV3 {
   cycle: 'none' | 'clean';
   phase: 'charge' | 'stuck' | 'run' | 'hmUsrDock';
   batPct: number;
