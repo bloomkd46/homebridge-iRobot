@@ -257,7 +257,7 @@ export class iRobotPlatformAccessoryV2 {
       const status = this.platform.config.status !== undefined ? this.platform.config.status.split(':') : ['phase', 'run'];
       this.service.updateCharacteristic(this.platform.Characteristic.On,
         status[0] === 'inverted' ? mission[status[1]] !== status[2] : mission[status[0]] === status[1]);
-      this.battery.updateCharacteristic(this.platform.Characteristic.BatteryLevel, mission.batPct);
+      this.battery.updateCharacteristic(this.platform.Characteristic.BatteryLevel, mission.batPct || 20);
       this.battery.updateCharacteristic(this.platform.Characteristic.ChargingState, mission.phase === 'charge' ? 1 : 0);
       this.battery.updateCharacteristic(this.platform.Characteristic.StatusLowBattery,
         mission.phase === 'charge' ? 0 : mission.batPct < (this.platform.config.lowBattery || 20) ? 1 : 0);
@@ -339,7 +339,10 @@ export class iRobotPlatformAccessoryV2 {
     const interval = setInterval(() => {
       this.platform.log.debug(this.logPrefix, 'Auto-Updating state');
       this.roomba.getMission()
-        .then(mission => events.emit('update', mission))
+        .then(mission => {
+          this.platform.log.debug(this.logPrefix, mission);
+          events.emit('update', mission);
+        })
         .catch(err => this.platform.log.error(this.logPrefix, 'Failed To Update State:\n', err));
     }, this.platform.config.interval || 60000);
     this.platform.api.on('shutdown', () => {
@@ -449,7 +452,7 @@ export class iRobotPlatformAccessoryV3 {
       const status = this.platform.config.status !== undefined ? this.platform.config.status.split(':') : ['phase', 'run'];
       this.service.updateCharacteristic(this.platform.Characteristic.On,
         status[0] === 'inverted' ? mission[status[1]] !== status[2] : mission[status[0]] === status[1]);
-      this.battery.updateCharacteristic(this.platform.Characteristic.BatteryLevel, mission.batPct);
+      this.battery.updateCharacteristic(this.platform.Characteristic.BatteryLevel, mission.batPct||20);
       this.battery.updateCharacteristic(this.platform.Characteristic.ChargingState, mission.phase === 'charge' ? 1 : 0);
       this.battery.updateCharacteristic(this.platform.Characteristic.StatusLowBattery,
         mission.phase === 'charge' ? 0 : mission.batPct < this.platform.config.lowBattery ? 1 : 0);
@@ -531,7 +534,10 @@ export class iRobotPlatformAccessoryV3 {
     const interval = setInterval(() => {
       this.platform.log.debug(this.logPrefix, 'Auto-Updating state');
       this.roomba.getMission()
-        .then(mission => events.emit('update', mission))
+        .then(mission => {
+          this.platform.log.debug(this.logPrefix, mission);
+          events.emit('update', mission);
+        })
         .catch(err => this.platform.log.error(this.logPrefix, 'Failed To Update State:\n', err));
     }, this.platform.config.interval || 60000);
     this.platform.api.on('shutdown', () => {

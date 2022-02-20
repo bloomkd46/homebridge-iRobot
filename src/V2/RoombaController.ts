@@ -193,8 +193,8 @@ export class RoombaV3 extends EventEmitter {
           this.roomba = undefined;
         }).on('connect', () => {
           resolve(this.roomba);
-        }).on('state', (state) => {
-          this.emit('update', Object.assign(state, state.cleanMissionStatus, state.bin));
+        }).on('update', (state) => {
+          this.emit('state', Object.assign(state, state.cleanMissionStatus, state.bin));
         });
       }
     });
