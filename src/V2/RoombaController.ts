@@ -32,7 +32,8 @@ export class RoombaV1 {
   async getMission(): Promise<MissionV1> {
     return new Promise((resolve, reject) => {
       this.roomba.getMission().then(mission => {
-        mission.ok.missionFlags.binPresent = !mission.ok.missionFlags.binRemoved;
+        mission.ok.missionFlags.full = !mission.ok.missionFlags.binRemoved;
+        mission.ok.missionFlags.present = mission.ok.missionFlags.binPresent;
         resolve(Object.assign(mission.ok, mission.ok.missionFlags));
       }).catch(err => reject(err));
     });
@@ -45,9 +46,9 @@ export interface MissionV1 {
     phase: 'charge' | 'stuck' | 'run';
     batPct: number;
     idle: boolean;
-    binFull: boolean;
+    full: boolean;
     //binRemoved: boolean;
-    binPresent: boolean;
+    present: boolean;
     //beeping: boolean;
     //missionFlags: { idle: boolean; binFull: boolean; binRemoved: boolean; beeping: boolean };
     //notReadyMsg: 'Ready';
@@ -61,8 +62,10 @@ export interface MissionV1 {
 export class RoombaV2 extends EventEmitter {
   public roomba?: Local;
   private timeout?: NodeJS.Timeout;
+  private keepAlive = this.refreshInterval === -1;
 
-  constructor(private readonly blid: string, private readonly password: string, private readonly ip: string) {
+  constructor(private readonly blid: string, private readonly password: string, private readonly ip: string,
+    private readonly refreshInterval: number) {
     super();
     process.env.ROBOT_CIPHERS = 'AES128-SHA256';
   }
@@ -96,9 +99,12 @@ export class RoombaV2 extends EventEmitter {
       clearTimeout(this.timeout);
       this.timeout = undefined;
     }
-    this.timeout = setTimeout(() => {
-      roomba.end();
-    }, 5000);
+    if (!this.keepAlive) {
+      this.timeout = setTimeout(() => {
+        roomba.end();
+      }, this.refreshInterval || 5000);
+
+    }
   }
 
   end() {
@@ -170,8 +176,10 @@ export interface MissionV2 {
 export class RoombaV3 extends EventEmitter {
   public roomba?: Local;
   private timeout?: NodeJS.Timeout;
+  private keepAlive = this.refreshInterval === -1;
 
-  constructor(private readonly blid: string, private readonly password: string, private readonly ip: string, private readonly sku: string) {
+  constructor(private readonly blid: string, private readonly password: string, private readonly ip: string, private readonly sku: string,
+    private readonly refreshInterval: number ) {
     super();
     process.env.ROBOT_CIPHERS = this.sku.startsWith('j') ? 'TLS_AES_256_GCM_SHA384' : 'AES128-SHA256';
   }
@@ -205,9 +213,11 @@ export class RoombaV3 extends EventEmitter {
       clearTimeout(this.timeout);
       this.timeout = undefined;
     }
-    this.timeout = setTimeout(() => {
-      roomba.end();
-    }, 5000);
+    if (this.keepAlive){
+      this.timeout = setTimeout(() => {
+        roomba.end();
+      }, this.refreshInterval || 5000);
+    }
   }
 
   end() {
@@ -292,5 +302,3 @@ export interface Map {
   ];
   user_pmapv_id: string;
 }
-
-

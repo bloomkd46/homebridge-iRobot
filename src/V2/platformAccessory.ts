@@ -3,7 +3,7 @@ import { iRobotPlatform } from './platform';
 import { RoombaV1, RoombaV2, MissionV1, MissionV2, MissionV3, RoombaV3 } from './RoombaController';
 import { EventEmitter } from 'events';
 
-const events = new EventEmitter();
+//const events = new EventEmitter();
 /**
  * Platform Accessory
  * An instance of this class is created for each accessory your platform registers
@@ -12,6 +12,7 @@ const events = new EventEmitter();
 export class iRobotPlatformAccessoryV1 {
   private service: Service;
   private battery: Service;
+  private events = new EventEmitter();
   private logPrefix = '[' + this.accessory.displayName + ']';
   private roomba = new RoombaV1(this.accessory.context.device.blid,
     this.accessory.context.device.password, this.accessory.context.device.ip);
@@ -22,8 +23,8 @@ export class iRobotPlatformAccessoryV1 {
       phase: 'charge',
       batPct: 99,
       idle: true,
-      binFull: false,
-      binPresent: true,
+      full: false,
+      present: true,
     },
   };
 
@@ -57,10 +58,10 @@ export class iRobotPlatformAccessoryV1 {
           this.roomba.start();
           this.roomba.resume();
         } else {
-          this.roomba[stopActions[0]];
+          this.roomba[stopActions[0]]();
           setTimeout(() => {
             if (stopActions[1] !== 'none' && stopActions[1] !== 'find') {
-              this.roomba[stopActions[1]];
+              this.roomba[stopActions[1]]();
             }
           }, 5000);
         }
@@ -69,7 +70,7 @@ export class iRobotPlatformAccessoryV1 {
         return new Promise((resolve, reject) => {
           this.roomba.getMission().then(mission => {
             this.state = mission;
-            events.emit('update', mission);
+            this.events.emit('update', mission);
             resolve(status[0] === 'inverted' ? mission.ok[status[1]] !== status[2] : mission.ok[status[0]] === status[1]);
           }).catch(err => {
             this.platform.log.error(this.logPrefix, 'Failed To Fetch Robot Status\n', err); reject(this.platform.api.hap.HapStatusError);
@@ -88,7 +89,7 @@ export class iRobotPlatformAccessoryV1 {
       .onGet(() => {
         return this.state.ok.phase === 'charge' ? 0 : this.state.ok.batPct < this.platform.config.lowBattery ? 1 : 0;
       });
-    events.on('update', (mission) => {
+    this.events.on('update', (mission) => {
       const status = this.platform.config.status !== undefined ? this.platform.config.status.split(':') : ['phase', 'run'];
       this.service.updateCharacteristic(this.platform.Characteristic.On,
         status[0] === 'inverted' ? mission.ok[status[1]] !== status[2] : mission.ok[status[0]] === status[1]);
@@ -117,7 +118,7 @@ export class iRobotPlatformAccessoryV1 {
             .onGet(() => {
               return value(this.state) ? 1 : 0;
             });
-          events.on('update', (mission) => {
+          this.events.on('update', (mission) => {
             contact.updateCharacteristic(this.platform.Characteristic.ContactSensorState, value(mission) ? 1 : 0);
           });
 
@@ -129,7 +130,7 @@ export class iRobotPlatformAccessoryV1 {
             .onGet(() => {
               return value(this.state);
             });
-          events.on('update', (mission) => {
+          this.events.on('update', (mission) => {
             motion.updateCharacteristic(this.platform.Characteristic.ContactSensorState, value(mission));
           });
 
@@ -141,7 +142,7 @@ export class iRobotPlatformAccessoryV1 {
             .onGet(() => {
               return value(this.state) ? 1 : 0;
             });
-          events.on('update', (mission) => {
+          this.events.on('update', (mission) => {
             filter.updateCharacteristic(this.platform.Characteristic.ContactSensorState, value(mission) ? 1 : 0);
           });
         }
@@ -150,9 +151,9 @@ export class iRobotPlatformAccessoryV1 {
     const interval = setInterval(() => {
       this.platform.log.debug(this.logPrefix, 'Auto-Updating state');
       this.roomba.getMission()
-        .then(mission => events.emit('update', mission))
+        .then(mission => this.events.emit('update', mission))
         .catch(err => this.platform.log.error(this.logPrefix, 'Failed To Auto Update State:\n', err));
-    }, this.platform.config.interval || 5000);
+    }, this.platform.config.refreshInterval * 60000 || 60000);
     this.platform.api.on('shutdown', () => {
       clearInterval(interval);
     });
@@ -164,9 +165,10 @@ export class iRobotPlatformAccessoryV1 {
 export class iRobotPlatformAccessoryV2 {
   private service: Service;
   private battery: Service;
+  private events = new EventEmitter();
   private logPrefix = '[' + this.accessory.displayName + ']';
   private roomba = new RoombaV2(this.accessory.context.device.blid,
-    this.accessory.context.device.password, this.accessory.context.device.ip);
+    this.accessory.context.device.password, this.accessory.context.device.ip, this.platform.config.connectionTime * 1000 || 5000);
 
   constructor(
     private readonly platform: iRobotPlatform,
@@ -196,16 +198,16 @@ export class iRobotPlatformAccessoryV2 {
       .onSet((value) => {
         const stopActions = this.platform.config.offAction !== undefined ? this.platform.config.offAction.split(':') : ['pause', 'dock'];
         if (value as boolean) {
-          this.platform.log.info(this.logPrefix, 'Starting');
+          this.platform.log.info(this.logPrefix, 'Starting...');
           this.roomba.clean();
           this.roomba.resume();
         } else {
-          this.platform.log.info(this.logPrefix, stopActions[0] + 'ing');
-          this.roomba[stopActions[0]];
+          this.platform.log.info(this.logPrefix, (stopActions[0].endsWith('e') ? 'paus' : stopActions[0]) + 'ing...');
+          this.roomba[stopActions[0]]();
           setTimeout(() => {
             if (stopActions[1] !== 'none') {
-              this.platform.log.info(this.logPrefix, stopActions[1] + 'ing');
-              this.roomba[stopActions[1]];
+              this.platform.log.info(this.logPrefix, stopActions[1] + 'ing...');
+              this.roomba[stopActions[1]]();
             }
           }, 5000);
         }
@@ -213,7 +215,7 @@ export class iRobotPlatformAccessoryV2 {
         const status = this.platform.config.status !== undefined ? this.platform.config.status.split(':') : ['phase', 'run'];
         return new Promise((resolve, reject) => {
           this.roomba.getMission().then(mission => {
-            events.emit('update', mission);
+            this.events.emit('update', mission);
             resolve(status[0] === 'inverted' ? mission[status[1]] !== status[2] : mission[status[0]] === status[1]);
           }).catch(err => {
             this.platform.log.error(this.logPrefix, 'Failed To Fetch Robot Status\n', err); reject(this.platform.api.hap.HapStatusError);
@@ -224,7 +226,7 @@ export class iRobotPlatformAccessoryV2 {
       .onGet(() => {
         return new Promise((resolve, reject) => {
           this.roomba.getMission().then(mission => {
-            events.emit('update', mission);
+            this.events.emit('update', mission);
             resolve(mission.batPct);
           }).catch(err => {
             this.platform.log.error(this.logPrefix, 'Failed To Fetch Robot Status\n', err); reject(this.platform.api.hap.HapStatusError);
@@ -235,7 +237,7 @@ export class iRobotPlatformAccessoryV2 {
       .onGet(() => {
         return new Promise((resolve, reject) => {
           this.roomba.getMission().then(mission => {
-            events.emit('update', mission);
+            this.events.emit('update', mission);
             resolve(mission.phase === 'charge' ? 1 : 0);
           }).catch(err => {
             this.platform.log.error(this.logPrefix, 'Failed To Fetch Robot Status\n', err); reject(this.platform.api.hap.HapStatusError);
@@ -246,14 +248,14 @@ export class iRobotPlatformAccessoryV2 {
       .onGet(() => {
         return new Promise((resolve, reject) => {
           this.roomba.getMission().then(mission => {
-            events.emit('update', mission);
+            this.events.emit('update', mission);
             resolve(mission.phase === 'charge' ? 0 : mission.batPct < (this.platform.config.lowBattery || 20) ? 1 : 0);
           }).catch(err => {
             this.platform.log.error(this.logPrefix, 'Failed To Fetch Robot Status\n', err); reject(this.platform.api.hap.HapStatusError);
           });
         });
       });
-    events.on('update', (mission: MissionV2) => {
+    this.events.on('update', (mission: MissionV2) => {
       const status = this.platform.config.status !== undefined ? this.platform.config.status.split(':') : ['phase', 'run'];
       this.service.updateCharacteristic(this.platform.Characteristic.On,
         status[0] === 'inverted' ? mission[status[1]] !== status[2] : mission[status[0]] === status[1]);
@@ -282,7 +284,7 @@ export class iRobotPlatformAccessoryV2 {
             .onGet(() => {
               return new Promise((resolve, reject) => {
                 this.roomba.getMission().then(mission => {
-                  events.emit('update', mission);
+                  this.events.emit('update', mission);
                   resolve(value(mission) ? 1 : 0);
                 }).catch(err => {
                   this.platform.log.error(this.logPrefix, 'Failed To Fetch Robot Status\n', err);
@@ -290,7 +292,7 @@ export class iRobotPlatformAccessoryV2 {
                 });
               });
             });
-          events.on('update', (mission) => {
+          this.events.on('update', (mission) => {
             contact.updateCharacteristic(this.platform.Characteristic.ContactSensorState, value(mission) ? 1 : 0);
           });
 
@@ -302,7 +304,7 @@ export class iRobotPlatformAccessoryV2 {
             .onGet(() => {
               return new Promise((resolve, reject) => {
                 this.roomba.getMission().then(mission => {
-                  events.emit('update', mission);
+                  this.events.emit('update', mission);
                   resolve(value(mission));
                 }).catch(err => {
                   this.platform.log.error(this.logPrefix, 'Failed To Fetch Robot Status\n', err);
@@ -310,7 +312,7 @@ export class iRobotPlatformAccessoryV2 {
                 });
               });
             });
-          events.on('update', (mission) => {
+          this.events.on('update', (mission) => {
             motion.updateCharacteristic(this.platform.Characteristic.ContactSensorState, value(mission));
           });
 
@@ -322,7 +324,7 @@ export class iRobotPlatformAccessoryV2 {
             .onGet(() => {
               return new Promise((resolve, reject) => {
                 this.roomba.getMission().then(mission => {
-                  events.emit('update', mission);
+                  this.events.emit('update', mission);
                   resolve(value(mission) ? 1 : 0);
                 }).catch(err => {
                   this.platform.log.error(this.logPrefix, 'Failed To Fetch Robot Status\n', err);
@@ -330,7 +332,7 @@ export class iRobotPlatformAccessoryV2 {
                 });
               });
             });
-          events.on('update', (mission) => {
+          this.events.on('update', (mission) => {
             filter.updateCharacteristic(this.platform.Characteristic.ContactSensorState, value(mission) ? 1 : 0);
           });
         }
@@ -340,17 +342,17 @@ export class iRobotPlatformAccessoryV2 {
       this.platform.log.debug(this.logPrefix, 'Auto-Updating state');
       this.roomba.getMission()
         .then(mission => {
-          this.platform.log.debug(this.logPrefix, mission);
-          events.emit('update', mission);
+
+          this.events.emit('update', mission);
         })
         .catch(err => this.platform.log.error(this.logPrefix, 'Failed To Update State:\n', err));
-    }, this.platform.config.interval || 60000);
+    }, this.platform.config.refreshInterval * 60000 || 60000);
     this.platform.api.on('shutdown', () => {
       clearInterval(interval);
       this.roomba.end();
     });
     this.roomba.on('update', (mission: MissionV3) => {
-      events.emit('update', mission);
+      this.events.emit('update', mission);
     });
   }
 }
@@ -360,9 +362,11 @@ export class iRobotPlatformAccessoryV2 {
 export class iRobotPlatformAccessoryV3 {
   private service: Service;
   private battery: Service;
+  private events = new EventEmitter();
   private logPrefix = '[' + this.accessory.displayName + ']';
   private roomba = new RoombaV3(this.accessory.context.device.blid,
-    this.accessory.context.device.password, this.accessory.context.device.ip, this.accessory.context.device.sku);
+    this.accessory.context.device.password, this.accessory.context.device.ip, this.accessory.context.device.sku,
+    this.platform.config.connectionTime * 1000 || 5000);
 
   constructor(
     private readonly platform: iRobotPlatform,
@@ -391,16 +395,16 @@ export class iRobotPlatformAccessoryV3 {
       .onSet((value) => {
         const stopActions = this.platform.config.offAction !== undefined ? this.platform.config.offAction.split(':') : ['pause', 'dock'];
         if (value as boolean) {
-          this.platform.log.info(this.logPrefix, 'Starting');
+          this.platform.log.info(this.logPrefix, 'Starting...');
           this.roomba.clean();
           this.roomba.resume();
         } else {
-          this.platform.log.info(this.logPrefix, stopActions[0] + 'ing');
-          this.roomba[stopActions[0]];
+          this.platform.log.info(this.logPrefix, (stopActions[0].endsWith('e') ? 'paus' : stopActions[0]) + 'ing...');
+          this.roomba[stopActions[0]]();
           setTimeout(() => {
             if (stopActions[1] !== 'none') {
-              this.platform.log.info(this.logPrefix, stopActions[1] + 'ing');
-              this.roomba[stopActions[1]];
+              this.platform.log.info(this.logPrefix, stopActions[1] + 'ing...');
+              this.roomba[stopActions[1]]();
             }
           }, 5000);
         }
@@ -408,7 +412,7 @@ export class iRobotPlatformAccessoryV3 {
         const status = this.platform.config.status !== undefined ? this.platform.config.status.split(':') : ['phase', 'run'];
         return new Promise((resolve, reject) => {
           this.roomba.getMission().then(mission => {
-            events.emit('update', mission);
+            this.events.emit('update', mission);
             resolve(status[0] === 'inverted' ? mission[status[1]] !== status[2] : mission[status[0]] === status[1]);
           }).catch(err => {
             this.platform.log.error(this.logPrefix, 'Failed To Fetch Robot Status\n', err); reject(this.platform.api.hap.HapStatusError);
@@ -419,7 +423,7 @@ export class iRobotPlatformAccessoryV3 {
       .onGet(() => {
         return new Promise((resolve, reject) => {
           this.roomba.getMission().then(mission => {
-            events.emit('update', mission);
+            this.events.emit('update', mission);
             resolve(mission.batPct);
           }).catch(err => {
             this.platform.log.error(this.logPrefix, 'Failed To Fetch Robot Status\n', err); reject(this.platform.api.hap.HapStatusError);
@@ -430,7 +434,7 @@ export class iRobotPlatformAccessoryV3 {
       .onGet(() => {
         return new Promise((resolve, reject) => {
           this.roomba.getMission().then(mission => {
-            events.emit('update', mission);
+            this.events.emit('update', mission);
             resolve(mission.phase === 'charge' ? 1 : 0);
           }).catch(err => {
             this.platform.log.error(this.logPrefix, 'Failed To Fetch Robot Status\n', err); reject(this.platform.api.hap.HapStatusError);
@@ -441,18 +445,18 @@ export class iRobotPlatformAccessoryV3 {
       .onGet(() => {
         return new Promise((resolve, reject) => {
           this.roomba.getMission().then(mission => {
-            events.emit('update', mission);
+            this.events.emit('update', mission);
             resolve(mission.phase === 'charge' ? 0 : mission.batPct < (this.platform.config.lowBattery || 20) ? 1 : 0);
           }).catch(err => {
             this.platform.log.error(this.logPrefix, 'Failed To Fetch Robot Status\n', err); reject(this.platform.api.hap.HapStatusError);
           });
         });
       });
-    events.on('update', (mission: MissionV3) => {
+    this.events.on('update', (mission: MissionV3) => {
       const status = this.platform.config.status !== undefined ? this.platform.config.status.split(':') : ['phase', 'run'];
       this.service.updateCharacteristic(this.platform.Characteristic.On,
         status[0] === 'inverted' ? mission[status[1]] !== status[2] : mission[status[0]] === status[1]);
-      this.battery.updateCharacteristic(this.platform.Characteristic.BatteryLevel, mission.batPct||20);
+      this.battery.updateCharacteristic(this.platform.Characteristic.BatteryLevel, mission.batPct || 20);
       this.battery.updateCharacteristic(this.platform.Characteristic.ChargingState, mission.phase === 'charge' ? 1 : 0);
       this.battery.updateCharacteristic(this.platform.Characteristic.StatusLowBattery,
         mission.phase === 'charge' ? 0 : mission.batPct < this.platform.config.lowBattery ? 1 : 0);
@@ -477,7 +481,7 @@ export class iRobotPlatformAccessoryV3 {
             .onGet(() => {
               return new Promise((resolve, reject) => {
                 this.roomba.getMission().then(mission => {
-                  events.emit('update', mission);
+                  this.events.emit('update', mission);
                   resolve(value(mission) ? 1 : 0);
                 }).catch(err => {
                   this.platform.log.error(this.logPrefix, 'Failed To Fetch Robot Status\n', err);
@@ -485,7 +489,7 @@ export class iRobotPlatformAccessoryV3 {
                 });
               });
             });
-          events.on('update', (mission) => {
+          this.events.on('update', (mission) => {
             contact.updateCharacteristic(this.platform.Characteristic.ContactSensorState, value(mission) ? 1 : 0);
           });
 
@@ -497,7 +501,7 @@ export class iRobotPlatformAccessoryV3 {
             .onGet(() => {
               return new Promise((resolve, reject) => {
                 this.roomba.getMission().then(mission => {
-                  events.emit('update', mission);
+                  this.events.emit('update', mission);
                   resolve(value(mission));
                 }).catch(err => {
                   this.platform.log.error(this.logPrefix, 'Failed To Fetch Robot Status\n', err);
@@ -505,7 +509,7 @@ export class iRobotPlatformAccessoryV3 {
                 });
               });
             });
-          events.on('update', (mission) => {
+          this.events.on('update', (mission) => {
             motion.updateCharacteristic(this.platform.Characteristic.ContactSensorState, value(mission));
           });
 
@@ -517,7 +521,7 @@ export class iRobotPlatformAccessoryV3 {
             .onGet(() => {
               return new Promise((resolve, reject) => {
                 this.roomba.getMission().then(mission => {
-                  events.emit('update', mission);
+                  this.events.emit('update', mission);
                   resolve(value(mission) ? 1 : 0);
                 }).catch(err => {
                   this.platform.log.error(this.logPrefix, 'Failed To Fetch Robot Status\n', err);
@@ -525,7 +529,7 @@ export class iRobotPlatformAccessoryV3 {
                 });
               });
             });
-          events.on('update', (mission) => {
+          this.events.on('update', (mission) => {
             filter.updateCharacteristic(this.platform.Characteristic.ContactSensorState, value(mission) ? 1 : 0);
           });
         }
@@ -535,17 +539,17 @@ export class iRobotPlatformAccessoryV3 {
       this.platform.log.debug(this.logPrefix, 'Auto-Updating state');
       this.roomba.getMission()
         .then(mission => {
-          this.platform.log.debug(this.logPrefix, mission);
-          events.emit('update', mission);
+
+          this.events.emit('update', mission);
         })
         .catch(err => this.platform.log.error(this.logPrefix, 'Failed To Update State:\n', err));
-    }, this.platform.config.interval || 60000);
+    }, this.platform.config.refreshInterval * 60000 || 60000);
     this.platform.api.on('shutdown', () => {
       clearInterval(interval);
       this.roomba.end();
     });
     this.roomba.on('update', (mission: MissionV3) => {
-      events.emit('update', mission);
+      this.events.emit('update', mission);
     });
   }
 }

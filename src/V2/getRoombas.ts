@@ -3,6 +3,7 @@ import { createSocket } from 'dgram';
 import { PlatformConfig } from 'homebridge';
 export function getRoombas(config: PlatformConfig): Promise<ConfiguredRoomba[]> {
   let index = 0;
+  const badRoombas: string[] = [];
   return new Promise((resolve, reject) => {
     const robots: ConfiguredRoomba[] = [];
     if (config.password !== undefined && config.email !== undefined) {
@@ -10,10 +11,13 @@ export function getRoombas(config: PlatformConfig): Promise<ConfiguredRoomba[]> 
         for (const robot of devices) {
           getDeviceCredentials(robot.blid).then(credentials => {
             robots.push(Object.assign(robot, credentials));
-          }).catch(() => {
-            //do nothing
-          }).then(() => {
+          }).catch((error) => {
+            badRoombas.push(error);
+          }).finally(() => {
             index++;
+            if(badRoombas.length === devices.length) {
+              reject(badRoombas.toString());
+            }
             if (index === devices.length) {
               resolve(robots);
             }
@@ -27,10 +31,13 @@ export function getRoombas(config: PlatformConfig): Promise<ConfiguredRoomba[]> 
         if (robot.ip !== undefined) {
           getDeviceCredentials(robot.blid, robot.ip).then(credentials => {
             robots.push(Object.assign(robot, credentials));
-          }).catch(() => {
-            //do nothing
+          }).catch((error) => {
+            badRoombas.push(error);
           }).finally(() => {
             index++;
+            if(badRoombas.length === robots.length) {
+              reject(badRoombas.toString());
+            }
             if (index === robots.length) {
               resolve(robots);
             }
@@ -38,10 +45,13 @@ export function getRoombas(config: PlatformConfig): Promise<ConfiguredRoomba[]> 
         } else {
           getDeviceCredentials(robot.blid).then(credentials => {
             robots.push(Object.assign(robot, credentials));
-          }).catch(() => {
-            //do nothing
+          }).catch((error) => {
+            badRoombas.push(error);
           }).finally(() => {
             index++;
+            if(badRoombas.length === robots.length) {
+              reject(badRoombas.toString());
+            }
             if (index === robots.length) {
               resolve(robots);
             }
@@ -58,6 +68,7 @@ function getDeviceCredentials(blid: string, ip?: string): Promise<ConfiguredRoom
   return new Promise((resolve, reject) => {
     let broadcastInterval;
     const server = createSocket('udp4');
+    let devices = false;
 
     server.on('error', (err) => {
       reject(err);
@@ -65,6 +76,7 @@ function getDeviceCredentials(blid: string, ip?: string): Promise<ConfiguredRoom
     });
 
     server.on('message', (msg) => {
+      devices = true;
       try {
         const parsedMsg = JSON.parse(msg.toString());
         if (parsedMsg.hostname && parsedMsg.ip &&
@@ -72,20 +84,21 @@ function getDeviceCredentials(blid: string, ip?: string): Promise<ConfiguredRoom
           if (parsedMsg.hostname.split('-')[1] === blid) {
             clearInterval(broadcastInterval);
             server.close();
-            for(const key in parsedMsg.sw.split('')){
-              if(key === '1'){
-                parsedMsg.swMajor = 1;
+            let Major;
+            parsedMsg.sw.split('').forEach((version) => {
+              if (Major === undefined && version === '1') {
+                Major = 1;
+              } else if (Major === undefined && version === '2') {
+                Major = 2;
+              } else if (Major === undefined && version === '3') {
+                Major = 3;
+              } else if (Major) {
+                parsedMsg.swMajor = Major;
                 resolve(parsedMsg);
-              } else if(key === '2'){
-                parsedMsg.swMajor = 2;
-                resolve(parsedMsg);
-              } else if(key === '3'){
-                parsedMsg.swMajor = 3;
-                resolve(parsedMsg);
-              } 
-            }
-            parsedMsg.swMajor = 2;
-            resolve(parsedMsg);
+              }
+            });
+            //parsedMsg.swMajor = 2;
+            //resolve(parsedMsg);
             //console.log(JSON.stringify(parsedMsg));
             //process.exit(0);
           }
@@ -111,7 +124,11 @@ function getDeviceCredentials(blid: string, ip?: string): Promise<ConfiguredRoom
       broadcastInterval = setInterval(() => {
         attempts++;
         if (attempts > 5) {
-          reject('No Roomba Found');
+          if(!devices){
+            reject('UDP Disabled');
+          } else {
+            reject('No Roomba Found');
+          }
           clearInterval(broadcastInterval);
         } else {
           server.send(message, 0, message.length, 5678, ip || '255.255.255.255');

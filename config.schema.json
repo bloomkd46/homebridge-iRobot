@@ -43,9 +43,10 @@
         "required": true
       },
       "roombas": {
-        "title": "Roomba's",
+        "title": "Devices",
         "type": "array",
-        "buttonText": "Add Roomba",
+        "buttonText": "Add Device",
+
         "items": {
           "type": "object",
           "properties": {
@@ -73,7 +74,7 @@
               "description": "Your roomba's ip address (Hint: if you enter your iRobot credentials above you can find your roomba's ip address in the devices tab above)",
               "type": "string",
               "format": "ipv4",
-              "required": false            
+              "required": false
             }
           }
         },
@@ -195,25 +196,113 @@
                 }
               ]
             },
-            "condition":{
+            "condition": {
               "title": "Condition",
               "description": "What triggers the sensor",
               "type": "string",
               "required": true,
-              "typeahead":{
-              "source": [
-                "binFull:true",
-                "binPresent:false",
-                "phase:run",
-                "phase:stuck"
-              ]
-            }
-
+              "typeahead": {
+                "source": [
+                  "full:true",
+                  "present:false",
+                  "phase:run",
+                  "phase:stuck"
+                ]
+              }
             }
           }
         }
-
+      },
+      "refreshInterval": {
+        "title": "Refresh Interval",
+        "description": "How often to update Homekit in minutes",
+        "type": "integer",
+        "required": false,
+        "placeholder": 1,
+        "minimum": 1,
+        "maximum": 60
+      },
+      "connectionTime": {
+        "title": "Active Duration",
+        "description": "How long to maintain a connection in seconds (-1 for infinite connection)",
+        "type": "integer",
+        "required": false,
+        "placeholder": 1,
+        "minimum": -1,
+        "maximum": 60
       }
     }
-  }
+  },
+  "layout": [
+    {
+      "type": "section",
+      "title": "General Options",
+      "expandable": true,
+      "expanded": true,
+      "items": [
+        {
+          "description": "Enter your iRobot username and password below.",
+          "items": [
+            "name",
+            "email",
+            "password",
+            "manualDiscovery",
+            {
+              "key": "roombas",
+              "type": "array",
+              "orderable": true,
+              "title": "Devices",
+              "buttonText": "Add Device",
+              "items": [
+                "roombas[].name",
+                "roombas[].blid",
+                "roombas[].password",
+                "roombas[].ip"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "section",
+      "title": "Additional Settings (ex. binfull, stuck, running, etc.)",
+      "expandable": true,
+      "expanded": false,
+      "items": [
+        {
+          "key": "sensors",
+          "type": "array",
+          "orderable": true,
+          "title": "Sensors",
+          "buttonText": "Add Sensor",
+          "items": [
+            "sensors[].type",
+            "sensors[].condition"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "section",
+      "title": "Plugin Settings",
+      "expandable": true,
+      "expanded": false,
+      "items": [
+        "lowBattery",
+        "offAction",
+        "status"        
+      ]
+    },
+    {
+      "type": "section",
+      "title": "Advanced Settings (Optional)",
+      "expandable": true,
+      "expanded": false,
+      "items": [
+        "refreshInterval",
+        "connectionTime"
+      ]
+    }
+  ]
 }
