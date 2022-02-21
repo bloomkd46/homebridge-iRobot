@@ -90,7 +90,7 @@
 </div>
 <div id="pageSupport" class="mt-4" style="display: none;">
   <p class="text-center lead">Thank you for using <strong>homebridge-iRobot</strong></p>
-  <p class="text-center">The links below will take you to my GitHub wiki (some wiki links dont work yet)</p>
+  <p class="text-center">The links below will take you to my GitHub wiki</p>
   <h4>Setup</h4>
   <ul>
     <li>
@@ -108,6 +108,15 @@
     <li>
       <a href="https://github.com/bloomkd46/homebridge-iRobot/wiki/Uninstallation" target="_blank">Uninstallation</a>
     </li>
+    <li>
+      <a href="https://github.com/bloomkd46/homebridge-iRobot/wiki/Room-By-Room" target="_blank">Room By Room</a>
+    </li>
+  </ul>
+  <h4>Features</h4>
+  <ul>
+    <li>
+      <a href="https://github.com/bloomkd46/homebridge-iRobot#supported-devices" target="_blank">Supported devices</a>
+    </li>
   </ul>
   <!--<h4>Features</h4>
   <ul>
@@ -124,9 +133,6 @@
   </ul-->
   <h4>Help/About</h4>
   <ul>
-    <li>
-      <a href="https://github.com/bloomkd46/homebridge-iRobot/wiki/Common-Errors" target="_blank">Common Errors</a>
-    </li>
     <li>
       <a href="https://github.com/bloomkd46/homebridge-iRobot/issues/new/choose" target="_blank">Support Request</a>
     </li>
@@ -219,7 +225,7 @@
           document.getElementById('model').innerHTML = context.device.sku || 'N/A'
           document.getElementById('ip_address').innerHTML = context.device.ip || 'N/A'
           document.getElementById('mac_address').innerHTML = context.device.mac || 'N/A'
-          document.getElementById('sw').innerHRML = context.device.sw || 'NA'
+          document.getElementById('sw').innerHTML = context.device.sw || 'NA'
           document.getElementById('room_by_room').innerHTML = context.device.multiRoom || false
           document.getElementById('mapCount').style.display = 'none'
           document.getElementById('regionCount').style.display = 'none'

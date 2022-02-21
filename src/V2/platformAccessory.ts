@@ -383,7 +383,6 @@ export class iRobotPlatformAccessoryV3 {
         this.roomba.find();
       });
 
-
     this.service = this.accessory.getService(this.accessory.displayName) ||
       this.accessory.addService(this.platform.Service.Fan, this.accessory.displayName, 'Main-Service');
     this.service.setPrimaryService(true);
