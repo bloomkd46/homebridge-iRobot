@@ -1,21 +1,25 @@
 import request from 'request';
 import { createSocket } from 'dgram';
-import { PlatformConfig } from 'homebridge';
-export function getRoombas(config: PlatformConfig): Promise<ConfiguredRoomba[]> {
+import { Logger, PlatformConfig } from 'homebridge';
+export function getRoombas(config: PlatformConfig, log: Logger): Promise<ConfiguredRoomba[]> {
   let index = 0;
   const badRoombas: string[] = [];
   return new Promise((resolve, reject) => {
     const robots: ConfiguredRoomba[] = [];
     if (config.password !== undefined && config.email !== undefined) {
       getiRobotDevices(config.email, config.password).then(devices => {
+        log.info('Succefully logged into iRobot');
         for (const robot of devices) {
+          log.debug('Configuring device:', JSON.stringify(robot));
           getDeviceCredentials(robot.blid).then(credentials => {
+            log.debug('Configured Device:', JSON.stringify(credentials));
             robots.push(Object.assign(robot, credentials));
           }).catch((error) => {
+            log.warn('Failed To Configure Device:', JSON.stringify(robot), '\nWith error:', error);
             badRoombas.push(error);
           }).finally(() => {
             index++;
-            if(badRoombas.length === devices.length) {
+            if (badRoombas.length === devices.length) {
               reject(badRoombas.toString());
             }
             if (index === devices.length) {
@@ -29,13 +33,16 @@ export function getRoombas(config: PlatformConfig): Promise<ConfiguredRoomba[]> 
     } else {
       for (const robot of config.roombas) {
         if (robot.ip !== undefined) {
+          log.debug('Configuring device:', JSON.stringify(robot));
           getDeviceCredentials(robot.blid, robot.ip).then(credentials => {
+            log.debug('Configured Device:', JSON.stringify(credentials));
             robots.push(Object.assign(robot, credentials));
           }).catch((error) => {
+            log.warn('Failed To Configure Device:', JSON.stringify(robot), '\nWith error:', error);
             badRoombas.push(error);
           }).finally(() => {
             index++;
-            if(badRoombas.length === robots.length) {
+            if (badRoombas.length === robots.length) {
               reject(badRoombas.toString());
             }
             if (index === robots.length) {
@@ -43,13 +50,16 @@ export function getRoombas(config: PlatformConfig): Promise<ConfiguredRoomba[]> 
             }
           });
         } else {
+          log.debug('Configuring device:', JSON.stringify(robot));
           getDeviceCredentials(robot.blid).then(credentials => {
+            log.debug('Configured Device:', JSON.stringify(credentials));
             robots.push(Object.assign(robot, credentials));
           }).catch((error) => {
+            log.warn('Failed To Configure Device:', JSON.stringify(robot), '\nWith error:', error);
             badRoombas.push(error);
           }).finally(() => {
             index++;
-            if(badRoombas.length === robots.length) {
+            if (badRoombas.length === robots.length) {
               reject(badRoombas.toString());
             }
             if (index === robots.length) {
@@ -124,7 +134,7 @@ function getDeviceCredentials(blid: string, ip?: string): Promise<ConfiguredRoom
       broadcastInterval = setInterval(() => {
         attempts++;
         if (attempts > 5) {
-          if(!devices){
+          if (!devices) {
             reject('UDP Disabled');
           } else {
             reject('No Roomba Found');

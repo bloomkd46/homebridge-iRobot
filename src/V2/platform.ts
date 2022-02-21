@@ -61,9 +61,9 @@ export class iRobotPlatform implements DynamicPlatformPlugin {
   discoverDevices() {
     // loop over the discovered devices and register each one if it has not already been registered
     this.log.info('Logging into iRobot...');
-    getRoombas(this.config).then(devices => {
+    getRoombas(this.config, this.log).then(devices => {
       for (const device of devices) {
-        this.log.debug('Configuring device: \n', JSON.stringify(device));
+        //this.log.debug('Configuring device: \n', JSON.stringify(device));
         // generate a unique id for the accessory this should be generated from
         // something globally unique, but constant, for example, the device serial
         // number or MAC address

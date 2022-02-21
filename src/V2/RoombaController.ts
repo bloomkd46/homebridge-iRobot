@@ -213,7 +213,7 @@ export class RoombaV3 extends EventEmitter {
       clearTimeout(this.timeout);
       this.timeout = undefined;
     }
-    if (this.keepAlive){
+    if (!this.keepAlive){
       this.timeout = setTimeout(() => {
         roomba.end();
       }, this.refreshInterval || 5000);
@@ -229,6 +229,14 @@ export class RoombaV3 extends EventEmitter {
   clean() {
     this.connect().then(async (roomba) => {
       await roomba.clean();
+      this.disconnect(roomba);
+    });
+  }
+
+  cleanRoom(map){
+    map.ordered = 1;
+    this.connect().then(async (roomba) => {
+      await roomba.cleanRoom(map);
       this.disconnect(roomba);
     });
   }
