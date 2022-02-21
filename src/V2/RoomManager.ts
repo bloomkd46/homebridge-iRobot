@@ -1,8 +1,8 @@
-import { PlatformAccessory } from 'homebridge';
+import { PlatformAccessory, Service } from 'homebridge';
 import { iRobotPlatform } from './platform';
 import { RoombaV3 } from './RoombaController';
 
-export class RoomManager {
+class RoomManager {
   private logPrefix = '[' + this.accessory.displayName + ']';
   constructor(
     private readonly accessory: PlatformAccessory,
@@ -32,12 +32,12 @@ export class RoomManager {
         if (mapIndex) {
           for (const region of lastCommand.regions) {
             if (!this.accessory.context.maps[mapIndex].contains(region)) {
-              this.platform.log.info(this.logPrefix, 'Adding new region:', region.toString());
+              this.platform.log.info(this.logPrefix, 'Adding new region:', region);
               this.accessory.context.maps[mapIndex].push(region);
             }
           }
         } else {
-          this.platform.log.info(this.logPrefix, 'Adding new map:', lastCommand.toString());
+          this.platform.log.info(this.logPrefix, 'Adding new map:', lastCommand);
           this.accessory.context.maps.push(lastCommand);
         }
       } else {
@@ -49,6 +49,37 @@ export class RoomManager {
 
   StartRoomba(map: LastCommandMap) {
     this.roomba.cleanRoom(map);
+  }
+
+  GetName(region: { region_id: string; type: 'zid' | 'rid' }, map: number): string {
+    return `map ${map} ${region.type === 'zid' ? 'Zone' : 'Room'} ${region.region_id}`;
+  }
+}
+export class inputChooser extends RoomManager {
+  constructor(
+    accessory: PlatformAccessory,
+    platform: iRobotPlatform,
+    roomba: RoombaV3,
+    private readonly service: Service,
+  ) {
+    super(accessory, platform, roomba);
+    for (const map of accessory.context.maps) {
+      const index = accessory.context.maps.indexOf(map);
+      for (const region of map.regions) {
+        const service = accessory.getService(this.GetName(region, index)) ||
+          accessory.addService(platform.Service.InputSource, this.GetName(region, index), this.GetName(region, index));
+        service
+          .setCharacteristic(platform.Characteristic.Identifier, this.GetName(region, index))
+          .setCharacteristic(platform.Characteristic.ConfiguredName, this.GetName(region, index))
+          .setCharacteristic(
+            platform.Characteristic.IsConfigured,
+            platform.Characteristic.IsConfigured.CONFIGURED,
+          )
+          .setCharacteristic(platform.Characteristic.InputSourceType, platform.Characteristic.InputSourceType.OTHER);
+
+        this.service.addLinkedService(service);
+      }
+    }
   }
 }
 interface LastCommand {
