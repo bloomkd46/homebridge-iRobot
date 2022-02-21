@@ -1,3 +1,11 @@
+### 3.0.0 Beta 11 
+* Fully Stable
+* Fixed version identification 
+
+### TODO:
+* Add room-by-room support
+
+
 ### 3.0.0 Beta 10 
 * Fixed conflicting states error
 
