@@ -509,7 +509,7 @@ export class iRobotPlatformAccessoryV3 {
               });
             });
           this.events.on('update', (mission) => {
-            motion.updateCharacteristic(this.platform.Characteristic.ContactSensorState, value(mission));
+            motion.updateCharacteristic(this.platform.Characteristic.MotionDetected, value(mission));
           });
 
         } else if (sensorType === 'filter') {
@@ -529,7 +529,7 @@ export class iRobotPlatformAccessoryV3 {
               });
             });
           this.events.on('update', (mission) => {
-            filter.updateCharacteristic(this.platform.Characteristic.ContactSensorState, value(mission) ? 1 : 0);
+            filter.updateCharacteristic(this.platform.Characteristic.FilterChangeIndication, value(mission) ? 1 : 0);
           });
         }
       }
