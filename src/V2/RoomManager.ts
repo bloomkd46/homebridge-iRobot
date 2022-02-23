@@ -1,4 +1,5 @@
 import { PlatformAccessory, Service } from 'homebridge';
+import { on } from 'process';
 import { iRobotPlatform } from './platform';
 import { RoombaV3 } from './RoombaController';
 
@@ -55,7 +56,7 @@ class RoomManager {
     return `map ${map} ${region.type === 'zid' ? 'Zone' : 'Room'} ${region.region_id}`;
   }
 }
-export class inputChooser extends RoomManager {
+export class switches extends RoomManager {
   constructor(
     accessory: PlatformAccessory,
     platform: iRobotPlatform,
@@ -67,18 +68,9 @@ export class inputChooser extends RoomManager {
       const index = accessory.context.maps.indexOf(map);
       for (const region of map.regions) {
         const service = accessory.getService(this.GetName(region, index)) ||
-          accessory.addService(platform.Service.InputSource, this.GetName(region, index), this.GetName(region, index));
-        service
-          .setCharacteristic(platform.Characteristic.Identifier, this.GetName(region, index))
-          .setCharacteristic(platform.Characteristic.ConfiguredName, this.GetName(region, index))
-          .setCharacteristic(
-            platform.Characteristic.IsConfigured,
-            platform.Characteristic.IsConfigured.CONFIGURED,
-          )
-          .setCharacteristic(platform.Characteristic.InputSourceType, platform.Characteristic.InputSourceType.OTHER);
-
-        this.service.addLinkedService(service);
-      }
+          accessory.addService(platform.Service.Switch, this.GetName(region, index), this.GetName(region, index))
+          .getCharacteristic()
+              }
     }
   }
 }

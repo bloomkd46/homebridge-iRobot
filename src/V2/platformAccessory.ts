@@ -168,7 +168,8 @@ export class iRobotPlatformAccessoryV2 {
   private events = new EventEmitter();
   private logPrefix = '[' + this.accessory.displayName + ']';
   private roomba = new RoombaV2(this.accessory.context.device.blid,
-    this.accessory.context.device.password, this.accessory.context.device.ip, this.platform.config.connectionTime * 1000 || 5000);
+    this.accessory.context.device.password, this.accessory.context.device.ip, this.platform.config.connectionTime * 1000 || 5000,
+    this.platform.log, this.logPrefix);
 
   constructor(
     private readonly platform: iRobotPlatform,
@@ -366,7 +367,7 @@ export class iRobotPlatformAccessoryV3 {
   private logPrefix = '[' + this.accessory.displayName + ']';
   private roomba = new RoombaV3(this.accessory.context.device.blid,
     this.accessory.context.device.password, this.accessory.context.device.ip, this.accessory.context.device.sku,
-    this.platform.config.connectionTime * 1000 || 5000);
+    this.platform.config.connectionTime * 1000 || 5000, this.platform.log, this.logPrefix);
 
   constructor(
     private readonly platform: iRobotPlatform,
@@ -538,12 +539,12 @@ export class iRobotPlatformAccessoryV3 {
       this.platform.log.debug(this.logPrefix, 'Auto-Updating state');
       this.roomba.getMission()
         .then(mission => {
-
           this.events.emit('update', mission);
         })
         .catch(err => this.platform.log.error(this.logPrefix, 'Failed To Update State:\n', err));
     }, this.platform.config.refreshInterval * 60000 || 60000);
     this.platform.api.on('shutdown', () => {
+      this.platform.log.info(this.logPrefix, 'Disconnecting...');
       clearInterval(interval);
       this.roomba.end();
     });
@@ -551,4 +552,53 @@ export class iRobotPlatformAccessoryV3 {
       this.events.emit('update', mission);
     });
   }
+
+  updateMap(lastCommandFull: LastCommand | undefined | null) {
+    if (lastCommandFull && lastCommandFull.pmap_id && lastCommandFull.regions && lastCommandFull.user_pmapv_id) {
+      const lastCommand: LastCommandMap = {
+        'pmap_id': lastCommandFull.pmap_id,
+        'regions': lastCommandFull.regions,
+        'user_pmapv_id': lastCommandFull.user_pmapv_id,
+      };
+      if (this.accessory.context.maps) {
+        let mapIndex: number | undefined = undefined;
+        this.accessory.context.maps.find((map: LastCommandMap, index: number) => {
+          if (map.pmap_id === lastCommand.pmap_id) {
+            mapIndex = index;
+            return true;
+          } else {
+            return false;
+          }
+        });
+        if (mapIndex) {
+          for (const region of lastCommand.regions) {
+            if (!this.accessory.context.maps[mapIndex].contains(region)) {
+              this.platform.log.info(this.logPrefix, 'Adding new region:', region);
+              this.accessory.context.maps[mapIndex].push(region);
+            }
+          }
+        } else {
+          this.platform.log.info(this.logPrefix, 'Adding new map:', lastCommand);
+          this.accessory.context.maps.push(lastCommand);
+        }
+      } else {
+        this.platform.log.info(this.logPrefix, 'Initiating Room-By-Room Support with map:', lastCommand);
+        this.accessory.context.maps = [lastCommand];
+      }
+    }
+  }
+}
+interface LastCommand {
+  pmap_id?: string;
+  regions?: [
+    { region_id: string; type: 'zid' | 'rid' }
+  ];
+  user_pmapv_id?: string;
+}
+interface LastCommandMap {
+  pmap_id: string;
+  regions: [
+    { region_id: string; type: 'zid' | 'rid' }
+  ];
+  user_pmapv_id: string;
 }

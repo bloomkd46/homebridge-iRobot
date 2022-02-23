@@ -1,4 +1,5 @@
 import { Local } from 'dorita980';
+import { Logger } from 'homebridge';
 import { EventEmitter } from 'stream';
 
 
@@ -65,7 +66,7 @@ export class RoombaV2 extends EventEmitter {
   private keepAlive = this.refreshInterval === -1;
 
   constructor(private readonly blid: string, private readonly password: string, private readonly ip: string,
-    private readonly refreshInterval: number) {
+    private readonly refreshInterval: number, private readonly log: Logger, private readonly logPrefix: string) {
     super();
     process.env.ROBOT_CIPHERS = 'AES128-SHA256';
   }
@@ -79,13 +80,17 @@ export class RoombaV2 extends EventEmitter {
       if (this.roomba) {
         resolve(this.roomba);
       } else {
+        this.log.debug(this.logPrefix, 'Connecting...');
         this.roomba = new Local(this.blid, this.password, this.ip, 2);
         this.roomba.on('offline', () => {
+          this.log.debug(this.logPrefix, 'Offline');
           this.roomba.end();
           reject('Roomba Offline');
         }).on('close', () => {
+          this.log.debug(this.logPrefix, 'Disconnected');
           this.roomba = undefined;
         }).on('connect', () => {
+          this.log.debug(this.logPrefix, 'Connected');
           resolve(this.roomba);
         }).on('state', (state) => {
           this.emit('update', Object.assign(state, state.cleanMissionStatus, state.bin));
@@ -101,6 +106,7 @@ export class RoombaV2 extends EventEmitter {
     }
     if (!this.keepAlive) {
       this.timeout = setTimeout(() => {
+        this.log.debug(this.logPrefix, 'Disconnecting...');
         roomba.end();
       }, this.refreshInterval || 5000);
 
@@ -179,7 +185,7 @@ export class RoombaV3 extends EventEmitter {
   private keepAlive = this.refreshInterval === -1;
 
   constructor(private readonly blid: string, private readonly password: string, private readonly ip: string, private readonly sku: string,
-    private readonly refreshInterval: number ) {
+    private readonly refreshInterval: number, private readonly log: Logger, private readonly logPrefix: string) {
     super();
     process.env.ROBOT_CIPHERS = this.sku.startsWith('j') ? 'TLS_AES_256_GCM_SHA384' : 'AES128-SHA256';
   }
@@ -193,13 +199,17 @@ export class RoombaV3 extends EventEmitter {
       if (this.roomba) {
         resolve(this.roomba);
       } else {
+        this.log.debug('Connecting...');
         this.roomba = new Local(this.blid, this.password, this.ip, 2);
         this.roomba.on('offline', () => {
+          this.log.debug(this.logPrefix, 'Offline');
           this.roomba.end();
           reject('Roomba Offline');
         }).on('close', () => {
+          this.log.debug(this.logPrefix, 'Disconnected');
           this.roomba = undefined;
         }).on('connect', () => {
+          this.log.debug(this.logPrefix, 'Connected');
           resolve(this.roomba);
         }).on('update', (state) => {
           this.emit('state', Object.assign(state, state.cleanMissionStatus, state.bin));
@@ -213,8 +223,9 @@ export class RoombaV3 extends EventEmitter {
       clearTimeout(this.timeout);
       this.timeout = undefined;
     }
-    if (!this.keepAlive){
+    if (!this.keepAlive) {
       this.timeout = setTimeout(() => {
+        this.log.debug(this.logPrefix, 'Disconnecting...');
         roomba.end();
       }, this.refreshInterval || 5000);
     }
@@ -233,7 +244,7 @@ export class RoombaV3 extends EventEmitter {
     });
   }
 
-  cleanRoom(map){
+  cleanRoom(map) {
     map.ordered = 1;
     this.connect().then(async (roomba) => {
       await roomba.cleanRoom(map);
