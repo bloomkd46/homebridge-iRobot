@@ -1,5 +1,4 @@
 import { PlatformAccessory, Service } from 'homebridge';
-import { on } from 'process';
 import { iRobotPlatform } from './platform';
 import { RoombaV3 } from './RoombaController';
 
@@ -64,13 +63,14 @@ export class switches extends RoomManager {
     private readonly service: Service,
   ) {
     super(accessory, platform, roomba);
-    for (const map of accessory.context.maps) {
+    /*for (const map of accessory.context.maps) {
       const index = accessory.context.maps.indexOf(map);
       for (const region of map.regions) {
         const service = accessory.getService(this.GetName(region, index)) ||
           accessory.addService(platform.Service.Switch, this.GetName(region, index), this.GetName(region, index));
+
       }
-    }
+    }*/
   }
 }
 interface LastCommand {
