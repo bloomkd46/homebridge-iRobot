@@ -68,9 +68,8 @@ export class switches extends RoomManager {
       const index = accessory.context.maps.indexOf(map);
       for (const region of map.regions) {
         const service = accessory.getService(this.GetName(region, index)) ||
-          accessory.addService(platform.Service.Switch, this.GetName(region, index), this.GetName(region, index))
-          .getCharacteristic()
-              }
+          accessory.addService(platform.Service.Switch, this.GetName(region, index), this.GetName(region, index));
+      }
     }
   }
 }
