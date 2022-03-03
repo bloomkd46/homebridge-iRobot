@@ -1,3 +1,9 @@
+### 3.0.0 Beta 12 
+* Better logging
+* Numerous upgrades and improvements 
+* Expect 3.0.0 soon
+
+
 ### 3.0.0 Beta 11 
 * Fully Stable
 * Fixed version identification 
