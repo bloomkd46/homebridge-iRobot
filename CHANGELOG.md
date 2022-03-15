@@ -1,3 +1,8 @@
+### 3.0.0 Beta 13 
+* Fixed offline status
+* Fixed Motion and Filter Status Updates
+
+
 ### 3.0.0 Beta 12 
 * Better logging
 * Numerous upgrades and improvements 
