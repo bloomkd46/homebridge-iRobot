@@ -1,4 +1,4 @@
-import { Service, PlatformAccessory } from 'homebridge';
+import { Service, PlatformAccessory, HAPStatus, HapStatusError } from 'homebridge';
 import { iRobotPlatform } from './platform';
 import { RoombaV1, RoombaV2, MissionV1, MissionV2, MissionV3, RoombaV3 } from './RoombaController';
 import { EventEmitter } from 'events';
@@ -73,7 +73,8 @@ export class iRobotPlatformAccessoryV1 {
             this.events.emit('update', mission);
             resolve(status[0] === 'inverted' ? mission.ok[status[1]] !== status[2] : mission.ok[status[0]] === status[1]);
           }).catch(err => {
-            this.platform.log.error(this.logPrefix, 'Failed To Fetch Robot Status\n', err); reject(this.platform.api.hap.HapStatusError);
+            this.platform.log.error(this.logPrefix, 'Failed To Fetch Robot Status\n', err);
+            reject(new this.platform.api.hap.HapStatusError(HAPStatus.SERVICE_COMMUNICATION_FAILURE));
           });
         });
       });
@@ -219,7 +220,8 @@ export class iRobotPlatformAccessoryV2 {
             this.events.emit('update', mission);
             resolve(status[0] === 'inverted' ? mission[status[1]] !== status[2] : mission[status[0]] === status[1]);
           }).catch(err => {
-            this.platform.log.error(this.logPrefix, 'Failed To Fetch Robot Status\n', err); reject(this.platform.api.hap.HapStatusError);
+            this.platform.log.error(this.logPrefix, 'Failed To Fetch Robot Status\n', err);
+            reject(new this.platform.api.hap.HapStatusError(HAPStatus.SERVICE_COMMUNICATION_FAILURE));
           });
         });
       });
@@ -230,7 +232,8 @@ export class iRobotPlatformAccessoryV2 {
             this.events.emit('update', mission);
             resolve(mission.batPct);
           }).catch(err => {
-            this.platform.log.error(this.logPrefix, 'Failed To Fetch Robot Status\n', err); reject(this.platform.api.hap.HapStatusError);
+            this.platform.log.error(this.logPrefix, 'Failed To Fetch Robot Status\n', err);
+            reject(new this.platform.api.hap.HapStatusError(HAPStatus.SERVICE_COMMUNICATION_FAILURE));
           });
         });
       });
@@ -241,7 +244,8 @@ export class iRobotPlatformAccessoryV2 {
             this.events.emit('update', mission);
             resolve(mission.phase === 'charge' ? 1 : 0);
           }).catch(err => {
-            this.platform.log.error(this.logPrefix, 'Failed To Fetch Robot Status\n', err); reject(this.platform.api.hap.HapStatusError);
+            this.platform.log.error(this.logPrefix, 'Failed To Fetch Robot Status\n', err);
+            reject(new this.platform.api.hap.HapStatusError(HAPStatus.SERVICE_COMMUNICATION_FAILURE));
           });
         });
       });
@@ -252,7 +256,8 @@ export class iRobotPlatformAccessoryV2 {
             this.events.emit('update', mission);
             resolve(mission.phase === 'charge' ? 0 : mission.batPct < (this.platform.config.lowBattery || 20) ? 1 : 0);
           }).catch(err => {
-            this.platform.log.error(this.logPrefix, 'Failed To Fetch Robot Status\n', err); reject(this.platform.api.hap.HapStatusError);
+            this.platform.log.error(this.logPrefix, 'Failed To Fetch Robot Status\n', err);
+            reject(new this.platform.api.hap.HapStatusError(HAPStatus.SERVICE_COMMUNICATION_FAILURE));
           });
         });
       });
@@ -289,7 +294,8 @@ export class iRobotPlatformAccessoryV2 {
                   resolve(value(mission) ? 1 : 0);
                 }).catch(err => {
                   this.platform.log.error(this.logPrefix, 'Failed To Fetch Robot Status\n', err);
-                  reject(this.platform.api.hap.HapStatusError);
+
+                  reject(new this.platform.api.hap.HapStatusError(HAPStatus.SERVICE_COMMUNICATION_FAILURE));
                 });
               });
             });
@@ -309,12 +315,12 @@ export class iRobotPlatformAccessoryV2 {
                   resolve(value(mission));
                 }).catch(err => {
                   this.platform.log.error(this.logPrefix, 'Failed To Fetch Robot Status\n', err);
-                  reject(this.platform.api.hap.HapStatusError);
+                  reject(new this.platform.api.hap.HapStatusError(HAPStatus.SERVICE_COMMUNICATION_FAILURE));
                 });
               });
             });
           this.events.on('update', (mission) => {
-            motion.updateCharacteristic(this.platform.Characteristic.ContactSensorState, value(mission));
+            motion.updateCharacteristic(this.platform.Characteristic.MotionDetected, value(mission));
           });
 
         } else if (sensorType === 'filter') {
@@ -329,12 +335,12 @@ export class iRobotPlatformAccessoryV2 {
                   resolve(value(mission) ? 1 : 0);
                 }).catch(err => {
                   this.platform.log.error(this.logPrefix, 'Failed To Fetch Robot Status\n', err);
-                  reject(this.platform.api.hap.HapStatusError);
+                  reject(new this.platform.api.hap.HapStatusError(HAPStatus.SERVICE_COMMUNICATION_FAILURE));
                 });
               });
             });
           this.events.on('update', (mission) => {
-            filter.updateCharacteristic(this.platform.Characteristic.ContactSensorState, value(mission) ? 1 : 0);
+            filter.updateCharacteristic(this.platform.Characteristic.FilterChangeIndication, value(mission) ? 1 : 0);
           });
         }
       }
@@ -415,7 +421,8 @@ export class iRobotPlatformAccessoryV3 {
             this.events.emit('update', mission);
             resolve(status[0] === 'inverted' ? mission[status[1]] !== status[2] : mission[status[0]] === status[1]);
           }).catch(err => {
-            this.platform.log.error(this.logPrefix, 'Failed To Fetch Robot Status\n', err); reject(this.platform.api.hap.HapStatusError);
+            this.platform.log.error(this.logPrefix, 'Failed To Fetch Robot Status\n', err);
+            reject(new this.platform.api.hap.HapStatusError(HAPStatus.SERVICE_COMMUNICATION_FAILURE));
           });
         });
       });
@@ -426,7 +433,8 @@ export class iRobotPlatformAccessoryV3 {
             this.events.emit('update', mission);
             resolve(mission.batPct);
           }).catch(err => {
-            this.platform.log.error(this.logPrefix, 'Failed To Fetch Robot Status\n', err); reject(this.platform.api.hap.HapStatusError);
+            this.platform.log.error(this.logPrefix, 'Failed To Fetch Robot Status\n', err);
+            reject(new this.platform.api.hap.HapStatusError(HAPStatus.SERVICE_COMMUNICATION_FAILURE));
           });
         });
       });
@@ -437,7 +445,8 @@ export class iRobotPlatformAccessoryV3 {
             this.events.emit('update', mission);
             resolve(mission.phase === 'charge' ? 1 : 0);
           }).catch(err => {
-            this.platform.log.error(this.logPrefix, 'Failed To Fetch Robot Status\n', err); reject(this.platform.api.hap.HapStatusError);
+            this.platform.log.error(this.logPrefix, 'Failed To Fetch Robot Status\n', err);
+            reject(new this.platform.api.hap.HapStatusError(HAPStatus.SERVICE_COMMUNICATION_FAILURE));
           });
         });
       });
@@ -448,7 +457,8 @@ export class iRobotPlatformAccessoryV3 {
             this.events.emit('update', mission);
             resolve(mission.phase === 'charge' ? 0 : mission.batPct < (this.platform.config.lowBattery || 20) ? 1 : 0);
           }).catch(err => {
-            this.platform.log.error(this.logPrefix, 'Failed To Fetch Robot Status\n', err); reject(this.platform.api.hap.HapStatusError);
+            this.platform.log.error(this.logPrefix, 'Failed To Fetch Robot Status\n', err);
+            reject(new this.platform.api.hap.HapStatusError(HAPStatus.SERVICE_COMMUNICATION_FAILURE));
           });
         });
       });
@@ -485,7 +495,7 @@ export class iRobotPlatformAccessoryV3 {
                   resolve(value(mission) ? 1 : 0);
                 }).catch(err => {
                   this.platform.log.error(this.logPrefix, 'Failed To Fetch Robot Status\n', err);
-                  reject(this.platform.api.hap.HapStatusError);
+                  reject(new this.platform.api.hap.HapStatusError(HAPStatus.SERVICE_COMMUNICATION_FAILURE));
                 });
               });
             });
@@ -505,7 +515,7 @@ export class iRobotPlatformAccessoryV3 {
                   resolve(value(mission));
                 }).catch(err => {
                   this.platform.log.error(this.logPrefix, 'Failed To Fetch Robot Status\n', err);
-                  reject(this.platform.api.hap.HapStatusError);
+                  reject(new this.platform.api.hap.HapStatusError(HAPStatus.SERVICE_COMMUNICATION_FAILURE));
                 });
               });
             });
@@ -525,7 +535,7 @@ export class iRobotPlatformAccessoryV3 {
                   resolve(value(mission) ? 1 : 0);
                 }).catch(err => {
                   this.platform.log.error(this.logPrefix, 'Failed To Fetch Robot Status\n', err);
-                  reject(this.platform.api.hap.HapStatusError);
+                  reject(new this.platform.api.hap.HapStatusError(HAPStatus.SERVICE_COMMUNICATION_FAILURE));
                 });
               });
             });
