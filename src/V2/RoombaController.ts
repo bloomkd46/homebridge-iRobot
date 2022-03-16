@@ -163,6 +163,9 @@ export class RoombaV2 extends EventEmitter {
 
   async getMission(): Promise<MissionV2> {
     return new Promise((resolve, reject) => {
+      setTimeout(() =>{
+        reject('Operation Timed out');
+      }, 3000);
       this.connect().then(async (roomba) => {
         roomba.getRobotState(['cleanMissionStatus', 'bin', 'batPct'])
           .then(state => resolve(Object.assign(state, state.cleanMissionStatus, state.bin)))
@@ -289,6 +292,9 @@ export class RoombaV3 extends EventEmitter {
 
   async getMission(): Promise<MissionV3> {
     return new Promise((resolve, reject) => {
+      setTimeout(() =>{
+        reject('Operation Timed out');
+      }, 3000);
       this.connect().then(async (roomba) => {
         roomba.getRobotState(['cleanMissionStatus', 'bin', 'batPct'])
           .then(state => resolve(Object.assign(state, state.cleanMissionStatus, state.bin)))
