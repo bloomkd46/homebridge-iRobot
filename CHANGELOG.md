@@ -1,3 +1,7 @@
+### 3.0.0 Beta 14 
+* Hopefully fixed offline status for On characteristic
+
+
 ### 3.0.0 Beta 13 
 * Fixed offline status
 * Fixed Motion and Filter Status Updates
