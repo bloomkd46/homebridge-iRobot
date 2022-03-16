@@ -217,7 +217,9 @@ export class iRobotPlatformAccessoryV2 {
         const status = this.platform.config.status !== undefined ? this.platform.config.status.split(':') : ['phase', 'run'];
         return new Promise((resolve, reject) => {
           this.roomba.getMission().then(mission => {
-            this.events.emit('update', mission);
+            setTimeout(() => {
+              reject(new this.platform.api.hap.HapStatusError(HAPStatus.OPERATION_TIMED_OUT));
+            }, 3000);
             resolve(status[0] === 'inverted' ? mission[status[1]] !== status[2] : mission[status[0]] === status[1]);
           }).catch(err => {
             this.platform.log.error(this.logPrefix, 'Failed To Fetch Robot Status\n', err);
@@ -229,7 +231,9 @@ export class iRobotPlatformAccessoryV2 {
       .onGet(async () => {
         return new Promise((resolve, reject) => {
           this.roomba.getMission().then(mission => {
-            this.events.emit('update', mission);
+            setTimeout(() => {
+              reject(new this.platform.api.hap.HapStatusError(HAPStatus.OPERATION_TIMED_OUT));
+            }, 3000);
             resolve(mission.batPct);
           }).catch(err => {
             //this.platform.log.error(this.logPrefix, 'Failed To Fetch Robot Status\n', err);
@@ -241,7 +245,9 @@ export class iRobotPlatformAccessoryV2 {
       .onGet(async () => {
         return new Promise((resolve, reject) => {
           this.roomba.getMission().then(mission => {
-            this.events.emit('update', mission);
+            setTimeout(() => {
+              reject(new this.platform.api.hap.HapStatusError(HAPStatus.OPERATION_TIMED_OUT));
+            }, 3000);
             resolve(mission.phase === 'charge' ? 1 : 0);
           }).catch(err => {
             //this.platform.log.error(this.logPrefix, 'Failed To Fetch Robot Status\n', err);
@@ -253,7 +259,9 @@ export class iRobotPlatformAccessoryV2 {
       .onGet(async () => {
         return new Promise((resolve, reject) => {
           this.roomba.getMission().then(mission => {
-            this.events.emit('update', mission);
+            setTimeout(() => {
+              reject(new this.platform.api.hap.HapStatusError(HAPStatus.OPERATION_TIMED_OUT));
+            }, 3000);
             resolve(mission.phase === 'charge' ? 0 : mission.batPct < (this.platform.config.lowBattery || 20) ? 1 : 0);
           }).catch(err => {
             //this.platform.log.error(this.logPrefix, 'Failed To Fetch Robot Status\n', err);
@@ -290,7 +298,9 @@ export class iRobotPlatformAccessoryV2 {
             .onGet(async () => {
               return new Promise((resolve, reject) => {
                 this.roomba.getMission().then(mission => {
-                  this.events.emit('update', mission);
+                  setTimeout(() => {
+                    reject(new this.platform.api.hap.HapStatusError(HAPStatus.OPERATION_TIMED_OUT));
+                  }, 3000);
                   resolve(value(mission) ? 1 : 0);
                 }).catch(err => {
                   //this.platform.log.error(this.logPrefix, 'Failed To Fetch Robot Status\n', err);
@@ -310,7 +320,9 @@ export class iRobotPlatformAccessoryV2 {
             .onGet(async () => {
               return new Promise((resolve, reject) => {
                 this.roomba.getMission().then(mission => {
-                  this.events.emit('update', mission);
+                  setTimeout(() => {
+                    reject(new this.platform.api.hap.HapStatusError(HAPStatus.OPERATION_TIMED_OUT));
+                  }, 3000);
                   resolve(value(mission));
                 }).catch(err => {
                   //this.platform.log.error(this.logPrefix, 'Failed To Fetch Robot Status\n', err);
@@ -330,7 +342,9 @@ export class iRobotPlatformAccessoryV2 {
             .onGet(async () => {
               return new Promise((resolve, reject) => {
                 this.roomba.getMission().then(mission => {
-                  this.events.emit('update', mission);
+                  setTimeout(() => {
+                    reject(new this.platform.api.hap.HapStatusError(HAPStatus.OPERATION_TIMED_OUT));
+                  }, 3000);
                   resolve(value(mission) ? 1 : 0);
                 }).catch(err => {
                   //this.platform.log.error(this.logPrefix, 'Failed To Fetch Robot Status\n', err);
@@ -417,7 +431,9 @@ export class iRobotPlatformAccessoryV3 {
         const status = this.platform.config.status !== undefined ? this.platform.config.status.split(':') : ['phase', 'run'];
         return new Promise((resolve, reject) => {
           this.roomba.getMission().then(mission => {
-            this.events.emit('update', mission);
+            setTimeout(() => {
+              reject(new this.platform.api.hap.HapStatusError(HAPStatus.OPERATION_TIMED_OUT));
+            }, 3000);
             resolve(status[0] === 'inverted' ? mission[status[1]] !== status[2] : mission[status[0]] === status[1]);
           }).catch(err => {
             this.platform.log.error(this.logPrefix, 'Failed To Fetch Robot Status\n', err);
@@ -429,7 +445,9 @@ export class iRobotPlatformAccessoryV3 {
       .onGet(async () => {
         return new Promise((resolve, reject) => {
           this.roomba.getMission().then(mission => {
-            this.events.emit('update', mission);
+            setTimeout(() => {
+              reject(new this.platform.api.hap.HapStatusError(HAPStatus.OPERATION_TIMED_OUT));
+            }, 3000);
             resolve(mission.batPct);
           }).catch(err => {
             //this.platform.log.error(this.logPrefix, 'Failed To Fetch Robot Status\n', err);
@@ -441,7 +459,9 @@ export class iRobotPlatformAccessoryV3 {
       .onGet(async () => {
         return new Promise((resolve, reject) => {
           this.roomba.getMission().then(mission => {
-            this.events.emit('update', mission);
+            setTimeout(() => {
+              reject(new this.platform.api.hap.HapStatusError(HAPStatus.OPERATION_TIMED_OUT));
+            }, 3000);
             resolve(mission.phase === 'charge' ? 1 : 0);
           }).catch(err => {
             //this.platform.log.error(this.logPrefix, 'Failed To Fetch Robot Status\n', err);
@@ -453,7 +473,9 @@ export class iRobotPlatformAccessoryV3 {
       .onGet(async () => {
         return new Promise((resolve, reject) => {
           this.roomba.getMission().then(mission => {
-            this.events.emit('update', mission);
+            setTimeout(() => {
+              reject(new this.platform.api.hap.HapStatusError(HAPStatus.OPERATION_TIMED_OUT));
+            }, 3000);
             resolve(mission.phase === 'charge' ? 0 : mission.batPct < (this.platform.config.lowBattery || 20) ? 1 : 0);
           }).catch(err => {
             //this.platform.log.error(this.logPrefix, 'Failed To Fetch Robot Status\n', err);
@@ -490,7 +512,9 @@ export class iRobotPlatformAccessoryV3 {
             .onGet(async () => {
               return new Promise((resolve, reject) => {
                 this.roomba.getMission().then(mission => {
-                  this.events.emit('update', mission);
+                  setTimeout(() => {
+                    reject(new this.platform.api.hap.HapStatusError(HAPStatus.OPERATION_TIMED_OUT));
+                  }, 3000);
                   resolve(value(mission) ? 1 : 0);
                 }).catch(err => {
                   //this.platform.log.error(this.logPrefix, 'Failed To Fetch Robot Status\n', err);
@@ -510,7 +534,9 @@ export class iRobotPlatformAccessoryV3 {
             .onGet(async () => {
               return new Promise((resolve, reject) => {
                 this.roomba.getMission().then(mission => {
-                  this.events.emit('update', mission);
+                  setTimeout(() => {
+                    reject(new this.platform.api.hap.HapStatusError(HAPStatus.OPERATION_TIMED_OUT));
+                  }, 3000);
                   resolve(value(mission));
                 }).catch(err => {
                   //this.platform.log.error(this.logPrefix, 'Failed To Fetch Robot Status\n', err);
@@ -530,7 +556,9 @@ export class iRobotPlatformAccessoryV3 {
             .onGet(async () => {
               return new Promise((resolve, reject) => {
                 this.roomba.getMission().then(mission => {
-                  this.events.emit('update', mission);
+                  setTimeout(() => {
+                    reject(new this.platform.api.hap.HapStatusError(HAPStatus.OPERATION_TIMED_OUT));
+                  }, 3000);
                   resolve(value(mission) ? 1 : 0);
                 }).catch(err => {
                   //this.platform.log.error(this.logPrefix, 'Failed To Fetch Robot Status\n', err);
