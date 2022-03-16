@@ -1,3 +1,7 @@
+### 3.0.0 Beta 15 
+* Fixed offline status
+
+
 ### 3.0.0 Beta 14 
 * Hopefully fixed offline status for On characteristic
 
