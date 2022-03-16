@@ -197,7 +197,7 @@ export class iRobotPlatformAccessoryV2 {
 
 
     this.service.getCharacteristic(this.platform.Characteristic.On)
-      .onSet((value) => {
+      .onSet(async (value) => {
         const stopActions = this.platform.config.offAction !== undefined ? this.platform.config.offAction.split(':') : ['pause', 'dock'];
         if (value as boolean) {
           this.platform.log.info(this.logPrefix, 'Starting...');
@@ -226,37 +226,37 @@ export class iRobotPlatformAccessoryV2 {
         });
       });
     this.battery.getCharacteristic(this.platform.Characteristic.BatteryLevel)
-      .onGet(() => {
+      .onGet(async () => {
         return new Promise((resolve, reject) => {
           this.roomba.getMission().then(mission => {
             this.events.emit('update', mission);
             resolve(mission.batPct);
           }).catch(err => {
-            this.platform.log.error(this.logPrefix, 'Failed To Fetch Robot Status\n', err);
+            //this.platform.log.error(this.logPrefix, 'Failed To Fetch Robot Status\n', err);
             reject(new this.platform.api.hap.HapStatusError(HAPStatus.SERVICE_COMMUNICATION_FAILURE));
           });
         });
       });
     this.battery.getCharacteristic(this.platform.Characteristic.ChargingState)
-      .onGet(() => {
+      .onGet(async () => {
         return new Promise((resolve, reject) => {
           this.roomba.getMission().then(mission => {
             this.events.emit('update', mission);
             resolve(mission.phase === 'charge' ? 1 : 0);
           }).catch(err => {
-            this.platform.log.error(this.logPrefix, 'Failed To Fetch Robot Status\n', err);
+            //this.platform.log.error(this.logPrefix, 'Failed To Fetch Robot Status\n', err);
             reject(new this.platform.api.hap.HapStatusError(HAPStatus.SERVICE_COMMUNICATION_FAILURE));
           });
         });
       });
     this.battery.getCharacteristic(this.platform.Characteristic.StatusLowBattery)
-      .onGet(() => {
+      .onGet(async () => {
         return new Promise((resolve, reject) => {
           this.roomba.getMission().then(mission => {
             this.events.emit('update', mission);
             resolve(mission.phase === 'charge' ? 0 : mission.batPct < (this.platform.config.lowBattery || 20) ? 1 : 0);
           }).catch(err => {
-            this.platform.log.error(this.logPrefix, 'Failed To Fetch Robot Status\n', err);
+            //this.platform.log.error(this.logPrefix, 'Failed To Fetch Robot Status\n', err);
             reject(new this.platform.api.hap.HapStatusError(HAPStatus.SERVICE_COMMUNICATION_FAILURE));
           });
         });
@@ -265,7 +265,7 @@ export class iRobotPlatformAccessoryV2 {
       const status = this.platform.config.status !== undefined ? this.platform.config.status.split(':') : ['phase', 'run'];
       this.service.updateCharacteristic(this.platform.Characteristic.On,
         status[0] === 'inverted' ? mission[status[1]] !== status[2] : mission[status[0]] === status[1]);
-      this.battery.updateCharacteristic(this.platform.Characteristic.BatteryLevel, mission.batPct || 20);
+      this.battery.updateCharacteristic(this.platform.Characteristic.BatteryLevel, mission.batPct || null);
       this.battery.updateCharacteristic(this.platform.Characteristic.ChargingState, mission.phase === 'charge' ? 1 : 0);
       this.battery.updateCharacteristic(this.platform.Characteristic.StatusLowBattery,
         mission.phase === 'charge' ? 0 : mission.batPct < (this.platform.config.lowBattery || 20) ? 1 : 0);
@@ -287,14 +287,13 @@ export class iRobotPlatformAccessoryV2 {
             this.accessory.addService(this.platform.Service.ContactSensor, this.accessory.displayName + ' ' + sensor.condition,
               'Contact-' + sensor.condition);
           contact.getCharacteristic(this.platform.Characteristic.ContactSensorState)
-            .onGet(() => {
+            .onGet(async () => {
               return new Promise((resolve, reject) => {
                 this.roomba.getMission().then(mission => {
                   this.events.emit('update', mission);
                   resolve(value(mission) ? 1 : 0);
                 }).catch(err => {
-                  this.platform.log.error(this.logPrefix, 'Failed To Fetch Robot Status\n', err);
-
+                  //this.platform.log.error(this.logPrefix, 'Failed To Fetch Robot Status\n', err);
                   reject(new this.platform.api.hap.HapStatusError(HAPStatus.SERVICE_COMMUNICATION_FAILURE));
                 });
               });
@@ -308,13 +307,13 @@ export class iRobotPlatformAccessoryV2 {
             this.accessory.addService(this.platform.Service.MotionSensor, this.accessory.displayName + ' ' + sensor.condition,
               'Motion-' + sensor.condition);
           motion.getCharacteristic(this.platform.Characteristic.MotionDetected)
-            .onGet(() => {
+            .onGet(async () => {
               return new Promise((resolve, reject) => {
                 this.roomba.getMission().then(mission => {
                   this.events.emit('update', mission);
                   resolve(value(mission));
                 }).catch(err => {
-                  this.platform.log.error(this.logPrefix, 'Failed To Fetch Robot Status\n', err);
+                  //this.platform.log.error(this.logPrefix, 'Failed To Fetch Robot Status\n', err);
                   reject(new this.platform.api.hap.HapStatusError(HAPStatus.SERVICE_COMMUNICATION_FAILURE));
                 });
               });
@@ -328,13 +327,13 @@ export class iRobotPlatformAccessoryV2 {
             this.accessory.addService(this.platform.Service.FilterMaintenance, this.accessory.displayName + ' ' + sensor.condition,
               'Filter-' + sensor.condition);
           filter.getCharacteristic(this.platform.Characteristic.FilterChangeIndication)
-            .onGet(() => {
+            .onGet(async () => {
               return new Promise((resolve, reject) => {
                 this.roomba.getMission().then(mission => {
                   this.events.emit('update', mission);
                   resolve(value(mission) ? 1 : 0);
                 }).catch(err => {
-                  this.platform.log.error(this.logPrefix, 'Failed To Fetch Robot Status\n', err);
+                  //this.platform.log.error(this.logPrefix, 'Failed To Fetch Robot Status\n', err);
                   reject(new this.platform.api.hap.HapStatusError(HAPStatus.SERVICE_COMMUNICATION_FAILURE));
                 });
               });
@@ -398,7 +397,7 @@ export class iRobotPlatformAccessoryV3 {
       this.accessory.addService(this.platform.Service.Battery, this.accessory.displayName + ' battery', 'Battery');
 
     this.service.getCharacteristic(this.platform.Characteristic.On)
-      .onSet((value) => {
+      .onSet(async (value) => {
         const stopActions = this.platform.config.offAction !== undefined ? this.platform.config.offAction.split(':') : ['pause', 'dock'];
         if (value as boolean) {
           this.platform.log.info(this.logPrefix, 'Starting...');
@@ -427,37 +426,37 @@ export class iRobotPlatformAccessoryV3 {
         });
       });
     this.battery.getCharacteristic(this.platform.Characteristic.BatteryLevel)
-      .onGet(() => {
+      .onGet(async () => {
         return new Promise((resolve, reject) => {
           this.roomba.getMission().then(mission => {
             this.events.emit('update', mission);
             resolve(mission.batPct);
           }).catch(err => {
-            this.platform.log.error(this.logPrefix, 'Failed To Fetch Robot Status\n', err);
+            //this.platform.log.error(this.logPrefix, 'Failed To Fetch Robot Status\n', err);
             reject(new this.platform.api.hap.HapStatusError(HAPStatus.SERVICE_COMMUNICATION_FAILURE));
           });
         });
       });
     this.battery.getCharacteristic(this.platform.Characteristic.ChargingState)
-      .onGet(() => {
+      .onGet(async () => {
         return new Promise((resolve, reject) => {
           this.roomba.getMission().then(mission => {
             this.events.emit('update', mission);
             resolve(mission.phase === 'charge' ? 1 : 0);
           }).catch(err => {
-            this.platform.log.error(this.logPrefix, 'Failed To Fetch Robot Status\n', err);
+            //this.platform.log.error(this.logPrefix, 'Failed To Fetch Robot Status\n', err);
             reject(new this.platform.api.hap.HapStatusError(HAPStatus.SERVICE_COMMUNICATION_FAILURE));
           });
         });
       });
     this.battery.getCharacteristic(this.platform.Characteristic.StatusLowBattery)
-      .onGet(() => {
+      .onGet(async () => {
         return new Promise((resolve, reject) => {
           this.roomba.getMission().then(mission => {
             this.events.emit('update', mission);
             resolve(mission.phase === 'charge' ? 0 : mission.batPct < (this.platform.config.lowBattery || 20) ? 1 : 0);
           }).catch(err => {
-            this.platform.log.error(this.logPrefix, 'Failed To Fetch Robot Status\n', err);
+            //this.platform.log.error(this.logPrefix, 'Failed To Fetch Robot Status\n', err);
             reject(new this.platform.api.hap.HapStatusError(HAPStatus.SERVICE_COMMUNICATION_FAILURE));
           });
         });
@@ -466,7 +465,7 @@ export class iRobotPlatformAccessoryV3 {
       const status = this.platform.config.status !== undefined ? this.platform.config.status.split(':') : ['phase', 'run'];
       this.service.updateCharacteristic(this.platform.Characteristic.On,
         status[0] === 'inverted' ? mission[status[1]] !== status[2] : mission[status[0]] === status[1]);
-      this.battery.updateCharacteristic(this.platform.Characteristic.BatteryLevel, mission.batPct || 20);
+      this.battery.updateCharacteristic(this.platform.Characteristic.BatteryLevel, mission.batPct || null);
       this.battery.updateCharacteristic(this.platform.Characteristic.ChargingState, mission.phase === 'charge' ? 1 : 0);
       this.battery.updateCharacteristic(this.platform.Characteristic.StatusLowBattery,
         mission.phase === 'charge' ? 0 : mission.batPct < this.platform.config.lowBattery ? 1 : 0);
@@ -488,13 +487,13 @@ export class iRobotPlatformAccessoryV3 {
             this.accessory.addService(this.platform.Service.ContactSensor, this.accessory.displayName + ' ' + sensor.condition,
               'Contact-' + sensor.condition);
           contact.getCharacteristic(this.platform.Characteristic.ContactSensorState)
-            .onGet(() => {
+            .onGet(async () => {
               return new Promise((resolve, reject) => {
                 this.roomba.getMission().then(mission => {
                   this.events.emit('update', mission);
                   resolve(value(mission) ? 1 : 0);
                 }).catch(err => {
-                  this.platform.log.error(this.logPrefix, 'Failed To Fetch Robot Status\n', err);
+                  //this.platform.log.error(this.logPrefix, 'Failed To Fetch Robot Status\n', err);
                   reject(new this.platform.api.hap.HapStatusError(HAPStatus.SERVICE_COMMUNICATION_FAILURE));
                 });
               });
@@ -508,13 +507,13 @@ export class iRobotPlatformAccessoryV3 {
             this.accessory.addService(this.platform.Service.MotionSensor, this.accessory.displayName + ' ' + sensor.condition,
               'Motion-' + sensor.condition);
           motion.getCharacteristic(this.platform.Characteristic.MotionDetected)
-            .onGet(() => {
+            .onGet(async () => {
               return new Promise((resolve, reject) => {
                 this.roomba.getMission().then(mission => {
                   this.events.emit('update', mission);
                   resolve(value(mission));
                 }).catch(err => {
-                  this.platform.log.error(this.logPrefix, 'Failed To Fetch Robot Status\n', err);
+                  //this.platform.log.error(this.logPrefix, 'Failed To Fetch Robot Status\n', err);
                   reject(new this.platform.api.hap.HapStatusError(HAPStatus.SERVICE_COMMUNICATION_FAILURE));
                 });
               });
@@ -528,13 +527,13 @@ export class iRobotPlatformAccessoryV3 {
             this.accessory.addService(this.platform.Service.FilterMaintenance, this.accessory.displayName + ' ' + sensor.condition,
               'Filter-' + sensor.condition);
           filter.getCharacteristic(this.platform.Characteristic.FilterChangeIndication)
-            .onGet(() => {
+            .onGet(async () => {
               return new Promise((resolve, reject) => {
                 this.roomba.getMission().then(mission => {
                   this.events.emit('update', mission);
                   resolve(value(mission) ? 1 : 0);
                 }).catch(err => {
-                  this.platform.log.error(this.logPrefix, 'Failed To Fetch Robot Status\n', err);
+                  //this.platform.log.error(this.logPrefix, 'Failed To Fetch Robot Status\n', err);
                   reject(new this.platform.api.hap.HapStatusError(HAPStatus.SERVICE_COMMUNICATION_FAILURE));
                 });
               });
