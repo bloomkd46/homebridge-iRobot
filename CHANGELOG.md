@@ -1,3 +1,7 @@
+### 3.0.0 Beta 16 
+* Added 3 second timeout when requesting robot state
+
+
 ### 3.0.0 Beta 15 
 * Fixed offline status
 
