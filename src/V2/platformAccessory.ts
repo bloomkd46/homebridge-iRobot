@@ -213,7 +213,7 @@ export class iRobotPlatformAccessoryV2 {
             }
           }, 5000);
         }
-      }).onGet(() => {
+      }).onGet(async () => {
         const status = this.platform.config.status !== undefined ? this.platform.config.status.split(':') : ['phase', 'run'];
         return new Promise((resolve, reject) => {
           this.roomba.getMission().then(mission => {
@@ -414,7 +414,7 @@ export class iRobotPlatformAccessoryV3 {
             }
           }, 5000);
         }
-      }).onGet(() => {
+      }).onGet(async () => {
         const status = this.platform.config.status !== undefined ? this.platform.config.status.split(':') : ['phase', 'run'];
         return new Promise((resolve, reject) => {
           this.roomba.getMission().then(mission => {
