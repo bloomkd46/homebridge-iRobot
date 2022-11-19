@@ -149,15 +149,17 @@ export class iRobotPlatformAccessoryV1 {
         }
       }
     }
-    const interval = setInterval(() => {
-      this.platform.log.debug(this.logPrefix, 'Auto-Updating state');
-      this.roomba.getMission()
-        .then(mission => this.events.emit('update', mission))
-        .catch(err => this.platform.log.error(this.logPrefix, 'Failed To Auto Update State:\n', err));
-    }, this.platform.config.refreshInterval * 60000 || 60000);
-    this.platform.api.on('shutdown', () => {
-      clearInterval(interval);
-    });
+    if(this.platform.config.refreshInterval > 0) {
+      const interval = setInterval(() => {
+        this.platform.log.debug(this.logPrefix, 'Auto-Updating state');
+        this.roomba.getMission()
+          .then(mission => this.events.emit('update', mission))
+          .catch(err => this.platform.log.error(this.logPrefix, 'Failed To Auto Update State:\n', err));
+      }, this.platform.config.refreshInterval * 60000 || 60000);
+      this.platform.api.on('shutdown', () => {
+        clearInterval(interval);
+      });
+    }
   }
 }
 
@@ -340,19 +342,20 @@ export class iRobotPlatformAccessoryV2 {
         }
       }
     }
-    const interval = setInterval(() => {
-      this.platform.log.debug(this.logPrefix, 'Auto-Updating state');
-      this.roomba.getMission()
-        .then(mission => {
-
-          this.events.emit('update', mission);
-        })
-        .catch(err => this.platform.log.error(this.logPrefix, 'Failed To Update State:\n', err));
-    }, this.platform.config.refreshInterval * 60000 || 60000);
-    this.platform.api.on('shutdown', () => {
-      clearInterval(interval);
-      this.roomba.end();
-    });
+    if(this.platform.config.refreshInterval > 0) {
+      const interval = setInterval(() => {
+        this.platform.log.debug(this.logPrefix, 'Auto-Updating state');
+        this.roomba.getMission()
+          .then(mission => {
+            this.events.emit('update', mission);
+          })
+          .catch(err => this.platform.log.error(this.logPrefix, 'Failed To Update State:\n', err));
+      }, this.platform.config.refreshInterval * 60000 || 60000);
+      this.platform.api.on('shutdown', () => {
+        clearInterval(interval);
+        this.roomba.end();
+      });
+    }
     this.roomba.on('update', (mission: MissionV3) => {
       this.events.emit('update', mission);
     });
@@ -536,19 +539,21 @@ export class iRobotPlatformAccessoryV3 {
         }
       }
     }
-    const interval = setInterval(() => {
-      this.platform.log.debug(this.logPrefix, 'Auto-Updating state');
-      this.roomba.getMission()
-        .then(mission => {
-          this.events.emit('update', mission);
-        })
-        .catch(err => this.platform.log.error(this.logPrefix, 'Failed To Update State:\n', err));
-    }, this.platform.config.refreshInterval * 60000 || 60000);
-    this.platform.api.on('shutdown', () => {
-      this.platform.log.info(this.logPrefix, 'Disconnecting...');
-      clearInterval(interval);
-      this.roomba.end();
-    });
+    if(this.platform.config.refreshInterval > 0) {
+      const interval = setInterval(() => {
+        this.platform.log.debug(this.logPrefix, 'Auto-Updating state');
+        this.roomba.getMission()
+          .then(mission => {
+            this.events.emit('update', mission);
+          })
+          .catch(err => this.platform.log.error(this.logPrefix, 'Failed To Update State:\n', err));
+      }, this.platform.config.refreshInterval * 60000 || 60000);
+      this.platform.api.on('shutdown', () => {
+        this.platform.log.info(this.logPrefix, 'Disconnecting...');
+        clearInterval(interval);
+        this.roomba.end();
+      });
+    }
     this.roomba.on('update', (mission: MissionV3) => {
       this.events.emit('update', mission);
     });
