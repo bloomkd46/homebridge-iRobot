@@ -215,11 +215,11 @@
       },
       "refreshInterval": {
         "title": "Refresh Interval",
-        "description": "How often to update Homekit in minutes",
+        "description": "How often to update Homekit in minutes. Setting to 0 will disable auto-refresh and only refresh when queried by HomeKit",
         "type": "integer",
         "required": false,
         "placeholder": 1,
-        "minimum": 1,
+        "minimum": 0,
         "maximum": 60
       },
       "connectionTime": {
