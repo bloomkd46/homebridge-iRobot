@@ -44,7 +44,7 @@ export class iRobotPlatformAccessoryV1 {
 
 
     this.service = this.accessory.getService(this.accessory.context.device.name) ||
-      this.accessory.addService(this.platform.Service.Fan, this.accessory.context.device.name, 'Main-Service');
+      this.accessory.addService(this.platform.Service.Switch, this.accessory.context.device.name, 'Main-Service');
     this.service.setPrimaryService(true);
 
     this.battery = this.accessory.getService(this.accessory.displayName + ' battery') ||
@@ -189,7 +189,7 @@ export class iRobotPlatformAccessoryV2 {
 
 
     this.service = this.accessory.getService(this.accessory.context.device.name) ||
-      this.accessory.addService(this.platform.Service.Fan, this.accessory.context.device.name, 'Main-Service');
+      this.accessory.addService(this.platform.Service.Switch, this.accessory.context.device.name, 'Main-Service');
     this.service.setPrimaryService(true);
 
     this.battery = this.accessory.getService(this.accessory.displayName + ' battery') ||
@@ -386,7 +386,7 @@ export class iRobotPlatformAccessoryV3 {
       });
 
     this.service = this.accessory.getService(this.accessory.displayName) ||
-      this.accessory.addService(this.platform.Service.Fan, this.accessory.displayName, 'Main-Service');
+      this.accessory.addService(this.platform.Service.Switch, this.accessory.displayName, 'Main-Service');
     this.service.setPrimaryService(true);
 
     this.battery = this.accessory.getService(this.accessory.displayName + ' battery') ||
