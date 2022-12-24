@@ -1,8 +1,7 @@
 import { API } from 'homebridge';
 
-import { iRobotPlatform } from './platform';
 import { PLATFORM_NAME } from './settings';
-
+import { iRobotPlatform } from './V2/platform';
 
 /**
  * This method registers the platform with Homebridge

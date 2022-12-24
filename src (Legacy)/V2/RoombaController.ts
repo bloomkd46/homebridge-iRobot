@@ -1,10 +1,11 @@
-import { Local } from 'dorita980';
 import { Logger } from 'homebridge';
 import { EventEmitter } from 'stream';
 
+import { Local } from '@bloomkd46/dorita980';
+
 
 export class RoombaV1 {
-  public roomba = new Local(this.blid, this.password, this.ip, 1);
+  public roomba = Local(this.blid, this.password, this.ip, 1);
 
   constructor(private readonly blid: string, private readonly password: string, private readonly ip: string) {
     process.env.ROBOT_CIPHERS = 'AES128-SHA256';
@@ -163,7 +164,7 @@ export class RoombaV2 extends EventEmitter {
 
   async getMission(): Promise<MissionV2> {
     return new Promise((resolve, reject) => {
-      setTimeout(() =>{
+      setTimeout(() => {
         reject('Operation Timed out');
       }, 3000);
       this.connect().then(async (roomba) => {
@@ -292,7 +293,7 @@ export class RoombaV3 extends EventEmitter {
 
   async getMission(): Promise<MissionV3> {
     return new Promise((resolve, reject) => {
-      setTimeout(() =>{
+      setTimeout(() => {
         reject('Operation Timed out');
       }, 3000);
       this.connect().then(async (roomba) => {
@@ -323,7 +324,7 @@ export interface Map {
   ordered: 1;
   pmap_id: string;
   regions: [
-    { region_id: string; type: 'rid' | 'zid' },
+    { region_id: string; type: 'rid' | 'zid'; },
   ];
   user_pmapv_id: string;
 }
