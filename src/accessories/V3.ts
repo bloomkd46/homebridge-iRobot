@@ -160,7 +160,7 @@ export default class V3Roomba extends Accessory {
         break;
       case 'lookup':
         ip = await new Promise((resolve, reject) =>
-          lookup(this.device.publicInfo.hostname, 4).then(data => resolve(data.address)).catch(err => reject(err)));
+          lookup(this.device.publicInfo.hostname + '.local', 4).then(data => resolve(data.address)).catch(err => reject(err)));
         break;
       default:
         ip = await new Promise((resolve, reject) =>
