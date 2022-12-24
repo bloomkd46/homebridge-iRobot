@@ -271,6 +271,7 @@ enum CurrentState {
   Play,
   Pause,
   Stop,
+  UNKNOWN,
   Loading,
   Interrupted
 }
