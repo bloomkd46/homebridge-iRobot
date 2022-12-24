@@ -30,7 +30,7 @@ export default class V3Roomba extends Accessory {
 
   public ip?: string;
   dorita980?: LocalV3.Local;
-
+  public speakerService: Service;
   constructor(
     private readonly platform: iRobotPlatform,
     private readonly accessory: PlatformAccessory<Context>,
@@ -66,6 +66,8 @@ export default class V3Roomba extends Accessory {
 
         this.log('info', 'Selected region changed to', newValue);
       });
+    this.speakerService = this.accessory.getService(this.platform.Service.SmartSpeaker) ||
+      this.accessory.addService(this.platform.Service.SmartSpeaker);
     this.service.getCharacteristic(this.platform.Characteristic.CurrentMediaState)
       .onGet(this.getCurrentState.bind(this));
     this.service.getCharacteristic(this.platform.Characteristic.TargetMediaState)
