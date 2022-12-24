@@ -1,5 +1,5 @@
 import { lookup } from 'dns/promises';
-import { CharacteristicValue, PlatformAccessory } from 'homebridge';
+import { CharacteristicValue, PlatformAccessory, Service } from 'homebridge';
 import ping from 'ping';
 
 import { getRobotByBlid, Local, LocalV3 } from '@bloomkd46/dorita980';
