@@ -80,12 +80,9 @@ export class iRobotPlatform implements DynamicPlatformPlugin {
     this.log.info('Loading accessory from cache:', accessory.displayName);
 
     // add the restored accessory to the accessories cache so we can track if it has already been registered
-    /*if (accessory.context.pluginVersion === undefined || accessory.context.pluginVersion < 3) {
-      this.log.warn('Removing Old Accessory:', accessory.displayName);
-      this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
-    } else {*/
-    this.cachedAccessories.push(accessory);
-    //}
+    if (accessory.context.pluginVersion === 4) {
+      this.cachedAccessories.push(accessory);
+    }
   }
 
   /**
@@ -147,6 +144,7 @@ export class iRobotPlatform implements DynamicPlatformPlugin {
         // store a copy of the device object in the `accessory.context`
         // the `context` property can be used to store any data about the accessory you may need
         accessory.context.device = device;
+        accessory.context.pluginVersion = 4;
         // create the accessory handler for the newly create accessory
         // this is imported from `platformAccessory.ts`
         //new iRobotPlatformAccessory(this, accessory, device);
