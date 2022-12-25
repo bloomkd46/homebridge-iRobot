@@ -34,6 +34,7 @@ export type Config = {
   accessories: Device[];
   logLevel: 0 | 1 | 2 | 3 | 4;
   platform: 'iRobotPlatform';
+  autoConnect?: boolean;
 };
 export type Device = {
   name: string;

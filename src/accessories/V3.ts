@@ -58,6 +58,7 @@ export default class V3Roomba extends Accessory {
         await this.connect();
         this.disconnect();
       }).onGet(() => (this.keepAlive) ? 1 : 0);
+    this.service.setCharacteristic(this.platform.Characteristic.Active, (this.platform.config.autoConnect ?? true) ? 1 : 0);
 
     this.service;
 
@@ -227,6 +228,7 @@ export default class V3Roomba extends Accessory {
   }
 
   getActivity(): ActiveIdentifier {
+    return 4;/*
     switch (this.lastKnownState.cleanMissionStatus?.phase) {
       case 'charge':
       case 'recharge':
@@ -256,7 +258,7 @@ export default class V3Roomba extends Accessory {
         //Add unknown channel?
         this.log('warn', 'Unknown phase:', this.lastKnownState.cleanMissionStatus?.phase);
         return ActiveIdentifier.Off;
-    }
+    }*/
   }
 
   /*getCurrentState(): CurrentState {
