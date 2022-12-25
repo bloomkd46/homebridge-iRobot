@@ -12,7 +12,7 @@ import Accessory from './Accessory';
 export default class V3Roomba extends Accessory {
   public _lastKnownState = (this.accessory.context.lastState as Partial<LocalV3.RobotState> | undefined) ?? {};
   public set lastKnownState(state: Partial<LocalV3.RobotState>) {
-    this._lastKnownState = state; this.update();
+    this._lastKnownState = state; this.update(); this.log(4, 'Updating state');
   }
 
   public get lastKnownState() {
