@@ -122,8 +122,8 @@ export default class V3Roomba extends Accessory {
   private keepAlive = false;
   connect(): Promise<LocalV3.Local> {
     return new Promise((resolve, reject) => {
+      this.log('info', 'Adding Connection');
       if (this.dorita980) {
-        this.log('info', 'Adding Connection');
         if (this.connected) {
           this.connections++;
           resolve(this.dorita980);
