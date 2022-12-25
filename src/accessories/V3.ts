@@ -54,9 +54,9 @@ export default class V3Roomba extends Accessory {
           this.keepAlive = false;
         } else if (value === 1) {
           this.keepAlive = true;
-          await this.connect();
-          this.disconnect();
         }
+        await this.connect();
+        this.disconnect();
       }).onGet(() => (this.keepAlive) ? 1 : 0);
 
     this.service;
