@@ -231,23 +231,22 @@ export default class V3Roomba extends Accessory {
   }
 
   getActivity(): ActiveIdentifier {
-    return 4;/*
     switch (this.lastKnownState.cleanMissionStatus?.phase) {
       case 'charge':
       case 'recharge':
+      case 'cancelled':
+      case '':
+        return ActiveIdentifier.Off;
       case 'hmUsrDock':
       case 'dock':
       case 'dockend':
-      case 'cancelled':
       case 'hmPostMsn':
-      case '':
-        return ActiveIdentifier.Off;
+      case 'hmMidMsn':
+        return ActiveIdentifier.Docking;
       case 'new':
       case 'run':
       case 'resume':
         return ActiveIdentifier.CleanEverywhere;
-      case 'hmMidMsn':
-      case 'stuck':
       case 'pause':
         return ActiveIdentifier.Pause;
       case 'stop':
@@ -257,11 +256,14 @@ export default class V3Roomba extends Accessory {
           default:
             return ActiveIdentifier.Pause;
         }
+      case 'stuck':
+        this.log('warn', 'Stuck!');
+        return ActiveIdentifier.Error;
       default:
         //Add unknown channel?
         this.log('warn', 'Unknown phase:', this.lastKnownState.cleanMissionStatus?.phase);
-        return ActiveIdentifier.Off;
-    }*/
+        return ActiveIdentifier.Error;
+    }
   }
 
   /*getCurrentState(): CurrentState {
@@ -372,4 +374,6 @@ enum ActiveIdentifier {
   Off = 1,
   Pause,
   CleanEverywhere,
+  Docking,
+  Error,
 }
