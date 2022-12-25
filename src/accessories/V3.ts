@@ -1,5 +1,5 @@
 import { lookup } from 'dns/promises';
-import { CharacteristicValue, PlatformAccessory } from 'homebridge';
+import { CharacteristicChange, CharacteristicValue, PlatformAccessory } from 'homebridge';
 import ping from 'ping';
 
 import { getRobotByBlid, Local, LocalV3 } from '@bloomkd46/dorita980';
@@ -61,11 +61,15 @@ export default class V3Roomba extends Accessory {
       .onSet(async value => {
         if (value === 0) {
           this.keepAlive = false;
+          if (!this.connections) {
+            await this.connect();
+            this.disconnect();
+          }
         } else if (value === 1) {
           this.keepAlive = true;
+          await this.connect();
+          this.disconnect();
         }
-        await this.connect();
-        this.disconnect();
       }).onGet(() => this.offline ? 1 : this.keepAlive ? 1 : 0);
     this.service.setCharacteristic(this.platform.Characteristic.Active, (this.platform.config.autoConnect ?? true) ? 1 : 0);
 
@@ -124,7 +128,6 @@ export default class V3Roomba extends Accessory {
 
   connect(): Promise<LocalV3.Local> {
     return new Promise((resolve, reject) => {
-      this.log('info', 'Adding Connection');
       if (this.dorita980) {
         if (this.connected) {
           this.connections++;
@@ -135,7 +138,6 @@ export default class V3Roomba extends Accessory {
         }
       } else {
         this.getIp().then(ip => {
-          this.log('info', 'Connecting...');
           this.connections++;
           this.dorita980 = Local(this.device.blid, this.device.password, ip, 3);
           this.dorita980.on('state', state => {
@@ -147,12 +149,10 @@ export default class V3Roomba extends Accessory {
             reject('Roomba Offline');
           });
           this.dorita980.on('connect', () => {
-            this.log('info', 'Connected');
             this.connected = true;
             resolve(this.dorita980!);
           });
           this.dorita980.on('close', () => {
-            this.log('warn', 'Disconnected');
             this.connected = false; this.dorita980 = undefined;
           });
         }).catch(() => this.log('warn', 'Offline'));
@@ -161,10 +161,8 @@ export default class V3Roomba extends Accessory {
   }
 
   disconnect() {
-    this.log('warn', 'Removing Connection');
     this.connections--;
     if (this.connections === 0 && !this.keepAlive) {
-      this.log('warn', 'Disconnecting...');
       this.dorita980?.end() ?? this.log('warn', 'Failed to disconnect');
     }
   }
@@ -189,7 +187,9 @@ export default class V3Roomba extends Accessory {
             .then(data => resolve(data.numeric_host ?? reject() ?? '')).catch(err => reject(err)));
         break;
     }
-    this.log(2, `Updating IP Address To ${ip}`);
+    if (ip !== this.ip) {
+      this.log(2, `Updating IP Address To ${ip}`);
+    }
     return ip;
   }
 
@@ -237,6 +237,7 @@ export default class V3Roomba extends Accessory {
       case 'recharge':
       case 'cancelled':
       case '':
+      case undefined:
         return ActiveIdentifier.Off;
       case 'hmUsrDock':
       case 'dock':
@@ -247,6 +248,7 @@ export default class V3Roomba extends Accessory {
       case 'new':
       case 'run':
       case 'resume':
+
         return ActiveIdentifier.CleanEverywhere;
       case 'pause':
         return ActiveIdentifier.Pause;
@@ -267,110 +269,13 @@ export default class V3Roomba extends Accessory {
     }
   }
 
-  /*getCurrentState(): CurrentState {
-    switch (this.lastKnownState.cleanMissionStatus?.phase) {
-      case 'cancelled':
-      case 'charge':
-      case '':
-        return CurrentState.Stop;
-      case 'new':
-      case 'run':
-      case 'resume':
-        return CurrentState.Play;
-      case 'recharge':
-      case 'pause':
-        return CurrentState.Pause;
-      case 'stop':
-        switch (this.lastKnownState.cleanMissionStatus?.cycle) {
-          case 'none':
-            return CurrentState.Stop;
-          default:
-            return CurrentState.Pause;
-        }
-      case 'stuck':
-        return CurrentState.Interrupted;
-      case 'hmMidMsn':
-      case 'hmUsrDock':
-      case 'dock':
-      case 'dockend':
-      case 'hmPostMsn':
-      case undefined:
-        return CurrentState.Loading;
-      default:
-        this.log('warn', 'Unknown phase:', this.lastKnownState.cleanMissionStatus?.phase);
-        return CurrentState.Interrupted;
+  notifyActivity(value: CharacteristicChange) {
+    if (value.newValue !== value.oldValue) {
+      this.log(3, ActiveIdentifierPretty[value.newValue as number]);
     }
   }
-
-  getTargetState(): TargetState {
-    switch (this.lastKnownState.cleanMissionStatus?.cycle) {
-      case 'none':
-        switch (this.lastKnownState.cleanMissionStatus?.phase) {
-          case 'charge':
-          case 'hmUsrDock':
-          case 'dockend':
-          case 'cancelled':
-          case 'stop':
-          case 'hmPostMsn':
-            return TargetState.Stop;
-          default:
-            return TargetState.Pause;
-        }
-      default:
-        return TargetState.Play;
-    }
-  }
-
-  async setTargetState(targetState: CharacteristicValue) {
-    const state = targetState as TargetState;
-    await this.connect();
-    await (() => {
-      switch (state) {
-        case TargetState.Play:
-          switch (this.lastKnownState.cleanMissionStatus?.cycle) {
-            case 'none':
-              return this.dorita980?.start() ??
-                Promise.reject('Failed to start');
-            default:
-              return this.dorita980?.resume() ??
-                Promise.reject('Failed to resume');
-          }
-        case TargetState.Pause:
-          return this.dorita980?.pause() ??
-            Promise.reject('Failed to pause');
-        case TargetState.Stop:
-          return new Promise((resolve, reject) => {
-            let docked = false;
-            this.dorita980?.on('state', state => {
-              if (state.cleanMissionStatus.phase === 'stop' && !docked) {
-                docked = true;
-                resolve(this.dorita980?.dock() ??
-                  reject('Failed to dock'));
-              }
-            });
-            this.dorita980?.pause() ??
-              reject('Failed to pause');
-          });
-      }
-    })().catch(err => this.log('warn', err));
-    this.disconnect();
-  }
 }
-enum CurrentState {
-  Play,
-  Pause,
-  Stop,
-  UNKNOWN,
-  Loading,
-  Interrupted
-}
-enum TargetState {
-  Play,
-  Pause,
-  Stop
-}
-*/
-}
+const ActiveIdentifierPretty = ['', 'Stopped', 'Paused', 'Cleaning Everywhere', 'Docking', 'Stuck'] as const;
 enum ActiveIdentifier {
   Off = 1,
   Pause,
