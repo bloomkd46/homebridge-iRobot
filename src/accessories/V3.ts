@@ -211,19 +211,21 @@ export default class V3Roomba extends Accessory {
           this.log('warn', 'Failed to pause');
         break;
       case ActiveIdentifier.Off:
-        await new Promise(resolve => {
-          let docked = false;
-          this.dorita980?.on('state', async state => {
-            if (state.cleanMissionStatus.phase === 'stop' && !docked) {
-              docked = true;
-              resolve(await this.dorita980?.dock() ??
-                this.log('warn', 'Failed to dock'));
-            }
+        if (this.lastKnownState.cleanMissionStatus?.phase !== 'charge') {
+          await new Promise(resolve => {
+            let docked = false;
+            this.dorita980?.on('state', async state => {
+              if (state.cleanMissionStatus.phase === 'stop' && !docked) {
+                docked = true;
+                resolve(await this.dorita980?.dock() ??
+                  this.log('warn', 'Failed to dock'));
+              }
+            });
+            this.dorita980?.pause() ??
+              this.log('warn', 'Failed to pause');
           });
-          this.dorita980?.pause() ??
-            this.log('warn', 'Failed to pause');
-        });
-        break;
+          break;
+        }
     }
     this.disconnect();
   }
