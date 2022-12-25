@@ -199,6 +199,7 @@ export default class V3Roomba extends Accessory {
   }
 
   async setActivity(activeValue: CharacteristicValue) {
+    this.log(4, `setActivity: ${activeValue}`);
     const value = activeValue as ActiveIdentifier;
     await this.connect();
     switch (value) {
