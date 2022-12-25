@@ -169,13 +169,13 @@ export default class Accessory {
       .setCharacteristic(platform.Characteristic.CurrentVisibilityState, platform.Characteristic.CurrentVisibilityState.HIDDEN)
       .setCharacteristic(platform.Characteristic.Identifier, 4),
     );
-    this.service.addLinkedService(accessory.addService(platform.Service.InputSource, 'error', 'Error')
-      .setCharacteristic(platform.Characteristic.ConfiguredName, 'Error')
+    this.service.addLinkedService(accessory.addService(platform.Service.InputSource, 'stuck', 'Stuck')
+      .setCharacteristic(platform.Characteristic.ConfiguredName, 'Stuck')
       .setCharacteristic(platform.Characteristic.InputSourceType, platform.Characteristic.InputSourceType.OTHER)
       .setCharacteristic(platform.Characteristic.IsConfigured, platform.Characteristic.IsConfigured.CONFIGURED)
-      .setCharacteristic(platform.Characteristic.Name, 'Error')
+      .setCharacteristic(platform.Characteristic.Name, 'Stuck')
       .setCharacteristic(platform.Characteristic.CurrentVisibilityState, platform.Characteristic.CurrentVisibilityState.HIDDEN)
-      .setCharacteristic(platform.Characteristic.Identifier, 4),
+      .setCharacteristic(platform.Characteristic.Identifier, 5),
     );
   }
 }

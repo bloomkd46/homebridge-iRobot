@@ -33,7 +33,16 @@ export default class V3Roomba extends Accessory {
 
   public mode = 0;
   public ip?: string;
+  private connections = 0;
+  private offline = false;
+  private keepAlive = false;
   dorita980?: LocalV3.Local;
+  update() {
+    //TODO: Add all characteristics that need updated
+    this.service.updateCharacteristic(this.platform.Characteristic.Active, this.offline ? 1 : this.keepAlive ? 1 : 0);
+    this.service.updateCharacteristic(this.platform.Characteristic.ActiveIdentifier, this.getActivity());
+  }
+
   constructor(
     private readonly platform: iRobotPlatform,
     private readonly accessory: PlatformAccessory<Context>,
@@ -57,7 +66,7 @@ export default class V3Roomba extends Accessory {
         }
         await this.connect();
         this.disconnect();
-      }).onGet(() => (this.keepAlive) ? 1 : 0);
+      }).onGet(() => this.offline ? 1 : this.keepAlive ? 1 : 0);
     this.service.setCharacteristic(this.platform.Characteristic.Active, (this.platform.config.autoConnect ?? true) ? 1 : 0);
 
     this.service;
@@ -113,14 +122,6 @@ export default class V3Roomba extends Accessory {
 */
   }
 
-  update() {
-    //TODO: Add all characteristics that need updated
-    //this.service.updateCharacteristic();
-  }
-
-  private connections = 0;
-  private offline = false;
-  private keepAlive = false;
   connect(): Promise<LocalV3.Local> {
     return new Promise((resolve, reject) => {
       this.log('info', 'Adding Connection');
@@ -258,11 +259,11 @@ export default class V3Roomba extends Accessory {
         }
       case 'stuck':
         this.log('warn', 'Stuck!');
-        return ActiveIdentifier.Error;
+        return ActiveIdentifier.Stuck;
       default:
         //Add unknown channel?
         this.log('warn', 'Unknown phase:', this.lastKnownState.cleanMissionStatus?.phase);
-        return ActiveIdentifier.Error;
+        return ActiveIdentifier.Off;
     }
   }
 
@@ -375,5 +376,5 @@ enum ActiveIdentifier {
   Pause,
   CleanEverywhere,
   Docking,
-  Error,
+  Stuck,
 }
