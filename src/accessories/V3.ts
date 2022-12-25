@@ -137,7 +137,8 @@ export default class V3Roomba extends Accessory {
           this.dorita980 = Local(this.device.blid, this.device.password, ip, 3);
           this.dorita980.on('state', state => {
             this.log(4, 'State received');
-            Object.assign(this.lastKnownState, state);
+            const oldState = this.lastKnownState;
+            this.lastKnownState = Object.assign(oldState, state);
           });
           this.dorita980.on('offline', () => {
             this.offline = true; this.ip = undefined; this.dorita980 = undefined;
