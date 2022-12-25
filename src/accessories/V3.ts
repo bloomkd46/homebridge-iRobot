@@ -25,6 +25,9 @@ export default class V3Roomba extends Accessory {
   }
 
   public set connected(value: boolean) {
+    if (value) {
+      this.offline = false;
+    }
     this._connected = value; this.update();
   }
 
@@ -54,7 +57,7 @@ export default class V3Roomba extends Accessory {
           await this.connect();
           this.disconnect();
         }
-      }).onGet(() => this.keepAlive ? 1 : 0);
+      }).onGet(() => (this.keepAlive) ? 1 : 0);
 
     this.service;
 
@@ -115,6 +118,7 @@ export default class V3Roomba extends Accessory {
   }
 
   private connections = 0;
+  private offline = false;
   private keepAlive = false;
   connect(): Promise<LocalV3.Local> {
     return new Promise((resolve, reject) => {
@@ -132,7 +136,7 @@ export default class V3Roomba extends Accessory {
           this.dorita980 = Local(this.device.blid, this.device.password, ip, 3);
           this.dorita980.on('state', state => Object.assign(this.lastKnownState, state));
           this.dorita980.on('offline', () => {
-            this.ip = undefined; this.dorita980 = undefined;
+            this.offline = true; this.ip = undefined; this.dorita980 = undefined;
             reject('Roomba Offline');
           });
           this.dorita980.on('connect', () => {
