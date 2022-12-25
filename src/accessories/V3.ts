@@ -132,6 +132,7 @@ export default class V3Roomba extends Accessory {
         }
       } else {
         this.getIp().then(ip => {
+          this.log('info', 'Connecting...');
           this.connections++;
           this.dorita980 = Local(this.device.blid, this.device.password, ip, 3);
           this.dorita980.on('state', state => Object.assign(this.lastKnownState, state));
@@ -140,10 +141,12 @@ export default class V3Roomba extends Accessory {
             reject('Roomba Offline');
           });
           this.dorita980.on('connect', () => {
+            this.log('info', 'Connected');
             this.connected = true;
             resolve(this.dorita980!);
           });
           this.dorita980.on('close', () => {
+            this.log('warn', 'Disconnected');
             this.connected = false; this.dorita980 = undefined;
           });
         }).catch(() => this.log('warn', 'Offline'));
