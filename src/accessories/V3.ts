@@ -12,7 +12,7 @@ import Accessory from './Accessory';
 export default class V3Roomba extends Accessory {
   public _lastKnownState = (this.accessory.context.lastState as Partial<LocalV3.RobotState> | undefined) ?? {};
   public set lastKnownState(state: Partial<LocalV3.RobotState>) {
-    this._lastKnownState = state; this.update(); this.log(4, 'Updating state');
+    this._lastKnownState = state; this.update();
   }
 
   public get lastKnownState() {
@@ -123,6 +123,7 @@ export default class V3Roomba extends Accessory {
   connect(): Promise<LocalV3.Local> {
     return new Promise((resolve, reject) => {
       if (this.dorita980) {
+        this.log('info', 'Adding Connection');
         if (this.connected) {
           this.connections++;
           resolve(this.dorita980);
@@ -136,7 +137,6 @@ export default class V3Roomba extends Accessory {
           this.connections++;
           this.dorita980 = Local(this.device.blid, this.device.password, ip, 3);
           this.dorita980.on('state', state => {
-            this.log(4, 'State received');
             const oldState = this.lastKnownState;
             this.lastKnownState = Object.assign(oldState, state);
           });
@@ -159,8 +159,10 @@ export default class V3Roomba extends Accessory {
   }
 
   disconnect() {
+    this.log('warn', 'Removing Connection');
     this.connections--;
     if (this.connections === 0 && !this.keepAlive) {
+      this.log('warn', 'Disconnecting...');
       this.dorita980?.end() ?? this.log('warn', 'Failed to disconnect');
     }
   }
