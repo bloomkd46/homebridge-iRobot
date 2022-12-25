@@ -1,5 +1,5 @@
 import { lookup } from 'dns/promises';
-import { CharacteristicValue, PlatformAccessory, Service } from 'homebridge';
+import { CharacteristicValue, PlatformAccessory } from 'homebridge';
 import ping from 'ping';
 
 import { getRobotByBlid, Local, LocalV3 } from '@bloomkd46/dorita980';
@@ -28,9 +28,9 @@ export default class V3Roomba extends Accessory {
     this._connected = value; this.update();
   }
 
+  public mode = 0;
   public ip?: string;
   dorita980?: LocalV3.Local;
-  public speakerService: Service;
   constructor(
     private readonly platform: iRobotPlatform,
     private readonly accessory: PlatformAccessory<Context>,
@@ -52,27 +52,31 @@ export default class V3Roomba extends Accessory {
         } else if (value === 1) {
           this.keepAlive = true;
           await this.connect();
+          this.disconnect();
         }
-      }).onGet(() => this.connected ? 1 : 0);
+      }).onGet(() => this.keepAlive ? 1 : 0);
 
-    this.service.setCharacteristic(this.platform.Characteristic.ActiveIdentifier, 1);
+    this.service;
 
     // handle input source changes
-    this.service.getCharacteristic(this.platform.Characteristic.ActiveIdentifier)
+    /*this.service.getCharacteristic(this.platform.Characteristic.ActiveIdentifier)
       .onSet((newValue) => {
-
+        this.mode = newValue as number;
         // the value will be the value you set for the Identifier Characteristic
         // on the Input Source service that was selected - see input sources below.
 
-        this.log('info', 'Selected region changed to', newValue);
-      });
-    this.speakerService = this.accessory.getService(this.platform.Service.SmartSpeaker) ||
+        this.log('info', 'Selected mode changed to', newValue);
+      }).onGet(() => this.mode);*/
+    this.service.setCharacteristic(this.platform.Characteristic.ActiveIdentifier, 1);
+    this.service.getCharacteristic(this.platform.Characteristic.ActiveIdentifier)
+      .onSet(this.setActivity.bind(this)).onGet(this.getActivity.bind(this));
+    /*this.speakerService = this.accessory.getService(this.platform.Service.SmartSpeaker) ||
       this.accessory.addService(this.platform.Service.SmartSpeaker);
     this.service.getCharacteristic(this.platform.Characteristic.CurrentMediaState)
       .onGet(this.getCurrentState.bind(this));
     this.service.getCharacteristic(this.platform.Characteristic.TargetMediaState)
       .onGet(this.getTargetState.bind(this))
-      .onSet(this.setTargetState.bind(this));
+      .onSet(this.setTargetState.bind(this));*/
 
     /**
      * Create TV Input Source Services
@@ -112,7 +116,7 @@ export default class V3Roomba extends Accessory {
 
   private connections = 0;
   private keepAlive = false;
-  connect() {
+  connect(): Promise<LocalV3.Local> {
     return new Promise((resolve, reject) => {
       if (this.dorita980) {
         if (this.connected) {
@@ -120,7 +124,7 @@ export default class V3Roomba extends Accessory {
           resolve(this.dorita980);
         } else {
           this.connections++;
-          this.dorita980.on('connect', () => resolve(this.dorita980));
+          this.dorita980.on('connect', () => resolve(this.dorita980!));
         }
       } else {
         this.getIp().then(ip => {
@@ -133,7 +137,7 @@ export default class V3Roomba extends Accessory {
           });
           this.dorita980.on('connect', () => {
             this.connected = true;
-            resolve(this.dorita980);
+            resolve(this.dorita980!);
           });
           this.dorita980.on('close', () => {
             this.connected = false; this.dorita980 = undefined;
@@ -180,7 +184,69 @@ export default class V3Roomba extends Accessory {
     this.disconnect();
   }
 
-  getCurrentState(): CurrentState {
+  async setActivity(activeValue: CharacteristicValue) {
+    const value = activeValue as ActiveIdentifier;
+    await this.connect();
+    switch (value) {
+      case ActiveIdentifier.CleanEverywhere:
+        await this.dorita980?.clean() ?? this.log('warn', 'Failed to clean');
+        break;
+      case ActiveIdentifier.Pause:
+        await this.dorita980?.pause() ??
+          this.log('warn', 'Failed to pause');
+        break;
+      case ActiveIdentifier.Off:
+        await new Promise(resolve => {
+          let docked = false;
+          this.dorita980?.on('state', async state => {
+            if (state.cleanMissionStatus.phase === 'stop' && !docked) {
+              docked = true;
+              resolve(await this.dorita980?.dock() ??
+                this.log('warn', 'Failed to dock'));
+            }
+          });
+          this.dorita980?.pause() ??
+            this.log('warn', 'Failed to pause');
+        });
+        break;
+    }
+    this.disconnect();
+  }
+
+  getActivity(): ActiveIdentifier {
+    switch (this.lastKnownState.cleanMissionStatus?.phase) {
+      case 'charge':
+      case 'recharge':
+      case 'hmUsrDock':
+      case 'dock':
+      case 'dockend':
+      case 'cancelled':
+      case 'hmPostMsn':
+      case '':
+        return ActiveIdentifier.Off;
+      case 'new':
+      case 'run':
+      case 'resume':
+        return ActiveIdentifier.CleanEverywhere;
+      case 'hmMidMsn':
+      case 'stuck':
+      case 'pause':
+        return ActiveIdentifier.Pause;
+      case 'stop':
+        switch (this.lastKnownState.cleanMissionStatus?.cycle) {
+          case 'none':
+            return ActiveIdentifier.Off;
+          default:
+            return ActiveIdentifier.Pause;
+        }
+      default:
+        //Add unknown channel?
+        this.log('warn', 'Unknown phase:', this.lastKnownState.cleanMissionStatus?.phase);
+        return ActiveIdentifier.Off;
+    }
+  }
+
+  /*getCurrentState(): CurrentState {
     switch (this.lastKnownState.cleanMissionStatus?.phase) {
       case 'cancelled':
       case 'charge':
@@ -281,4 +347,11 @@ enum TargetState {
   Play,
   Pause,
   Stop
+}
+*/
+}
+enum ActiveIdentifier {
+  Off = 1,
+  Pause,
+  CleanEverywhere,
 }
