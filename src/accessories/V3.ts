@@ -86,7 +86,7 @@ export default class V3Roomba extends Accessory {
       }).onGet(() => this.mode);*/
     this.service.setCharacteristic(this.platform.Characteristic.ActiveIdentifier, 1);
     this.service.getCharacteristic(this.platform.Characteristic.ActiveIdentifier)
-      .onSet(this.setActivity.bind(this)).onGet(this.getActivity.bind(this));
+      .onSet(this.setActivity.bind(this)).onGet(this.getActivity.bind(this)).on('change', this.notifyActivity.bind(this));
     /*this.speakerService = this.accessory.getService(this.platform.Service.SmartSpeaker) ||
       this.accessory.addService(this.platform.Service.SmartSpeaker);
     this.service.getCharacteristic(this.platform.Characteristic.CurrentMediaState)
