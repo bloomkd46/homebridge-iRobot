@@ -88,128 +88,72 @@ export default class Accessory {
     // handle remote control input
     this.service.getCharacteristic(platform.Characteristic.RemoteKey) ?
       this.service.removeCharacteristic(platform.Characteristic.RemoteKey as unknown as Characteristic) : undefined;
-    /*this.service.getCharacteristic(platform.Characteristic.RemoteKey)
-      .onSet((newValue) => {
-        this.log('warn', 'Remote Control Currently Unsupported');
-        newValue;
-        /*switch (newValue) {
-          case this.platform.Characteristic.RemoteKey.REWIND: {
-            this.log.info('set Remote Key Pressed: REWIND');
-            break;
-          }
-          case this.platform.Characteristic.RemoteKey.FAST_FORWARD: {
-            this.log.info('set Remote Key Pressed: FAST_FORWARD');
-            break;
-          }
-          case this.platform.Characteristic.RemoteKey.NEXT_TRACK: {
-            this.log.info('set Remote Key Pressed: NEXT_TRACK');
-            break;
-          }
-          case this.platform.Characteristic.RemoteKey.PREVIOUS_TRACK: {
-            this.log.info('set Remote Key Pressed: PREVIOUS_TRACK');
-            break;
-          }
-          case this.platform.Characteristic.RemoteKey.ARROW_UP: {
-            this.log.info('set Remote Key Pressed: ARROW_UP');
-            break;
-          }
-          case this.platform.Characteristic.RemoteKey.ARROW_DOWN: {
-            this.log.info('set Remote Key Pressed: ARROW_DOWN');
-            break;
-          }
-          case this.platform.Characteristic.RemoteKey.ARROW_LEFT: {
-            this.log.info('set Remote Key Pressed: ARROW_LEFT');
-            break;
-          }
-          case this.platform.Characteristic.RemoteKey.ARROW_RIGHT: {
-            this.log.info('set Remote Key Pressed: ARROW_RIGHT');
-            break;
-          }
-          case this.platform.Characteristic.RemoteKey.SELECT: {
-            this.log.info('set Remote Key Pressed: SELECT');
-            break;
-          }
-          case this.platform.Characteristic.RemoteKey.BACK: {
-            this.log.info('set Remote Key Pressed: BACK');
-            break;
-          }
-          case this.platform.Characteristic.RemoteKey.EXIT: {
-            this.log.info('set Remote Key Pressed: EXIT');
-            break;
-          }
-          case this.platform.Characteristic.RemoteKey.PLAY_PAUSE: {
-            this.log.info('set Remote Key Pressed: PLAY_PAUSE');
-            break;
-          }
-          case this.platform.Characteristic.RemoteKey.INFORMATION: {
-            this.log.info('set Remote Key Pressed: INFORMATION');
-            break;
-          }
-        }
-      });*/
+    accessory.context.overrides = accessory.context.overrides ?? [];
 
-    this.service.addLinkedService((accessory.getService('Stuck') ||
-      accessory.addService(platform.Service.InputSource, 'Stuck', 'Stuck'))
-      .setCharacteristic(platform.Characteristic.ConfiguredName, 'Stuck')
+    const stuckName = accessory.context.overrides[1] || 'Stuck';
+    const stuckService = accessory.addService(platform.Service.InputSource, 'Stuck', 'Stuck')
+      .setCharacteristic(platform.Characteristic.ConfiguredName, stuckName)
+      .setCharacteristic(platform.Characteristic.Name, stuckName)
       .setCharacteristic(platform.Characteristic.InputSourceType, platform.Characteristic.InputSourceType.OTHER)
       .setCharacteristic(platform.Characteristic.IsConfigured, platform.Characteristic.IsConfigured.CONFIGURED)
-      //.setCharacteristic(platform.Characteristic.Name, 'Stuck')
       .setCharacteristic(platform.Characteristic.CurrentVisibilityState, platform.Characteristic.CurrentVisibilityState.HIDDEN)
-      .setCharacteristic(platform.Characteristic.Identifier, 1),
-    );
-    this.service.addLinkedService((accessory.getService('Off') ||
-      accessory.addService(platform.Service.InputSource, 'Off', 'Off'))
+      .setCharacteristic(platform.Characteristic.Identifier, 1);
+    stuckService.getCharacteristic(platform.Characteristic.ConfiguredName).onSet(value => accessory.context.overrides[1] = value as string);
+    this.service.addLinkedService(stuckService);
+    this.service.addLinkedService(accessory.addService(platform.Service.InputSource, 'Off', 'Off')
       .setCharacteristic(platform.Characteristic.ConfiguredName, 'Off')
       .setCharacteristic(platform.Characteristic.InputSourceType, platform.Characteristic.InputSourceType.OTHER)
       .setCharacteristic(platform.Characteristic.IsConfigured, platform.Characteristic.IsConfigured.CONFIGURED)
-      //.setCharacteristic(platform.Characteristic.Name, 'Off')
       .setCharacteristic(platform.Characteristic.CurrentVisibilityState, platform.Characteristic.CurrentVisibilityState.SHOWN)
       .setCharacteristic(platform.Characteristic.Identifier, 2),
     );
-    this.service.addLinkedService((accessory.getService('Docking') ||
-      accessory.addService(platform.Service.InputSource, 'Docking', 'Docking'))
+    this.service.addLinkedService(accessory.addService(platform.Service.InputSource, 'Docking', 'Docking')
       .setCharacteristic(platform.Characteristic.ConfiguredName, 'Docking')
       .setCharacteristic(platform.Characteristic.InputSourceType, platform.Characteristic.InputSourceType.OTHER)
       .setCharacteristic(platform.Characteristic.IsConfigured, platform.Characteristic.IsConfigured.CONFIGURED)
-      //.setCharacteristic(platform.Characteristic.Name, 'Docking')
       .setCharacteristic(platform.Characteristic.CurrentVisibilityState, platform.Characteristic.CurrentVisibilityState.HIDDEN)
       .setCharacteristic(platform.Characteristic.Identifier, 3),
     );
-    this.service.addLinkedService((accessory.getService('Pause') ||
-      accessory.addService(platform.Service.InputSource, 'Pause', 'Pause'))
+    this.service.addLinkedService(accessory.addService(platform.Service.InputSource, 'Pause', 'Pause')
       .setCharacteristic(platform.Characteristic.ConfiguredName, 'Pause')
       .setCharacteristic(platform.Characteristic.InputSourceType, platform.Characteristic.InputSourceType.OTHER)
       .setCharacteristic(platform.Characteristic.IsConfigured, platform.Characteristic.IsConfigured.CONFIGURED)
-      //.setCharacteristic(platform.Characteristic.Name, 'Pause')
       .setCharacteristic(platform.Characteristic.CurrentVisibilityState, platform.Characteristic.CurrentVisibilityState.SHOWN)
       .setCharacteristic(platform.Characteristic.Identifier, 4),
     );
-    this.service.addLinkedService((accessory.getService('Paused') ||
-      accessory.addService(platform.Service.InputSource, 'Paused', 'Paused'))
+    this.service.addLinkedService(accessory.addService(platform.Service.InputSource, 'Paused', 'Paused')
       .setCharacteristic(platform.Characteristic.ConfiguredName, 'Paused')
       .setCharacteristic(platform.Characteristic.InputSourceType, platform.Characteristic.InputSourceType.OTHER)
       .setCharacteristic(platform.Characteristic.IsConfigured, platform.Characteristic.IsConfigured.CONFIGURED)
-      //.setCharacteristic(platform.Characteristic.Name, 'Paused')
       .setCharacteristic(platform.Characteristic.CurrentVisibilityState, platform.Characteristic.CurrentVisibilityState.HIDDEN)
       .setCharacteristic(platform.Characteristic.Identifier, 5),
     );
-    this.service.addLinkedService((accessory.getService('Clean Everywhere') ||
-      accessory.addService(platform.Service.InputSource, 'Clean Everywhere', 'Clean Everywhere'))
+    this.service.addLinkedService(accessory.addService(platform.Service.InputSource, 'Clean Everywhere', 'Clean Everywhere')
       .setCharacteristic(platform.Characteristic.ConfiguredName, 'Clean Everywhere')
       .setCharacteristic(platform.Characteristic.InputSourceType, platform.Characteristic.InputSourceType.OTHER)
       .setCharacteristic(platform.Characteristic.IsConfigured, platform.Characteristic.IsConfigured.CONFIGURED)
-      //.setCharacteristic(platform.Characteristic.Name, 'Clean Everywhere')
       .setCharacteristic(platform.Characteristic.CurrentVisibilityState, platform.Characteristic.CurrentVisibilityState.SHOWN)
       .setCharacteristic(platform.Characteristic.Identifier, 6),
     );
-    this.service.addLinkedService((accessory.getService('Cleaning Everywhere') ||
-      accessory.addService(platform.Service.InputSource, 'Cleaning Everywhere', 'Cleaning Everywhere'))
+    this.service.addLinkedService(accessory.addService(platform.Service.InputSource, 'Cleaning Everywhere', 'Cleaning Everywhere')
       .setCharacteristic(platform.Characteristic.ConfiguredName, 'Cleaning Everywhere')
       .setCharacteristic(platform.Characteristic.InputSourceType, platform.Characteristic.InputSourceType.OTHER)
       .setCharacteristic(platform.Characteristic.IsConfigured, platform.Characteristic.IsConfigured.CONFIGURED)
-      //.setCharacteristic(platform.Characteristic.Name, 'Cleaning Everywhere')
       .setCharacteristic(platform.Characteristic.CurrentVisibilityState, platform.Characteristic.CurrentVisibilityState.HIDDEN)
       .setCharacteristic(platform.Characteristic.Identifier, 7),
     );
   }
+}
+export const ActiveIdentifierPretty =
+  ['', 'Stuck', 'Stopped', 'Docking', undefined, 'Paused', undefined, 'Cleaning Everywhere', undefined, 'Emptying Bin'] as const;
+export enum ActiveIdentifier {
+  Stuck = 1,
+  Off,
+  Docking,
+  Pause,
+  Paused,
+  Clean_Everywhere,
+  Cleaning_Everywhere,
+  Empty_Bin,
+  Emptying_Bin,
 }

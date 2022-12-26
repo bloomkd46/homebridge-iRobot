@@ -6,7 +6,7 @@ import { getRobotByBlid, Local, LocalV3 } from '@bloomkd46/dorita980';
 
 import { iRobotPlatform } from '../platform';
 import { Context, Device } from '../settings';
-import Accessory from './Accessory';
+import Accessory, { ActiveIdentifier, ActiveIdentifierPretty } from './Accessory';
 
 
 export default class V3Roomba extends Accessory {
@@ -80,58 +80,9 @@ export default class V3Roomba extends Accessory {
         }
       }).onGet(() => this.offline ? 1 : this.keepAlive ? 1 : 0);
     this.service.setCharacteristic(this.platform.Characteristic.Active, (this.platform.config.autoConnect ?? true) ? 1 : 0);
-
-    this.service;
-
-    // handle input source changes
-    /*this.service.getCharacteristic(this.platform.Characteristic.ActiveIdentifier)
-      .onSet((newValue) => {
-        this.mode = newValue as number;
-        // the value will be the value you set for the Identifier Characteristic
-        // on the Input Source service that was selected - see input sources below.
-
-        this.log('info', 'Selected mode changed to', newValue);
-      }).onGet(() => this.mode);*/
     this.service.setCharacteristic(this.platform.Characteristic.ActiveIdentifier, 1);
     this.service.getCharacteristic(this.platform.Characteristic.ActiveIdentifier)
       .onSet(this.setActivity.bind(this)).onGet(this.getActivity.bind(this)).on('change', this.notifyActivity.bind(this));
-    /*this.speakerService = this.accessory.getService(this.platform.Service.SmartSpeaker) ||
-      this.accessory.addService(this.platform.Service.SmartSpeaker);
-    this.service.getCharacteristic(this.platform.Characteristic.CurrentMediaState)
-      .onGet(this.getCurrentState.bind(this));
-    this.service.getCharacteristic(this.platform.Characteristic.TargetMediaState)
-      .onGet(this.getTargetState.bind(this))
-      .onSet(this.setTargetState.bind(this));*/
-
-    /**
-     * Create TV Input Source Services
-     * These are the inputs the user can select from.
-     * When a user selected an input the corresponding Identifier Characteristic
-     * is sent to the TV Service ActiveIdentifier Characteristic handler.
-     */
-
-    // HDMI 1 Input Source
-
-    // link to tv service
-    /*
-    // HDMI 2 Input Source
-    const hdmi2InputService = this.accessory.addService(this.platform.Service.InputSource, 'hdmi2', 'HDMI 2');
-    hdmi2InputService
-      .setCharacteristic(this.platform.Characteristic.Identifier, 2)
-      .setCharacteristic(this.platform.Characteristic.ConfiguredName, 'HDMI 2')
-      .setCharacteristic(this.platform.Characteristic.IsConfigured, this.platform.Characteristic.IsConfigured.CONFIGURED)
-      .setCharacteristic(this.platform.Characteristic.InputSourceType, this.platform.Characteristic.InputSourceType.OTHER);
-    this.service.addLinkedService(hdmi2InputService); // link to tv service
-
-    // Netflix Input Source
-    const netflixInputService = this.accessory.addService(this.platform.Service.InputSource, 'netflix', 'Netflix');
-    netflixInputService
-      .setCharacteristic(this.platform.Characteristic.Identifier, 3)
-      .setCharacteristic(this.platform.Characteristic.ConfiguredName, 'Netflix')
-      .setCharacteristic(this.platform.Characteristic.IsConfigured, this.platform.Characteristic.IsConfigured.CONFIGURED)
-      .setCharacteristic(this.platform.Characteristic.InputSourceType, this.platform.Characteristic.InputSourceType.OTHER);
-    this.service.addLinkedService(netflixInputService); // link to tv service
-*/
   }
 
   connect(): Promise<LocalV3.Local> {
@@ -330,16 +281,7 @@ export default class V3Roomba extends Accessory {
     (this.accessory.context as { emptyCapable?: boolean; }).emptyCapable = true;
   }
 
-  //private lastStatus?: LocalV3.RobotState['cleanMissionStatus'];
   notifyActivity(value: CharacteristicChange) {
-    /* if (!this.lastStatus && this.lastKnownState.cleanMissionStatus) {
-       this.lastStatus = this.lastKnownState.cleanMissionStatus;
-       this.log(3, ActiveIdentifierPretty[this.getActivity()]);
-     } else if ((JSON.stringify(this.lastStatus) !== JSON.stringify(this.lastKnownState.cleanMissionStatus)) &&
-       (value.newValue !== value.oldValue)) {
-       this.lastStatus = this.lastKnownState.cleanMissionStatus;
-       this.log(3, ActiveIdentifierPretty[this.getActivity()]);
-     }*/
     if (value.newValue !== value.oldValue) {
       const status = ActiveIdentifierPretty[value.newValue as number];
       if (status) {
@@ -348,17 +290,4 @@ export default class V3Roomba extends Accessory {
       this.log(4, `${this.lastKnownState.cleanMissionStatus?.cycle} : ${this.lastKnownState.cleanMissionStatus?.phase}`);
     }
   }
-}
-const ActiveIdentifierPretty =
-  ['', 'Stuck', 'Stopped', 'Docking', undefined, 'Paused', undefined, 'Cleaning Everywhere', undefined, 'Emptying Bin'] as const;
-enum ActiveIdentifier {
-  Stuck = 1,
-  Off,
-  Docking,
-  Pause,
-  Paused,
-  Clean_Everywhere,
-  Cleaning_Everywhere,
-  Empty_Bin,
-  Emptying_Bin,
 }

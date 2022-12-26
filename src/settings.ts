@@ -16,6 +16,7 @@ export type Context = {
   refreshToken?: string;
   pluginVersion?: 4;
   ip?: string;
+  overrides: string[];
 } & (V1 | V2 | V3);
 type V1 = {
   lastState: Record<string, string | object>;
@@ -44,10 +45,16 @@ export type Device = {
   blid: string;
   password: string;
   publicInfo: PublicInfo;
+  regionData?: RegionData;
 } & ipInfo;
 type ipInfo = {
   ipResolution: 'manual';
   ip: string;
 } | {
   ipResolution: 'lookup' | 'broadcast';
+};
+export type RegionData = {
+  regions: { name: string; id: string; type: 'room' | 'zone'; }[];
+  pmap_id: string;
+  user_pmapv_id: string;
 };
