@@ -247,6 +247,8 @@ export default class V3Roomba extends Accessory {
         switch (this.lastKnownState.cleanMissionStatus?.cycle) {
           case 'none':
             return ActiveIdentifier.Off;
+          case 'evac':
+            return ActiveIdentifier.Emptying_Bin;
           default:
             return ActiveIdentifier.Paused;
         }
