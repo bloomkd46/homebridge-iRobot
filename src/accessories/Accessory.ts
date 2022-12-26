@@ -191,7 +191,7 @@ export default class Accessory {
       .setCharacteristic(platform.Characteristic.IsConfigured, platform.Characteristic.IsConfigured.CONFIGURED)
       //.setCharacteristic(platform.Characteristic.Name, 'Paused')
       .setCharacteristic(platform.Characteristic.CurrentVisibilityState, platform.Characteristic.CurrentVisibilityState.HIDDEN)
-      .setCharacteristic(platform.Characteristic.Identifier, 7),
+      .setCharacteristic(platform.Characteristic.Identifier, 5),
     );
     this.service.addLinkedService((accessory.getService('Clean Everywhere') ||
       accessory.addService(platform.Service.InputSource, 'Clean Everywhere', 'Clean Everywhere'))
