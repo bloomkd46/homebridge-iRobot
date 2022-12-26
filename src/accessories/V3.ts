@@ -283,7 +283,7 @@ export default class V3Roomba extends Accessory {
           this.recentlySet = true;
           setTimeout(() => {
             this.recentlySet = false;
-          }, 500);
+          }, 2000);
           return ActiveIdentifier.Clean_Everywhere;
         } else {
           return ActiveIdentifier.Cleaning_Everywhere;
@@ -293,7 +293,7 @@ export default class V3Roomba extends Accessory {
           this.recentlySet = true;
           setTimeout(() => {
             this.recentlySet = false;
-          }, 500);
+          }, 2000);
           return ActiveIdentifier.Pause;
         } else {
           return ActiveIdentifier.Paused;
@@ -308,7 +308,7 @@ export default class V3Roomba extends Accessory {
               this.recentlySet = true;
               setTimeout(() => {
                 this.recentlySet = false;
-              }, 500);
+              }, 2000);
               return ActiveIdentifier.Pause;
             } else {
               return ActiveIdentifier.Paused;
@@ -325,7 +325,7 @@ export default class V3Roomba extends Accessory {
           this.recentlySet = true;
           setTimeout(() => {
             this.recentlySet = false;
-          }, 500);
+          }, 2000);
           return ActiveIdentifier.Empty_Bin;
         } else {
           return ActiveIdentifier.Emptying_Bin;
