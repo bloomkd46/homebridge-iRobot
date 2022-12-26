@@ -309,6 +309,7 @@ export default class V3Roomba extends Accessory {
   }
 
   addEmptyBinService() {
+    this.log(4, 'Adding Bin Empty Service');
     this.service.addLinkedService((this.accessory.getService('Empty Bin') ||
       this.accessory.addService(this.platform.Service.InputSource, 'Empty Bin', 'Empty Bin'))
       .setCharacteristic(this.platform.Characteristic.ConfiguredName, 'Empty Bin')
