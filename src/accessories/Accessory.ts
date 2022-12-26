@@ -29,9 +29,6 @@ export default class Accessory {
     this.cachePath = path.join(this.projectDir, device.blid + '.cache.json');
     this.generalLogPath = path.join(this.projectDir, 'General.log');
 
-    if (fs.existsSync(this.cachePath)) {
-      Object.assign(accessory.context, JSON.parse(fs.readFileSync(this.cachePath, 'utf8')));
-    }
     if (!fs.existsSync(this.projectDir)) {
       fs.mkdirSync(this.projectDir);
     }
@@ -56,12 +53,18 @@ export default class Accessory {
       }
     };
     this.log(4, 'Server Started');
+
+    if (fs.existsSync(this.cachePath)) {
+      this.log(4, 'Restoring data from cache');
+      Object.assign(accessory.context, JSON.parse(fs.readFileSync(this.cachePath, 'utf8')));
+    }
     this.updateCache = () => fs.writeFileSync(this.cachePath, JSON.stringify(accessory.context, null, 2));
     this.StatusError = platform.api.hap.HapStatusError;
 
     platform.api.on('shutdown', async () => {
       this.log(4, 'Server Stopped');
       accessory.context.logPath = this.logPath;
+      this.updateCache();
       //accessory.context.lastState = await this.get();
       platform.api.updatePlatformAccessories([accessory]);
     });
