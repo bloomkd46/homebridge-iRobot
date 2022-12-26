@@ -272,7 +272,7 @@ export default class V3Roomba extends Accessory {
       case 'new':
       case 'run':
       case 'resume':
-        if (oldState && oldState.phase !== this.lastKnownState.cleanMissionStatus?.phase) {
+        if (this.service.getCharacteristic(this.platform.Characteristic.ActiveIdentifier).value !== ActiveIdentifier.Clean_Everywhere) {
           return ActiveIdentifier.Clean_Everywhere;
         }
         return ActiveIdentifier.Cleaning_Everywhere;
