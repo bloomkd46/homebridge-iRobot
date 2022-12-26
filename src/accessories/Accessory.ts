@@ -3,6 +3,8 @@ import fs from 'fs';
 import { Characteristic, HapStatusError, PlatformAccessory, Service } from 'homebridge';
 import path from 'path';
 
+import { LocalV3 } from '@bloomkd46/dorita980';
+
 import { iRobotPlatform } from '../platform';
 import { Context, Device } from '../settings';
 
@@ -182,10 +184,12 @@ export default class Accessory {
         .setCharacteristic(platform.Characteristic.Name, emptyName)
         .setCharacteristic(platform.Characteristic.InputSourceType, platform.Characteristic.InputSourceType.OTHER)
         .setCharacteristic(platform.Characteristic.IsConfigured, platform.Characteristic.IsConfigured.CONFIGURED)
-        .setCharacteristic(platform.Characteristic.CurrentVisibilityState, platform.Characteristic.CurrentVisibilityState.SHOWN)
+        //        .setCharacteristic(platform.Characteristic.CurrentVisibilityState, platform.Characteristic.CurrentVisibilityState.SHOWN)
         .setCharacteristic(platform.Characteristic.Identifier, ActiveIdentifier.Empty_Bin);
       emptyService.getCharacteristic(platform.Characteristic.ConfiguredName)
         .onSet(value => accessory.context.overrides[ActiveIdentifier.Empty_Bin] = value as string);
+      emptyService.getCharacteristic(platform.Characteristic.CurrentVisibilityState).onGet(() =>
+        (accessory.context.lastState as Partial<LocalV3.RobotState>)?.cleanMissionStatus?.phase === 'charge' ? 0 : 1);
       this.service.addLinkedService(emptyService);
 
       const emptyingName = accessory.context.overrides[ActiveIdentifier.Emptying_Bin] || 'Emptying Bin';
@@ -209,12 +213,12 @@ export const ActiveIdentifierPretty =
   ['', 'Stuck', 'Stopped', 'Docking', undefined, 'Paused', undefined, 'Cleaning Everywhere', undefined, 'Emptying Bin'] as const;
 export enum ActiveIdentifier {
   Stuck = 1,
+  Empty_Bin,
+  Emptying_Bin,
   Off,
   Docking,
   Pause,
   Paused,
   Clean_Everywhere,
   Cleaning_Everywhere,
-  Empty_Bin,
-  Emptying_Bin,
 }
