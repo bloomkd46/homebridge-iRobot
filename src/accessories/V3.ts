@@ -264,7 +264,6 @@ export default class V3Roomba extends Accessory {
 
   getActivity(): ActiveIdentifier {
     switch (this.lastKnownState.cleanMissionStatus?.phase) {
-      case 'charge':
       case 'recharge':
       case 'cancelled':
       case '':
@@ -287,6 +286,7 @@ export default class V3Roomba extends Accessory {
       case 'pause':
         return ActiveIdentifier.Pause;
       case 'stop':
+      case 'charge':
         switch (this.lastKnownState.cleanMissionStatus?.cycle) {
           case 'none':
             return ActiveIdentifier.Off;
@@ -297,7 +297,7 @@ export default class V3Roomba extends Accessory {
         //this.log('warn', 'Stuck!');
         return ActiveIdentifier.Stuck;
       case 'evac':
-        if (this.accessory.getService('Empty Bin') === undefined) {
+        if (!(this.accessory.context as { emptyCapable?: boolean; }).emptyCapable) {
           this.addEmptyBinService();
         }
         return ActiveIdentifier.Emptying_Bin;
