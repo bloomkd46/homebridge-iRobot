@@ -15,7 +15,7 @@ export default class V3Roomba extends Accessory {
   public set lastKnownState(state: Partial<LocalV3.RobotState>) {
     if (!this.recentlySet) {
       this._lastKnownState = state;
-      this.update(state.cleanMissionStatus);
+      this.update();
     }
   }
 
@@ -41,10 +41,10 @@ export default class V3Roomba extends Accessory {
   private offline = false;
   private keepAlive = false;
   dorita980?: LocalV3.Local;
-  update(state?: LocalV3.RobotState['cleanMissionStatus']) {
+  update() {
     //TODO: Add all characteristics that need updated
     this.service.updateCharacteristic(this.platform.Characteristic.Active, this.offline ? 1 : this.keepAlive ? 1 : 0);
-    this.service.updateCharacteristic(this.platform.Characteristic.ActiveIdentifier, this.getActivity(state));
+    this.service.updateCharacteristic(this.platform.Characteristic.ActiveIdentifier, this.getActivity());
   }
 
   constructor(
@@ -255,7 +255,7 @@ export default class V3Roomba extends Accessory {
     this.disconnect();
   }
 
-  getActivity(oldState?: LocalV3.RobotState['cleanMissionStatus']): ActiveIdentifier {
+  getActivity(): ActiveIdentifier {
     switch (this.lastKnownState.cleanMissionStatus?.phase) {
       case 'charge':
       case 'recharge':
@@ -272,7 +272,8 @@ export default class V3Roomba extends Accessory {
       case 'new':
       case 'run':
       case 'resume':
-        if (this.service.getCharacteristic(this.platform.Characteristic.ActiveIdentifier).value !== ActiveIdentifier.Clean_Everywhere) {
+        if (this.service.getCharacteristic(this.platform.Characteristic.ActiveIdentifier).value !== ActiveIdentifier.Clean_Everywhere &&
+          this.service.getCharacteristic(this.platform.Characteristic.ActiveIdentifier).value !== ActiveIdentifier.Cleaning_Everywhere) {
           return ActiveIdentifier.Clean_Everywhere;
         }
         return ActiveIdentifier.Cleaning_Everywhere;
