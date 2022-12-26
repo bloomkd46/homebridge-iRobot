@@ -286,7 +286,7 @@ export default class V3Roomba extends Accessory {
             return ActiveIdentifier.Pause;
         }
       case 'stuck':
-        this.log('warn', 'Stuck!');
+        //this.log('warn', 'Stuck!');
         return ActiveIdentifier.Stuck;
       default:
         //Add unknown channel?
