@@ -159,16 +159,8 @@ export default class V3Roomba extends Accessory {
     this.disconnect();
   }
 
-  private skipSet = false;
   async setActivity(activeValue: CharacteristicValue) {
     this.recentlySet = true;
-    if (this.skipSet) {
-      this.skipSet = false;
-      setTimeout(() => {
-        this.recentlySet = false;
-      }, 500);
-      return;
-    }
     //this.log(4, `setActivity: ${activeValue}`);
     const value = activeValue as ActiveIdentifier;
     await this.connect();
@@ -239,18 +231,8 @@ export default class V3Roomba extends Accessory {
       case 'new':
       case 'run':
       case 'resume':
-        if (![ActiveIdentifier.Clean_Everywhere, ActiveIdentifier.Cleaning_Everywhere].includes(oldState as ActiveIdentifier)) {
-          this.skipSet = true;
-          this.service.setCharacteristic(this.platform.Characteristic.ActiveIdentifier, ActiveIdentifier.Clean_Everywhere);
-          return ActiveIdentifier.Clean_Everywhere;
-        }
         return ActiveIdentifier.Cleaning_Everywhere;
       case 'pause':
-        if (![ActiveIdentifier.Pause, ActiveIdentifier.Paused].includes(oldState as ActiveIdentifier)) {
-          this.skipSet = true;
-          this.service.setCharacteristic(this.platform.Characteristic.ActiveIdentifier, ActiveIdentifier.Pause);
-          return ActiveIdentifier.Pause;
-        }
         return ActiveIdentifier.Paused;
       case 'stop':
       case 'charge':
@@ -258,11 +240,6 @@ export default class V3Roomba extends Accessory {
           case 'none':
             return ActiveIdentifier.Off;
           default:
-            if (![ActiveIdentifier.Pause, ActiveIdentifier.Paused].includes(oldState as ActiveIdentifier)) {
-              this.skipSet = true;
-              this.service.setCharacteristic(this.platform.Characteristic.ActiveIdentifier, ActiveIdentifier.Pause);
-              return ActiveIdentifier.Pause;
-            }
             return ActiveIdentifier.Paused;
         }
       case 'stuck':
@@ -270,12 +247,8 @@ export default class V3Roomba extends Accessory {
         return ActiveIdentifier.Stuck;
       case 'evac':
         if (!(this.accessory.context as { emptyCapable?: boolean; }).emptyCapable) {
+          this.log(4, 'Adding Bin Empty Service');
           this.addEmptyBinService();
-        }
-        if (![ActiveIdentifier.Empty_Bin, ActiveIdentifier.Emptying_Bin].includes(oldState as ActiveIdentifier)) {
-          this.skipSet = true;
-          this.service.setCharacteristic(this.platform.Characteristic.ActiveIdentifier, ActiveIdentifier.Empty_Bin);
-          return ActiveIdentifier.Empty_Bin;
         }
         return ActiveIdentifier.Emptying_Bin;
       default:
@@ -286,7 +259,6 @@ export default class V3Roomba extends Accessory {
   }
 
   addEmptyBinService() {
-    this.log(4, 'Adding Bin Empty Service');
     this.service.addLinkedService((this.accessory.getService('Empty Bin') ||
       this.accessory.addService(this.platform.Service.InputSource, 'Empty Bin', 'Empty Bin'))
       .setCharacteristic(this.platform.Characteristic.ConfiguredName, 'Empty Bin')
