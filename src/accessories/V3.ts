@@ -204,6 +204,7 @@ export default class V3Roomba extends Accessory {
   }
 
   async setActivity(activeValue: CharacteristicValue) {
+    this.recentlySet = true;
     //this.log(4, `setActivity: ${activeValue}`);
     const value = activeValue as ActiveIdentifier;
     await this.connect();
@@ -248,7 +249,6 @@ export default class V3Roomba extends Accessory {
           break;
         }
     }
-    this.recentlySet = true;
     setTimeout(() => {
       this.recentlySet = false;
     }, 500);
