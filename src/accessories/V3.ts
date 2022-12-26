@@ -13,8 +13,8 @@ export default class V3Roomba extends Accessory {
   public _lastKnownState = (this.accessory.context.lastState as Partial<LocalV3.RobotState> | undefined) ?? {};
   private recentlySet = false;
   public set lastKnownState(state: Partial<LocalV3.RobotState>) {
-    this._lastKnownState = state;
     if (!this.recentlySet) {
+      this._lastKnownState = state;
       this.update();
     }
   }
