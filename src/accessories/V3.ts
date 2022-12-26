@@ -243,6 +243,11 @@ export default class V3Roomba extends Accessory {
         }
         return ActiveIdentifier.Cleaning_Everywhere;
       case 'pause':
+        if (![ActiveIdentifier.Pause, ActiveIdentifier.Paused].includes(oldState as ActiveIdentifier)) {
+          this.skipSet = true;
+          this.service.setCharacteristic(this.platform.Characteristic.ActiveIdentifier, ActiveIdentifier.Pause);
+          return ActiveIdentifier.Pause;
+        }
         return ActiveIdentifier.Paused;
       case 'stop':
       case 'charge':
@@ -250,6 +255,11 @@ export default class V3Roomba extends Accessory {
           case 'none':
             return ActiveIdentifier.Off;
           default:
+            if (![ActiveIdentifier.Pause, ActiveIdentifier.Paused].includes(oldState as ActiveIdentifier)) {
+              this.skipSet = true;
+              this.service.setCharacteristic(this.platform.Characteristic.ActiveIdentifier, ActiveIdentifier.Pause);
+              return ActiveIdentifier.Pause;
+            }
             return ActiveIdentifier.Paused;
         }
       case 'stuck':
@@ -258,6 +268,11 @@ export default class V3Roomba extends Accessory {
       case 'evac':
         if (!(this.accessory.context as { emptyCapable?: boolean; }).emptyCapable) {
           this.addEmptyBinService();
+        }
+        if (![ActiveIdentifier.Empty_Bin, ActiveIdentifier.Emptying_Bin].includes(oldState as ActiveIdentifier)) {
+          this.skipSet = true;
+          this.service.setCharacteristic(this.platform.Characteristic.ActiveIdentifier, ActiveIdentifier.Empty_Bin);
+          return ActiveIdentifier.Empty_Bin;
         }
         return ActiveIdentifier.Emptying_Bin;
       default:
