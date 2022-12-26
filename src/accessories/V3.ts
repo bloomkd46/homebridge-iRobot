@@ -200,16 +200,24 @@ export default class V3Roomba extends Accessory {
   }
 
   async setActivity(activeValue: CharacteristicValue) {
-    this.log(4, `setActivity: ${activeValue}`);
+    //this.log(4, `setActivity: ${activeValue}`);
     const value = activeValue as ActiveIdentifier;
     await this.connect();
     switch (value) {
       case ActiveIdentifier.CleanEverywhere:
         await this.dorita980?.clean() ?? this.log('warn', 'Failed to clean');
+        (() => {
+          const oldState = this.lastKnownState;
+          this.lastKnownState = Object.assign(oldState, { cleanMissionStatus: { cycle: 'clean', phase: 'run' } });
+        })();
         break;
       case ActiveIdentifier.Pause:
         await this.dorita980?.pause() ??
           this.log('warn', 'Failed to pause');
+        (() => {
+          const oldState = this.lastKnownState;
+          this.lastKnownState = Object.assign(oldState, { cleanMissionStatus: { cycle: 'clean', phase: 'stop' } });
+        })();
         break;
       case ActiveIdentifier.Off:
         if (this.lastKnownState.cleanMissionStatus?.phase !== 'charge') {
@@ -220,10 +228,18 @@ export default class V3Roomba extends Accessory {
                 docked = true;
                 resolve(await this.dorita980?.dock() ??
                   this.log('warn', 'Failed to dock'));
+                (() => {
+                  const oldState = this.lastKnownState;
+                  this.lastKnownState = Object.assign(oldState, { cleanMissionStatus: { cycle: 'clean', phase: 'hmUsrDock' } });
+                })();
               }
             });
             this.dorita980?.pause() ??
               this.log('warn', 'Failed to pause');
+            (() => {
+              const oldState = this.lastKnownState;
+              this.lastKnownState = Object.assign(oldState, { cleanMissionStatus: { cycle: 'clean', phase: 'stop' } });
+            })();
           });
           break;
         }
