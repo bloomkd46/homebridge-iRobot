@@ -215,7 +215,6 @@ export default class V3Roomba extends Accessory {
   }
 
   getActivity(): ActiveIdentifier {
-    const oldState = this.service.getCharacteristic(this.platform.Characteristic.ActiveIdentifier).value;
     switch (this.lastKnownState.cleanMissionStatus?.phase) {
       case 'recharge':
       case 'cancelled':
