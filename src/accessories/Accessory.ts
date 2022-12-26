@@ -16,6 +16,7 @@ export default class Accessory {
   protected cachePath: string;
   protected generalLogPath: string;
   protected updateCache: () => void;
+  protected addEmptyBinService: () => void;
 
   constructor(
     platform: iRobotPlatform,
@@ -173,6 +174,35 @@ export default class Accessory {
     cleaningService.getCharacteristic(platform.Characteristic.ConfiguredName)
       .onSet(value => accessory.context.overrides[ActiveIdentifier.Cleaning_Everywhere] = value as string);
     this.service.addLinkedService(cleaningService);
+
+    this.addEmptyBinService = () => {
+      const emptyName = accessory.context.overrides[ActiveIdentifier.Empty_Bin] || 'Empty Bin';
+      const emptyService = accessory.addService(platform.Service.InputSource, 'Empty Bin', 'Empty Bin')
+        .setCharacteristic(platform.Characteristic.ConfiguredName, emptyName)
+        .setCharacteristic(platform.Characteristic.Name, emptyName)
+        .setCharacteristic(platform.Characteristic.InputSourceType, platform.Characteristic.InputSourceType.OTHER)
+        .setCharacteristic(platform.Characteristic.IsConfigured, platform.Characteristic.IsConfigured.CONFIGURED)
+        .setCharacteristic(platform.Characteristic.CurrentVisibilityState, platform.Characteristic.CurrentVisibilityState.SHOWN)
+        .setCharacteristic(platform.Characteristic.Identifier, ActiveIdentifier.Empty_Bin);
+      emptyService.getCharacteristic(platform.Characteristic.ConfiguredName)
+        .onSet(value => accessory.context.overrides[ActiveIdentifier.Empty_Bin] = value as string);
+      this.service.addLinkedService(emptyService);
+
+      const emptyingName = accessory.context.overrides[ActiveIdentifier.Emptying_Bin] || 'Emptying Bin';
+      const emptyingService = accessory.addService(platform.Service.InputSource, 'Emptying Bin', 'Emptying Bin')
+        .setCharacteristic(platform.Characteristic.ConfiguredName, emptyingName)
+        .setCharacteristic(platform.Characteristic.Name, emptyingName)
+        .setCharacteristic(platform.Characteristic.InputSourceType, platform.Characteristic.InputSourceType.OTHER)
+        .setCharacteristic(platform.Characteristic.IsConfigured, platform.Characteristic.IsConfigured.CONFIGURED)
+        .setCharacteristic(platform.Characteristic.CurrentVisibilityState, platform.Characteristic.CurrentVisibilityState.HIDDEN)
+        .setCharacteristic(platform.Characteristic.Identifier, ActiveIdentifier.Emptying_Bin);
+      emptyingService.getCharacteristic(platform.Characteristic.ConfiguredName)
+        .onSet(value => accessory.context.overrides[ActiveIdentifier.Emptying_Bin] = value as string);
+      this.service.addLinkedService(emptyingService);
+
+
+      (accessory.context as { emptyCapable?: boolean; }).emptyCapable = true;
+    };
   }
 }
 export const ActiveIdentifierPretty =

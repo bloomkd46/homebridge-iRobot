@@ -230,7 +230,16 @@ export default class V3Roomba extends Accessory {
       case 'new':
       case 'run':
       case 'resume':
-        return ActiveIdentifier.Cleaning_Everywhere;
+        switch (this.lastKnownState.cleanMissionStatus?.cycle) {
+          case 'evac':
+            if (!(this.accessory.context as { emptyCapable?: boolean; }).emptyCapable) {
+              this.log(4, 'Adding Bin Empty Service');
+              this.addEmptyBinService();
+            }
+            return ActiveIdentifier.Emptying_Bin;
+          default:
+            return ActiveIdentifier.Cleaning_Everywhere;
+        }
       case 'pause':
         return ActiveIdentifier.Paused;
       case 'stop':
@@ -257,35 +266,11 @@ export default class V3Roomba extends Accessory {
     }
   }
 
-  addEmptyBinService() {
-    this.service.addLinkedService((this.accessory.getService('Empty Bin') ||
-      this.accessory.addService(this.platform.Service.InputSource, 'Empty Bin', 'Empty Bin'))
-      .setCharacteristic(this.platform.Characteristic.ConfiguredName, 'Empty Bin')
-      .setCharacteristic(this.platform.Characteristic.InputSourceType, this.platform.Characteristic.InputSourceType.OTHER)
-      .setCharacteristic(this.platform.Characteristic.IsConfigured, this.platform.Characteristic.IsConfigured.CONFIGURED)
-      //.setCharacteristic(platform.Characteristic.Name, 'Empty Bin')
-      .setCharacteristic(this.platform.Characteristic.CurrentVisibilityState,
-        this.platform.Characteristic.CurrentVisibilityState.SHOWN)
-      .setCharacteristic(this.platform.Characteristic.Identifier, 8),
-    );
-    this.service.addLinkedService((this.accessory.getService('Emptying Bin') ||
-      this.accessory.addService(this.platform.Service.InputSource, 'Emptying Bin', 'Emptying Bin'))
-      .setCharacteristic(this.platform.Characteristic.ConfiguredName, 'Emptying Bin')
-      .setCharacteristic(this.platform.Characteristic.InputSourceType, this.platform.Characteristic.InputSourceType.OTHER)
-      .setCharacteristic(this.platform.Characteristic.IsConfigured, this.platform.Characteristic.IsConfigured.CONFIGURED)
-      //.setCharacteristic(platform.Characteristic.Name, 'Emptying Bin')
-      .setCharacteristic(this.platform.Characteristic.CurrentVisibilityState,
-        this.platform.Characteristic.CurrentVisibilityState.HIDDEN)
-      .setCharacteristic(this.platform.Characteristic.Identifier, 9),
-    );
-    (this.accessory.context as { emptyCapable?: boolean; }).emptyCapable = true;
-  }
-
   notifyActivity(value: CharacteristicChange) {
     if (value.newValue !== value.oldValue) {
       const status = ActiveIdentifierPretty[value.newValue as number];
       if (status) {
-        this.log(3, this.accessory.context.overrides[value.newValue as number] || status);
+        this.log(status === 'Stuck' ? 'warn' : 3, this.accessory.context.overrides[value.newValue as number] || status);
       }
       this.log(4, `${this.lastKnownState.cleanMissionStatus?.cycle} : ${this.lastKnownState.cleanMissionStatus?.phase}`);
     }
