@@ -248,7 +248,6 @@ export default class V3Roomba extends Accessory {
       case 'new':
       case 'run':
       case 'resume':
-
         return ActiveIdentifier.CleanEverywhere;
       case 'pause':
         return ActiveIdentifier.Pause;
@@ -272,6 +271,7 @@ export default class V3Roomba extends Accessory {
   notifyActivity(value: CharacteristicChange) {
     if (value.newValue !== value.oldValue) {
       this.log(3, ActiveIdentifierPretty[value.newValue as number]);
+      this.log(4, `${this.lastKnownState.cleanMissionStatus?.cycle} : ${this.lastKnownState.cleanMissionStatus?.phase}`);
     }
   }
 }
