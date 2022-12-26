@@ -286,15 +286,17 @@ export default class V3Roomba extends Accessory {
 
   private lastStatus?: LocalV3.RobotState['cleanMissionStatus'];
   notifyActivity(value: CharacteristicChange) {
-    if (!this.lastStatus) {
+    if (!this.lastStatus && this.lastKnownState.cleanMissionStatus) {
       this.lastStatus = this.lastKnownState.cleanMissionStatus;
       this.log(3, ActiveIdentifierPretty[this.getActivity()]);
-    } else if (JSON.stringify(this.lastStatus) !== JSON.stringify(this.lastKnownState.cleanMissionStatus)) {
+    } else if ((JSON.stringify(this.lastStatus) !== JSON.stringify(this.lastKnownState.cleanMissionStatus)) &&
+      (value.newValue !== value.oldValue)) {
+      this.lastStatus = this.lastKnownState.cleanMissionStatus;
       this.log(3, ActiveIdentifierPretty[this.getActivity()]);
+      this.log(4, `${this.lastKnownState.cleanMissionStatus?.cycle} : ${this.lastKnownState.cleanMissionStatus?.phase}`);
     }
     if (value.newValue !== value.oldValue) {
       //this.log(3, ActiveIdentifierPretty[this.getActivity()]);
-      this.log(4, `${this.lastKnownState.cleanMissionStatus?.cycle} : ${this.lastKnownState.cleanMissionStatus?.phase}`);
     }
   }
 }
