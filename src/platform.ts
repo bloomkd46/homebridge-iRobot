@@ -170,8 +170,8 @@ export class iRobotPlatform implements DynamicPlatformPlugin {
       this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
     }
     // link the accessories to your platform
-    this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [...this.addedAccessories]);
-    //this.api.publishExternalAccessories(PLUGIN_NAME, [...this.addedAccessories]);
+    //this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [...this.addedAccessories]);
+    this.api.publishExternalAccessories(PLUGIN_NAME, [...this.addedAccessories]);
     this.log.info(
       `Restored ${this.restoredAccessories.length} ${this.restoredAccessories.length === 1 ? 'Accessory' : 'Accessories'}`,
     );
