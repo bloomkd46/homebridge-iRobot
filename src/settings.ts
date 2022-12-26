@@ -15,6 +15,7 @@ export type Context = {
   logPath?: string;
   refreshToken?: string;
   pluginVersion?: 4;
+  ip?: string;
 } & (V1 | V2 | V3);
 type V1 = {
   lastState: Record<string, string | object>;

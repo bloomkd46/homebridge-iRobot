@@ -37,7 +37,7 @@ export default class V3Roomba extends Accessory {
   }
 
   public mode = 0;
-  public ip?: string;
+  public ip?: string = this.accessory.context.ip;
   private connections = 0;
   private offline = false;
   private keepAlive = false;
@@ -196,6 +196,7 @@ export default class V3Roomba extends Accessory {
         break;
     }
     if (ip !== this.ip) {
+      this.accessory.context.ip = ip;
       this.log(2, `Updating IP Address To ${ip}`);
     }
     return ip;
