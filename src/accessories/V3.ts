@@ -164,6 +164,9 @@ export default class V3Roomba extends Accessory {
     this.recentlySet = true;
     if (this.skipSet) {
       this.skipSet = false;
+      setTimeout(() => {
+        this.recentlySet = false;
+      }, 500);
       return;
     }
     //this.log(4, `setActivity: ${activeValue}`);
@@ -311,7 +314,7 @@ export default class V3Roomba extends Accessory {
     if (value.newValue !== value.oldValue) {
       const status = ActiveIdentifierPretty[value.newValue as number];
       if (status) {
-        this.log(3, status);
+        this.log(3, this.accessory.context.overrides[value.newValue as number] || status);
       }
       this.log(4, `${this.lastKnownState.cleanMissionStatus?.cycle} : ${this.lastKnownState.cleanMissionStatus?.phase}`);
     }
