@@ -138,8 +138,8 @@ export default class Accessory {
         }
       });*/
 
-    this.service.addLinkedService((accessory.getService('stuck') ||
-      accessory.addService(platform.Service.InputSource, 'stuck', 'Stuck'))
+    this.service.addLinkedService((accessory.getService('Stuck') ||
+      accessory.addService(platform.Service.InputSource, 'Stuck', 'Stuck'))
       .setCharacteristic(platform.Characteristic.ConfiguredName, 'Stuck')
       .setCharacteristic(platform.Characteristic.InputSourceType, platform.Characteristic.InputSourceType.OTHER)
       .setCharacteristic(platform.Characteristic.IsConfigured, platform.Characteristic.IsConfigured.CONFIGURED)
@@ -147,8 +147,8 @@ export default class Accessory {
       .setCharacteristic(platform.Characteristic.CurrentVisibilityState, platform.Characteristic.CurrentVisibilityState.HIDDEN)
       .setCharacteristic(platform.Characteristic.Identifier, 1),
     );
-    this.service.addLinkedService((accessory.getService('off') ||
-      accessory.addService(platform.Service.InputSource, 'off', 'Off'))
+    this.service.addLinkedService((accessory.getService('Off') ||
+      accessory.addService(platform.Service.InputSource, 'Off', 'Off'))
       .setCharacteristic(platform.Characteristic.ConfiguredName, 'Off')
       .setCharacteristic(platform.Characteristic.InputSourceType, platform.Characteristic.InputSourceType.OTHER)
       .setCharacteristic(platform.Characteristic.IsConfigured, platform.Characteristic.IsConfigured.CONFIGURED)
@@ -156,8 +156,8 @@ export default class Accessory {
       .setCharacteristic(platform.Characteristic.CurrentVisibilityState, platform.Characteristic.CurrentVisibilityState.SHOWN)
       .setCharacteristic(platform.Characteristic.Identifier, 2),
     );
-    this.service.addLinkedService((accessory.getService('docking') ||
-      accessory.addService(platform.Service.InputSource, 'docking', 'Docking'))
+    this.service.addLinkedService((accessory.getService('Docking') ||
+      accessory.addService(platform.Service.InputSource, 'Docking', 'Docking'))
       .setCharacteristic(platform.Characteristic.ConfiguredName, 'Docking')
       .setCharacteristic(platform.Characteristic.InputSourceType, platform.Characteristic.InputSourceType.OTHER)
       .setCharacteristic(platform.Characteristic.IsConfigured, platform.Characteristic.IsConfigured.CONFIGURED)
@@ -165,8 +165,8 @@ export default class Accessory {
       .setCharacteristic(platform.Characteristic.CurrentVisibilityState, platform.Characteristic.CurrentVisibilityState.HIDDEN)
       .setCharacteristic(platform.Characteristic.Identifier, 3),
     );
-    this.service.addLinkedService((accessory.getService('pause') ||
-      accessory.addService(platform.Service.InputSource, 'pause', 'Pause'))
+    this.service.addLinkedService((accessory.getService('Pause') ||
+      accessory.addService(platform.Service.InputSource, 'Pause', 'Pause'))
       .setCharacteristic(platform.Characteristic.ConfiguredName, 'Pause')
       .setCharacteristic(platform.Characteristic.InputSourceType, platform.Characteristic.InputSourceType.OTHER)
       .setCharacteristic(platform.Characteristic.IsConfigured, platform.Characteristic.IsConfigured.CONFIGURED)
@@ -174,8 +174,8 @@ export default class Accessory {
       .setCharacteristic(platform.Characteristic.CurrentVisibilityState, platform.Characteristic.CurrentVisibilityState.SHOWN)
       .setCharacteristic(platform.Characteristic.Identifier, 4),
     );
-    this.service.addLinkedService((accessory.getService('clean everywhere') ||
-      accessory.addService(platform.Service.InputSource, 'clean everywhere', 'Clean Everywhere'))
+    this.service.addLinkedService((accessory.getService('Clean Everywhere') ||
+      accessory.addService(platform.Service.InputSource, 'Clean Everywhere', 'Clean Everywhere'))
       .setCharacteristic(platform.Characteristic.ConfiguredName, 'Clean Everywhere')
       .setCharacteristic(platform.Characteristic.InputSourceType, platform.Characteristic.InputSourceType.OTHER)
       .setCharacteristic(platform.Characteristic.IsConfigured, platform.Characteristic.IsConfigured.CONFIGURED)
@@ -183,8 +183,8 @@ export default class Accessory {
       .setCharacteristic(platform.Characteristic.CurrentVisibilityState, platform.Characteristic.CurrentVisibilityState.SHOWN)
       .setCharacteristic(platform.Characteristic.Identifier, 5),
     );
-    this.service.addLinkedService((accessory.getService('cleaning everywhere') ||
-      accessory.addService(platform.Service.InputSource, 'cleaning everywhere', 'Cleaning Everywhere'))
+    this.service.addLinkedService((accessory.getService('Cleaning Everywhere') ||
+      accessory.addService(platform.Service.InputSource, 'Cleaning Everywhere', 'Cleaning Everywhere'))
       .setCharacteristic(platform.Characteristic.ConfiguredName, 'Cleaning Everywhere')
       .setCharacteristic(platform.Characteristic.InputSourceType, platform.Characteristic.InputSourceType.OTHER)
       .setCharacteristic(platform.Characteristic.IsConfigured, platform.Characteristic.IsConfigured.CONFIGURED)
