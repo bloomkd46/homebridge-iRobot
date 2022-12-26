@@ -147,7 +147,6 @@ export default class Accessory {
           }
         }
       });*/
-    this.service.setCharacteristic(platform.Characteristic.PowerModeSelection, 1);
 
     this.service.addLinkedService((accessory.getService('Stuck') ||
       accessory.addService(platform.Service.InputSource, 'Stuck', 'Stuck'))
