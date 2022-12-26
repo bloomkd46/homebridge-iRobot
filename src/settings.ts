@@ -27,6 +27,7 @@ type V2 = {
 type V3 = {
   lastState: Partial<LocalV3.RobotState>;
   version: 3;
+  emptyCapable?: boolean;
 };
 
 export type Config = {

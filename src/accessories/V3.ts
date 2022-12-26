@@ -54,6 +54,9 @@ export default class V3Roomba extends Accessory {
   ) {
     super(platform, accessory, device, accessory.getService(platform.Service.Television) ||
       accessory.addService(platform.Service.Television));
+    if ((this.accessory.context as { emptyCapable?: boolean; }).emptyCapable) {
+      this.addEmptyBinService();
+    }
     this.accessory.getService(platform.Service.AccessoryInformation)!.getCharacteristic(platform.Characteristic.Identify)
       .on('set', async () => {
         await this.find();
@@ -246,8 +249,11 @@ export default class V3Roomba extends Accessory {
               this.lastKnownState = Object.assign(oldState, { cleanMissionStatus: { cycle: 'clean', phase: 'stop' } });
             })();
           });
-          break;
         }
+        break;
+      case ActiveIdentifier.Empty_Bin:
+        this.dorita980?.evac() ?? this.log('warn', 'Failed to Empty Bin');
+        break;
     }
     setTimeout(() => {
       this.recentlySet = false;
@@ -289,11 +295,40 @@ export default class V3Roomba extends Accessory {
       case 'stuck':
         //this.log('warn', 'Stuck!');
         return ActiveIdentifier.Stuck;
+      case 'evac':
+        if (this.accessory.getService('Empty Bin') === undefined) {
+          this.addEmptyBinService();
+        }
+        return ActiveIdentifier.Emptying_Bin;
       default:
         //Add unknown channel?
         this.log('warn', 'Unknown phase:', this.lastKnownState.cleanMissionStatus?.phase);
         return ActiveIdentifier.Off;
     }
+  }
+
+  addEmptyBinService() {
+    this.service.addLinkedService((this.accessory.getService('Empty Bin') ||
+      this.accessory.addService(this.platform.Service.InputSource, 'Empty Bin', 'Empty Bin'))
+      .setCharacteristic(this.platform.Characteristic.ConfiguredName, 'Empty Bin')
+      .setCharacteristic(this.platform.Characteristic.InputSourceType, this.platform.Characteristic.InputSourceType.OTHER)
+      .setCharacteristic(this.platform.Characteristic.IsConfigured, this.platform.Characteristic.IsConfigured.CONFIGURED)
+      //.setCharacteristic(platform.Characteristic.Name, 'Empty Bin')
+      .setCharacteristic(this.platform.Characteristic.CurrentVisibilityState,
+        this.platform.Characteristic.CurrentVisibilityState.SHOWN)
+      .setCharacteristic(this.platform.Characteristic.Identifier, 7),
+    );
+    this.service.addLinkedService((this.accessory.getService('Emptying Bin') ||
+      this.accessory.addService(this.platform.Service.InputSource, 'Emptying Bin', 'Emptying Bin'))
+      .setCharacteristic(this.platform.Characteristic.ConfiguredName, 'Emptying Bin')
+      .setCharacteristic(this.platform.Characteristic.InputSourceType, this.platform.Characteristic.InputSourceType.OTHER)
+      .setCharacteristic(this.platform.Characteristic.IsConfigured, this.platform.Characteristic.IsConfigured.CONFIGURED)
+      //.setCharacteristic(platform.Characteristic.Name, 'Emptying Bin')
+      .setCharacteristic(this.platform.Characteristic.CurrentVisibilityState,
+        this.platform.Characteristic.CurrentVisibilityState.HIDDEN)
+      .setCharacteristic(this.platform.Characteristic.Identifier, 8),
+    );
+    (this.accessory.context as { emptyCapable?: boolean; }).emptyCapable = true;
   }
 
   //private lastStatus?: LocalV3.RobotState['cleanMissionStatus'];
@@ -322,5 +357,7 @@ enum ActiveIdentifier {
   Docking,
   Pause,
   Clean_Everywhere,
-  Cleaning_Everywhere
+  Cleaning_Everywhere,
+  Empty_Bin,
+  Emptying_Bin,
 }

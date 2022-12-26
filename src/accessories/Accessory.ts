@@ -13,7 +13,9 @@ export default class Accessory {
   protected StatusError: typeof HapStatusError;
   protected projectDir: string;
   protected logPath: string;
+  protected cachePath: string;
   protected generalLogPath: string;
+  protected updateCache: () => void;
 
   constructor(
     platform: iRobotPlatform,
@@ -23,9 +25,13 @@ export default class Accessory {
   ) {
     this.name = device.name;
     this.projectDir = path.join(platform.api.user.storagePath(), 'iRobot');
-    this.logPath = path.join(this.projectDir, this.name + '.log');
+    this.logPath = path.join(this.projectDir, device.blid + '.log');
+    this.cachePath = path.join(this.projectDir, device.blid + '.cache.json');
     this.generalLogPath = path.join(this.projectDir, 'General.log');
 
+    if (fs.existsSync(this.cachePath)) {
+      Object.assign(accessory.context, JSON.parse(fs.readFileSync(this.cachePath, 'utf8')));
+    }
     if (!fs.existsSync(this.projectDir)) {
       fs.mkdirSync(this.projectDir);
     }
@@ -50,6 +56,7 @@ export default class Accessory {
       }
     };
     this.log(4, 'Server Started');
+    this.updateCache = () => fs.writeFileSync(this.cachePath, JSON.stringify(accessory.context, null, 2));
     this.StatusError = platform.api.hap.HapStatusError;
 
     platform.api.on('shutdown', async () => {
