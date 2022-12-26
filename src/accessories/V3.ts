@@ -219,7 +219,7 @@ export default class V3Roomba extends Accessory {
   }
 
   getActivity(): ActiveIdentifier {
-    const oldState = this.service.getCharacteristic(this.platform.Characteristic.AccessoryIdentifier).value;
+    const oldState = this.service.getCharacteristic(this.platform.Characteristic.ActiveIdentifier).value;
     switch (this.lastKnownState.cleanMissionStatus?.phase) {
       case 'recharge':
       case 'cancelled':
@@ -237,7 +237,7 @@ export default class V3Roomba extends Accessory {
       case 'resume':
         if (![ActiveIdentifier.Clean_Everywhere, ActiveIdentifier.Cleaning_Everywhere].includes(oldState as ActiveIdentifier)) {
           this.skipSet = true;
-          this.service.setCharacteristic(this.platform.Characteristic.AccessoryIdentifier, ActiveIdentifier.Clean_Everywhere);
+          this.service.setCharacteristic(this.platform.Characteristic.ActiveIdentifier, ActiveIdentifier.Clean_Everywhere);
           return ActiveIdentifier.Clean_Everywhere;
         }
         return ActiveIdentifier.Cleaning_Everywhere;
