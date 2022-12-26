@@ -159,7 +159,11 @@ export default class V3Roomba extends Accessory {
     this.disconnect();
   }
 
+  private skipSet = false;
   async setActivity(activeValue: CharacteristicValue) {
+    if (this.skipSet) {
+      return;
+    }
     this.recentlySet = true;
     //this.log(4, `setActivity: ${activeValue}`);
     const value = activeValue as ActiveIdentifier;
@@ -215,6 +219,7 @@ export default class V3Roomba extends Accessory {
   }
 
   getActivity(): ActiveIdentifier {
+    const oldState = this.service.getCharacteristic(this.platform.Characteristic.AccessoryIdentifier).value;
     switch (this.lastKnownState.cleanMissionStatus?.phase) {
       case 'recharge':
       case 'cancelled':
@@ -230,6 +235,11 @@ export default class V3Roomba extends Accessory {
       case 'new':
       case 'run':
       case 'resume':
+        if (![ActiveIdentifier.Clean_Everywhere, ActiveIdentifier.Cleaning_Everywhere].includes(oldState as ActiveIdentifier)) {
+          this.skipSet = true;
+          this.service.setCharacteristic(this.platform.Characteristic.AccessoryIdentifier, ActiveIdentifier.Clean_Everywhere);
+          return ActiveIdentifier.Clean_Everywhere;
+        }
         return ActiveIdentifier.Cleaning_Everywhere;
       case 'pause':
         return ActiveIdentifier.Paused;
