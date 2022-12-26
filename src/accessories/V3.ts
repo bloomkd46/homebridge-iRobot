@@ -162,6 +162,7 @@ export default class V3Roomba extends Accessory {
   private skipSet = false;
   async setActivity(activeValue: CharacteristicValue) {
     if (this.skipSet) {
+      this.skipSet = false;
       return;
     }
     this.recentlySet = true;
