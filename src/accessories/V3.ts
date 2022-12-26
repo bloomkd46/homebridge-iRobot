@@ -11,8 +11,12 @@ import Accessory from './Accessory';
 
 export default class V3Roomba extends Accessory {
   public _lastKnownState = (this.accessory.context.lastState as Partial<LocalV3.RobotState> | undefined) ?? {};
+  private recentlySet = false;
   public set lastKnownState(state: Partial<LocalV3.RobotState>) {
-    this._lastKnownState = state; this.update();
+    this._lastKnownState = state;
+    if (!this.recentlySet) {
+      this.update();
+    }
   }
 
   public get lastKnownState() {
@@ -244,6 +248,10 @@ export default class V3Roomba extends Accessory {
           break;
         }
     }
+    this.recentlySet = true;
+    setTimeout(() => {
+      this.recentlySet = false;
+    }, 500);
     this.disconnect();
   }
 
@@ -284,19 +292,19 @@ export default class V3Roomba extends Accessory {
     }
   }
 
-  private lastStatus?: LocalV3.RobotState['cleanMissionStatus'];
+  //private lastStatus?: LocalV3.RobotState['cleanMissionStatus'];
   notifyActivity(value: CharacteristicChange) {
-    if (!this.lastStatus && this.lastKnownState.cleanMissionStatus) {
-      this.lastStatus = this.lastKnownState.cleanMissionStatus;
-      this.log(3, ActiveIdentifierPretty[this.getActivity()]);
-    } else if ((JSON.stringify(this.lastStatus) !== JSON.stringify(this.lastKnownState.cleanMissionStatus)) &&
-      (value.newValue !== value.oldValue)) {
-      this.lastStatus = this.lastKnownState.cleanMissionStatus;
-      this.log(3, ActiveIdentifierPretty[this.getActivity()]);
-      this.log(4, `${this.lastKnownState.cleanMissionStatus?.cycle} : ${this.lastKnownState.cleanMissionStatus?.phase}`);
-    }
+    /* if (!this.lastStatus && this.lastKnownState.cleanMissionStatus) {
+       this.lastStatus = this.lastKnownState.cleanMissionStatus;
+       this.log(3, ActiveIdentifierPretty[this.getActivity()]);
+     } else if ((JSON.stringify(this.lastStatus) !== JSON.stringify(this.lastKnownState.cleanMissionStatus)) &&
+       (value.newValue !== value.oldValue)) {
+       this.lastStatus = this.lastKnownState.cleanMissionStatus;
+       this.log(3, ActiveIdentifierPretty[this.getActivity()]);
+     }*/
     if (value.newValue !== value.oldValue) {
-      //this.log(3, ActiveIdentifierPretty[this.getActivity()]);
+      this.log(3, ActiveIdentifierPretty[value.newValue as number]);
+      this.log(4, `${this.lastKnownState.cleanMissionStatus?.cycle} : ${this.lastKnownState.cleanMissionStatus?.phase}`);
     }
   }
 }
