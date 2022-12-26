@@ -284,14 +284,14 @@ export default class V3Roomba extends Accessory {
         }
         return ActiveIdentifier.Cleaning_Everywhere;
       case 'pause':
-        return ActiveIdentifier.Pause;
+        return ActiveIdentifier.Paused;
       case 'stop':
       case 'charge':
         switch (this.lastKnownState.cleanMissionStatus?.cycle) {
           case 'none':
             return ActiveIdentifier.Off;
           default:
-            return ActiveIdentifier.Pause;
+            return ActiveIdentifier.Paused;
         }
       case 'stuck':
         //this.log('warn', 'Stuck!');
@@ -318,7 +318,7 @@ export default class V3Roomba extends Accessory {
       //.setCharacteristic(platform.Characteristic.Name, 'Empty Bin')
       .setCharacteristic(this.platform.Characteristic.CurrentVisibilityState,
         this.platform.Characteristic.CurrentVisibilityState.SHOWN)
-      .setCharacteristic(this.platform.Characteristic.Identifier, 7),
+      .setCharacteristic(this.platform.Characteristic.Identifier, 8),
     );
     this.service.addLinkedService((this.accessory.getService('Emptying Bin') ||
       this.accessory.addService(this.platform.Service.InputSource, 'Emptying Bin', 'Emptying Bin'))
@@ -328,7 +328,7 @@ export default class V3Roomba extends Accessory {
       //.setCharacteristic(platform.Characteristic.Name, 'Emptying Bin')
       .setCharacteristic(this.platform.Characteristic.CurrentVisibilityState,
         this.platform.Characteristic.CurrentVisibilityState.HIDDEN)
-      .setCharacteristic(this.platform.Characteristic.Identifier, 8),
+      .setCharacteristic(this.platform.Characteristic.Identifier, 9),
     );
     (this.accessory.context as { emptyCapable?: boolean; }).emptyCapable = true;
   }
@@ -359,6 +359,7 @@ enum ActiveIdentifier {
   Off,
   Docking,
   Pause,
+  Paused,
   Clean_Everywhere,
   Cleaning_Everywhere,
   Empty_Bin,

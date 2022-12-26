@@ -184,6 +184,15 @@ export default class Accessory {
       .setCharacteristic(platform.Characteristic.CurrentVisibilityState, platform.Characteristic.CurrentVisibilityState.SHOWN)
       .setCharacteristic(platform.Characteristic.Identifier, 4),
     );
+    this.service.addLinkedService((accessory.getService('Paused') ||
+      accessory.addService(platform.Service.InputSource, 'Paused', 'Paused'))
+      .setCharacteristic(platform.Characteristic.ConfiguredName, 'Paused')
+      .setCharacteristic(platform.Characteristic.InputSourceType, platform.Characteristic.InputSourceType.OTHER)
+      .setCharacteristic(platform.Characteristic.IsConfigured, platform.Characteristic.IsConfigured.CONFIGURED)
+      //.setCharacteristic(platform.Characteristic.Name, 'Paused')
+      .setCharacteristic(platform.Characteristic.CurrentVisibilityState, platform.Characteristic.CurrentVisibilityState.HIDDEN)
+      .setCharacteristic(platform.Characteristic.Identifier, 7),
+    );
     this.service.addLinkedService((accessory.getService('Clean Everywhere') ||
       accessory.addService(platform.Service.InputSource, 'Clean Everywhere', 'Clean Everywhere'))
       .setCharacteristic(platform.Characteristic.ConfiguredName, 'Clean Everywhere')
@@ -191,7 +200,7 @@ export default class Accessory {
       .setCharacteristic(platform.Characteristic.IsConfigured, platform.Characteristic.IsConfigured.CONFIGURED)
       //.setCharacteristic(platform.Characteristic.Name, 'Clean Everywhere')
       .setCharacteristic(platform.Characteristic.CurrentVisibilityState, platform.Characteristic.CurrentVisibilityState.SHOWN)
-      .setCharacteristic(platform.Characteristic.Identifier, 5),
+      .setCharacteristic(platform.Characteristic.Identifier, 6),
     );
     this.service.addLinkedService((accessory.getService('Cleaning Everywhere') ||
       accessory.addService(platform.Service.InputSource, 'Cleaning Everywhere', 'Cleaning Everywhere'))
@@ -200,7 +209,7 @@ export default class Accessory {
       .setCharacteristic(platform.Characteristic.IsConfigured, platform.Characteristic.IsConfigured.CONFIGURED)
       //.setCharacteristic(platform.Characteristic.Name, 'Cleaning Everywhere')
       .setCharacteristic(platform.Characteristic.CurrentVisibilityState, platform.Characteristic.CurrentVisibilityState.HIDDEN)
-      .setCharacteristic(platform.Characteristic.Identifier, 6),
+      .setCharacteristic(platform.Characteristic.Identifier, 7),
     );
   }
 }
