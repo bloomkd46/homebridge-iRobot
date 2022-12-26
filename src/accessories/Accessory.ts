@@ -1,6 +1,6 @@
 import fs from 'fs';
 //@ts-check
-import { HapStatusError, PlatformAccessory, Service } from 'homebridge';
+import { Characteristic, HapStatusError, PlatformAccessory, Service } from 'homebridge';
 import path from 'path';
 
 import { iRobotPlatform } from '../platform';
@@ -76,7 +76,8 @@ export default class Accessory {
       platform.Characteristic.SleepDiscoveryMode.ALWAYS_DISCOVERABLE);
 
     // handle remote control input
-    this.service.removeCharacteristic(platform.Characteristic.RemoteKey as any);
+    this.service.getCharacteristic(platform.Characteristic.RemoteKey) ?
+      this.service.removeCharacteristic(platform.Characteristic.RemoteKey as unknown as Characteristic) : undefined;
     /*this.service.getCharacteristic(platform.Characteristic.RemoteKey)
       .onSet((newValue) => {
         this.log('warn', 'Remote Control Currently Unsupported');
@@ -137,46 +138,59 @@ export default class Accessory {
         }
       });*/
 
-
-    this.service.addLinkedService(accessory.addService(platform.Service.InputSource, 'off', 'Off')
-      .setCharacteristic(platform.Characteristic.ConfiguredName, 'Off')
-      .setCharacteristic(platform.Characteristic.InputSourceType, platform.Characteristic.InputSourceType.OTHER)
-      .setCharacteristic(platform.Characteristic.IsConfigured, platform.Characteristic.IsConfigured.CONFIGURED)
-      .setCharacteristic(platform.Characteristic.Name, 'Off')
-      .setCharacteristic(platform.Characteristic.CurrentVisibilityState, platform.Characteristic.CurrentVisibilityState.SHOWN)
-      .setCharacteristic(platform.Characteristic.Identifier, 1),
-    );
-    this.service.addLinkedService(accessory.addService(platform.Service.InputSource, 'pause', 'Pause')
-      .setCharacteristic(platform.Characteristic.ConfiguredName, 'Pause')
-      .setCharacteristic(platform.Characteristic.InputSourceType, platform.Characteristic.InputSourceType.OTHER)
-      .setCharacteristic(platform.Characteristic.IsConfigured, platform.Characteristic.IsConfigured.CONFIGURED)
-      .setCharacteristic(platform.Characteristic.Name, 'Pause')
-      .setCharacteristic(platform.Characteristic.CurrentVisibilityState, platform.Characteristic.CurrentVisibilityState.SHOWN)
-      .setCharacteristic(platform.Characteristic.Identifier, 2),
-    );
-    this.service.addLinkedService(accessory.addService(platform.Service.InputSource, 'everywhere', 'Everywhere')
-      .setCharacteristic(platform.Characteristic.ConfiguredName, 'Clean Everywhere')
-      .setCharacteristic(platform.Characteristic.InputSourceType, platform.Characteristic.InputSourceType.OTHER)
-      .setCharacteristic(platform.Characteristic.IsConfigured, platform.Characteristic.IsConfigured.CONFIGURED)
-      .setCharacteristic(platform.Characteristic.Name, 'Clean Everywhere')
-      .setCharacteristic(platform.Characteristic.CurrentVisibilityState, platform.Characteristic.CurrentVisibilityState.SHOWN)
-      .setCharacteristic(platform.Characteristic.Identifier, 3),
-    );
-    this.service.addLinkedService(accessory.addService(platform.Service.InputSource, 'dock', 'Dock')
-      .setCharacteristic(platform.Characteristic.ConfiguredName, 'Docking')
-      .setCharacteristic(platform.Characteristic.InputSourceType, platform.Characteristic.InputSourceType.OTHER)
-      .setCharacteristic(platform.Characteristic.IsConfigured, platform.Characteristic.IsConfigured.CONFIGURED)
-      .setCharacteristic(platform.Characteristic.Name, 'Docking')
-      .setCharacteristic(platform.Characteristic.CurrentVisibilityState, platform.Characteristic.CurrentVisibilityState.HIDDEN)
-      .setCharacteristic(platform.Characteristic.Identifier, 4),
-    );
-    this.service.addLinkedService(accessory.addService(platform.Service.InputSource, 'stuck', 'Stuck')
+    this.service.addLinkedService((accessory.getService('stuck') ||
+      accessory.addService(platform.Service.InputSource, 'stuck', 'Stuck'))
       .setCharacteristic(platform.Characteristic.ConfiguredName, 'Stuck')
       .setCharacteristic(platform.Characteristic.InputSourceType, platform.Characteristic.InputSourceType.OTHER)
       .setCharacteristic(platform.Characteristic.IsConfigured, platform.Characteristic.IsConfigured.CONFIGURED)
-      .setCharacteristic(platform.Characteristic.Name, 'Stuck')
+      //.setCharacteristic(platform.Characteristic.Name, 'Stuck')
       .setCharacteristic(platform.Characteristic.CurrentVisibilityState, platform.Characteristic.CurrentVisibilityState.HIDDEN)
+      .setCharacteristic(platform.Characteristic.Identifier, 1),
+    );
+    this.service.addLinkedService((accessory.getService('off') ||
+      accessory.addService(platform.Service.InputSource, 'off', 'Off'))
+      .setCharacteristic(platform.Characteristic.ConfiguredName, 'Off')
+      .setCharacteristic(platform.Characteristic.InputSourceType, platform.Characteristic.InputSourceType.OTHER)
+      .setCharacteristic(platform.Characteristic.IsConfigured, platform.Characteristic.IsConfigured.CONFIGURED)
+      //.setCharacteristic(platform.Characteristic.Name, 'Off')
+      .setCharacteristic(platform.Characteristic.CurrentVisibilityState, platform.Characteristic.CurrentVisibilityState.SHOWN)
+      .setCharacteristic(platform.Characteristic.Identifier, 2),
+    );
+    this.service.addLinkedService((accessory.getService('docking') ||
+      accessory.addService(platform.Service.InputSource, 'docking', 'Docking'))
+      .setCharacteristic(platform.Characteristic.ConfiguredName, 'Docking')
+      .setCharacteristic(platform.Characteristic.InputSourceType, platform.Characteristic.InputSourceType.OTHER)
+      .setCharacteristic(platform.Characteristic.IsConfigured, platform.Characteristic.IsConfigured.CONFIGURED)
+      //.setCharacteristic(platform.Characteristic.Name, 'Docking')
+      .setCharacteristic(platform.Characteristic.CurrentVisibilityState, platform.Characteristic.CurrentVisibilityState.HIDDEN)
+      .setCharacteristic(platform.Characteristic.Identifier, 3),
+    );
+    this.service.addLinkedService((accessory.getService('pause') ||
+      accessory.addService(platform.Service.InputSource, 'pause', 'Pause'))
+      .setCharacteristic(platform.Characteristic.ConfiguredName, 'Pause')
+      .setCharacteristic(platform.Characteristic.InputSourceType, platform.Characteristic.InputSourceType.OTHER)
+      .setCharacteristic(platform.Characteristic.IsConfigured, platform.Characteristic.IsConfigured.CONFIGURED)
+      //.setCharacteristic(platform.Characteristic.Name, 'Pause')
+      .setCharacteristic(platform.Characteristic.CurrentVisibilityState, platform.Characteristic.CurrentVisibilityState.SHOWN)
+      .setCharacteristic(platform.Characteristic.Identifier, 4),
+    );
+    this.service.addLinkedService((accessory.getService('clean everywhere') ||
+      accessory.addService(platform.Service.InputSource, 'clean everywhere', 'Clean Everywhere'))
+      .setCharacteristic(platform.Characteristic.ConfiguredName, 'Clean Everywhere')
+      .setCharacteristic(platform.Characteristic.InputSourceType, platform.Characteristic.InputSourceType.OTHER)
+      .setCharacteristic(platform.Characteristic.IsConfigured, platform.Characteristic.IsConfigured.CONFIGURED)
+      //.setCharacteristic(platform.Characteristic.Name, 'Clean Everywhere')
+      .setCharacteristic(platform.Characteristic.CurrentVisibilityState, platform.Characteristic.CurrentVisibilityState.SHOWN)
       .setCharacteristic(platform.Characteristic.Identifier, 5),
+    );
+    this.service.addLinkedService((accessory.getService('cleaning everywhere') ||
+      accessory.addService(platform.Service.InputSource, 'cleaning everywhere', 'Cleaning Everywhere'))
+      .setCharacteristic(platform.Characteristic.ConfiguredName, 'Cleaning Everywhere')
+      .setCharacteristic(platform.Characteristic.InputSourceType, platform.Characteristic.InputSourceType.OTHER)
+      .setCharacteristic(platform.Characteristic.IsConfigured, platform.Characteristic.IsConfigured.CONFIGURED)
+      //.setCharacteristic(platform.Characteristic.Name, 'Cleaning Everywhere')
+      .setCharacteristic(platform.Characteristic.CurrentVisibilityState, platform.Characteristic.CurrentVisibilityState.HIDDEN)
+      .setCharacteristic(platform.Characteristic.Identifier, 6),
     );
   }
 }

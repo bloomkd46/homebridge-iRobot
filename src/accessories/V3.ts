@@ -15,7 +15,7 @@ export default class V3Roomba extends Accessory {
   public set lastKnownState(state: Partial<LocalV3.RobotState>) {
     if (!this.recentlySet) {
       this._lastKnownState = state;
-      this.update();
+      this.update(state.cleanMissionStatus);
     }
   }
 
@@ -41,10 +41,10 @@ export default class V3Roomba extends Accessory {
   private offline = false;
   private keepAlive = false;
   dorita980?: LocalV3.Local;
-  update() {
+  update(state?: LocalV3.RobotState['cleanMissionStatus']) {
     //TODO: Add all characteristics that need updated
     this.service.updateCharacteristic(this.platform.Characteristic.Active, this.offline ? 1 : this.keepAlive ? 1 : 0);
-    this.service.updateCharacteristic(this.platform.Characteristic.ActiveIdentifier, this.getActivity());
+    this.service.updateCharacteristic(this.platform.Characteristic.ActiveIdentifier, this.getActivity(state));
   }
 
   constructor(
@@ -209,7 +209,7 @@ export default class V3Roomba extends Accessory {
     const value = activeValue as ActiveIdentifier;
     await this.connect();
     switch (value) {
-      case ActiveIdentifier.CleanEverywhere:
+      case ActiveIdentifier.Clean_Everywhere:
         await this.dorita980?.clean() ?? this.log('warn', 'Failed to clean');
         (() => {
           const oldState = this.lastKnownState;
@@ -255,7 +255,7 @@ export default class V3Roomba extends Accessory {
     this.disconnect();
   }
 
-  getActivity(): ActiveIdentifier {
+  getActivity(oldState?: LocalV3.RobotState['cleanMissionStatus']): ActiveIdentifier {
     switch (this.lastKnownState.cleanMissionStatus?.phase) {
       case 'charge':
       case 'recharge':
@@ -272,7 +272,10 @@ export default class V3Roomba extends Accessory {
       case 'new':
       case 'run':
       case 'resume':
-        return ActiveIdentifier.CleanEverywhere;
+        if (oldState && oldState.phase !== this.lastKnownState.cleanMissionStatus?.phase) {
+          this.service.updateCharacteristic(this.platform.Characteristic.ActiveIdentifier, ActiveIdentifier.Clean_Everywhere);
+        }
+        return ActiveIdentifier.Cleaning_Everywhere;
       case 'pause':
         return ActiveIdentifier.Pause;
       case 'stop':
@@ -303,16 +306,20 @@ export default class V3Roomba extends Accessory {
        this.log(3, ActiveIdentifierPretty[this.getActivity()]);
      }*/
     if (value.newValue !== value.oldValue) {
-      this.log(3, ActiveIdentifierPretty[value.newValue as number]);
+      const status = ActiveIdentifierPretty[value.newValue as number];
+      if (status) {
+        this.log(3, status);
+      }
       this.log(4, `${this.lastKnownState.cleanMissionStatus?.cycle} : ${this.lastKnownState.cleanMissionStatus?.phase}`);
     }
   }
 }
-const ActiveIdentifierPretty = ['', 'Stopped', 'Paused', 'Cleaning Everywhere', 'Docking', 'Stuck'] as const;
+const ActiveIdentifierPretty = ['', 'Stuck', 'Stopped', 'Docking', 'Paused', undefined, 'Cleaning Everywhere'] as const;
 enum ActiveIdentifier {
-  Off = 1,
-  Pause,
-  CleanEverywhere,
+  Stuck = 1,
+  Off,
   Docking,
-  Stuck,
+  Pause,
+  Clean_Everywhere,
+  Cleaning_Everywhere
 }
