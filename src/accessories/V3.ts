@@ -349,7 +349,7 @@ export default class V3Roomba extends Accessory {
   }
 }
 const ActiveIdentifierPretty =
-  ['', 'Stuck', 'Stopped', 'Docking', 'Pause', 'Paused', undefined, 'Cleaning Everywhere', undefined, 'Emptying Bin'] as const;
+  ['', 'Stuck', 'Stopped', 'Docking', undefined, 'Paused', undefined, 'Cleaning Everywhere', undefined, 'Emptying Bin'] as const;
 enum ActiveIdentifier {
   Stuck = 1,
   Off,
