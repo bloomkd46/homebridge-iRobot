@@ -263,6 +263,7 @@ export default class V3Roomba extends Accessory {
   }
 
   getActivity(): ActiveIdentifier {
+    const lastState = this.service.getCharacteristic(this.platform.Characteristic.ActiveIdentifier).value;
     switch (this.lastKnownState.cleanMissionStatus?.phase) {
       case 'recharge':
       case 'cancelled':
@@ -278,20 +279,40 @@ export default class V3Roomba extends Accessory {
       case 'new':
       case 'run':
       case 'resume':
-        if (this.service.getCharacteristic(this.platform.Characteristic.ActiveIdentifier).value !== ActiveIdentifier.Clean_Everywhere &&
-          this.service.getCharacteristic(this.platform.Characteristic.ActiveIdentifier).value !== ActiveIdentifier.Cleaning_Everywhere) {
+        if (lastState !== ActiveIdentifier.Clean_Everywhere && lastState !== ActiveIdentifier.Cleaning_Everywhere) {
+          this.recentlySet = true;
+          setTimeout(() => {
+            this.recentlySet = false;
+          }, 500);
           return ActiveIdentifier.Clean_Everywhere;
+        } else {
+          return ActiveIdentifier.Cleaning_Everywhere;
         }
-        return ActiveIdentifier.Cleaning_Everywhere;
       case 'pause':
-        return ActiveIdentifier.Paused;
+        if (lastState !== ActiveIdentifier.Paused && lastState !== ActiveIdentifier.Pause) {
+          this.recentlySet = true;
+          setTimeout(() => {
+            this.recentlySet = false;
+          }, 500);
+          return ActiveIdentifier.Pause;
+        } else {
+          return ActiveIdentifier.Paused;
+        }
       case 'stop':
       case 'charge':
         switch (this.lastKnownState.cleanMissionStatus?.cycle) {
           case 'none':
             return ActiveIdentifier.Off;
           default:
-            return ActiveIdentifier.Paused;
+            if (lastState !== ActiveIdentifier.Paused && lastState !== ActiveIdentifier.Pause) {
+              this.recentlySet = true;
+              setTimeout(() => {
+                this.recentlySet = false;
+              }, 500);
+              return ActiveIdentifier.Pause;
+            } else {
+              return ActiveIdentifier.Paused;
+            }
         }
       case 'stuck':
         //this.log('warn', 'Stuck!');
@@ -300,7 +321,15 @@ export default class V3Roomba extends Accessory {
         if (!(this.accessory.context as { emptyCapable?: boolean; }).emptyCapable) {
           this.addEmptyBinService();
         }
-        return ActiveIdentifier.Emptying_Bin;
+        if (lastState !== ActiveIdentifier.Empty_Bin && lastState !== ActiveIdentifier.Emptying_Bin) {
+          this.recentlySet = true;
+          setTimeout(() => {
+            this.recentlySet = false;
+          }, 500);
+          return ActiveIdentifier.Empty_Bin;
+        } else {
+          return ActiveIdentifier.Emptying_Bin;
+        }
       default:
         //Add unknown channel?
         this.log('warn', 'Unknown phase:', this.lastKnownState.cleanMissionStatus?.phase);
