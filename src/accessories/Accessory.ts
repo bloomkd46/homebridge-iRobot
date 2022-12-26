@@ -76,7 +76,8 @@ export default class Accessory {
       platform.Characteristic.SleepDiscoveryMode.ALWAYS_DISCOVERABLE);
 
     // handle remote control input
-    this.service.getCharacteristic(platform.Characteristic.RemoteKey)
+    this.service.removeCharacteristic(platform.Characteristic.RemoteKey as any);
+    /*this.service.getCharacteristic(platform.Characteristic.RemoteKey)
       .onSet((newValue) => {
         this.log('warn', 'Remote Control Currently Unsupported');
         newValue;
@@ -133,8 +134,8 @@ export default class Accessory {
             this.log.info('set Remote Key Pressed: INFORMATION');
             break;
           }
-        }*/
-      });
+        }
+      });*/
 
 
     this.service.addLinkedService(accessory.addService(platform.Service.InputSource, 'off', 'Off')
