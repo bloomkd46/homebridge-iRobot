@@ -73,13 +73,11 @@ export default class V2Roomba extends Accessory {
         if (value === 0) {
           this.keepAlive = false;
           if (!this.connections) {
-            await this.connect();
-            this.disconnect();
+            this.connect().then(() => this.disconnect()).catch(err => this.log('warn', err));
           }
         } else if (value === 1) {
           this.keepAlive = true;
-          await this.connect();
-          this.disconnect();
+          this.connect().then(() => this.disconnect()).catch(err => this.log('warn', err));
         }
       }).onGet(() => this.offline ? 0 : this.keepAlive ? 1 : 0);
     this.service.setCharacteristic(this.platform.Characteristic.Active, (this.platform.config.autoConnect ?? true) ? 1 : 0);
