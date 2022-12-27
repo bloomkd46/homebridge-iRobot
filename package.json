@@ -43,8 +43,6 @@
     "homebridge": "^1.3.5",
     "nodemon": "^2.0.13",
     "rimraf": "^3.0.2",
-    "ts-node": "^10.3.0",
-    "typedoc": "^0.22.18",
-    "typescript": "^4.4.4"
+    "typescript": "^4.9.3"
   }
 }
