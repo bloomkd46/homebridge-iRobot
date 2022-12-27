@@ -226,7 +226,7 @@ export default class Accessory {
       offService.updateCharacteristic(platform.Characteristic.CurrentVisibilityState,
         activity === ActiveIdentifier.Docked ? 1 : 0);
       pauseService.updateCharacteristic(platform.Characteristic.CurrentVisibilityState,
-        activity === ActiveIdentifier.Paused ? 1 : 0);
+        (activity === ActiveIdentifier.Paused || activity === ActiveIdentifier.Docked) ? 1 : 0);
       cleanService.updateCharacteristic(platform.Characteristic.CurrentVisibilityState,
         activity >= ActiveIdentifier.Cleaning_Everywhere ? 1 : 0);
     };
