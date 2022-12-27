@@ -1,5 +1,5 @@
 import { lookup } from 'dns/promises';
-import { CharacteristicChange, CharacteristicValue, PlatformAccessory } from 'homebridge';
+import { CharacteristicChange, CharacteristicValue, HAPStatus, PlatformAccessory } from 'homebridge';
 import ping from 'ping';
 
 import { getRobotByBlid, Local, LocalV2 } from '@bloomkd46/dorita980';
@@ -39,7 +39,19 @@ export default class V2Roomba extends Accessory {
   public mode = 0;
   public ip?: string = this.accessory.context.ip;
   private connections = 0;
-  private offline = false;
+  private _offline = false;
+  private get offline() {
+    return this._offline;
+  }
+
+  private set offline(value) {
+    this._offline = value;
+    if (!value) {
+      this.service.updateCharacteristic(this.platform.Characteristic.Active,
+        new this.platform.api.hap.HapStatusError(HAPStatus.SERVICE_COMMUNICATION_FAILURE) as unknown as CharacteristicValue);
+    }
+  }
+
   private keepAlive = false;
   dorita980?: LocalV2.Local;
   update() {
