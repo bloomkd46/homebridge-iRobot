@@ -1,5 +1,5 @@
 import { lookup } from 'dns/promises';
-import { CharacteristicChange, CharacteristicValue, PlatformAccessory } from 'homebridge';
+import { CharacteristicChange, CharacteristicValue, HAPStatus, PlatformAccessory } from 'homebridge';
 import ping from 'ping';
 
 import { getRobotByBlid, Local, LocalV3 } from '@bloomkd46/dorita980';
@@ -73,17 +73,36 @@ export default class V3Roomba extends Accessory {
         if (value === 0) {
           this.keepAlive = false;
           if (!this.connections) {
-            await this.connect();
-            this.disconnect();
+            this.connect().then(() => this.disconnect())
+              .catch(() => this.service.updateCharacteristic(this.platform.Characteristic.Active, 0));
           }
         } else if (value === 1) {
           this.keepAlive = true;
-          await this.connect();
-          this.disconnect();
+          try {
+            await this.connect().then(() => this.disconnect());
+          } catch (_err) {
+            throw new this.platform.api.hap.HapStatusError(HAPStatus.SERVICE_COMMUNICATION_FAILURE);
+          }
         }
-      }).onGet(() => this.offline ? 0 : this.keepAlive ? 1 : 0);
-    this.service.setCharacteristic(this.platform.Characteristic.Active, (this.platform.config.autoConnect ?? true) ? 1 : 0);
-    this.service.setCharacteristic(this.platform.Characteristic.ActiveIdentifier, ActiveIdentifier.Docked);
+      }).onGet(async () => {
+        if (this.offline) {
+          try {
+            await this.connect().then(() => this.disconnect());
+            return this.keepAlive ? 1 : 0;
+          } catch (_err) {
+            throw new this.platform.api.hap.HapStatusError(HAPStatus.SERVICE_COMMUNICATION_FAILURE);
+          }
+        } else {
+          return this.keepAlive ? 1 : 0;
+        }
+      });
+    if (this.platform.config.autoConnect ?? true) {
+      this.connect().then(() => {
+        this.service.setCharacteristic(this.platform.Characteristic.Active, 1);
+        this.disconnect();
+      }).catch(() => { /**/ });
+    }
+    //this.service.setCharacteristic(this.platform.Characteristic.ActiveIdentifier, ActiveIdentifier.Docked);
     this.service.getCharacteristic(this.platform.Characteristic.ActiveIdentifier)
       .onSet(this.setActivity.bind(this)).onGet(this.getActivity.bind(this)).on('change', this.notifyActivity.bind(this));
   }
