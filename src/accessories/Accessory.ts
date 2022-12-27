@@ -3,8 +3,6 @@ import fs from 'fs';
 import { Characteristic, HapStatusError, PlatformAccessory, Service } from 'homebridge';
 import path from 'path';
 
-
-
 import { iRobotPlatform } from '../platform';
 import { Context, Device } from '../settings';
 
@@ -120,7 +118,7 @@ export default class Accessory {
     this.service.addLinkedService(offService);
 
     const dockedName = accessory.context.overrides[ActiveIdentifier.Docked] || 'Docked';
-    const dockedService = accessory.addService(platform.Service.InputSource, 'Off', 'Off')
+    const dockedService = accessory.addService(platform.Service.InputSource, 'Docked', 'Docked')
       .setCharacteristic(platform.Characteristic.ConfiguredName, dockedName)
       .setCharacteristic(platform.Characteristic.Name, dockedName)
       .setCharacteristic(platform.Characteristic.InputSourceType, platform.Characteristic.InputSourceType.OTHER)
