@@ -279,7 +279,7 @@ export default class V3Roomba extends Accessory {
       if (status) {
         this.log(status === 'Stuck' ? 'warn' : 3, this.accessory.context.overrides[value.newValue as number] || status);
       }
-      this.log(4, `${this.lastKnownState.cleanMissionStatus?.cycle} : ${this.lastKnownState.cleanMissionStatus?.phase}`);
+      //this.log(4, `${this.lastKnownState.cleanMissionStatus?.cycle} : ${this.lastKnownState.cleanMissionStatus?.phase}`);
     }
   }
 }
