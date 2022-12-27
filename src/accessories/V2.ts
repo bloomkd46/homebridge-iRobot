@@ -85,9 +85,14 @@ export default class V2Roomba extends Accessory {
             throw new this.platform.api.hap.HapStatusError(HAPStatus.SERVICE_COMMUNICATION_FAILURE);
           }
         }
-      }).onGet(() => {
+      }).onGet(async () => {
         if (this.offline) {
-          throw new this.platform.api.hap.HapStatusError(HAPStatus.SERVICE_COMMUNICATION_FAILURE);
+          try {
+            await this.connect().then(() => this.disconnect());
+            return this.keepAlive ? 1 : 0;
+          } catch (_err) {
+            throw new this.platform.api.hap.HapStatusError(HAPStatus.SERVICE_COMMUNICATION_FAILURE);
+          }
         } else {
           return this.keepAlive ? 1 : 0;
         }
