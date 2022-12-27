@@ -55,7 +55,9 @@ export default class V2Roomba extends Accessory {
   private keepAlive = false;
   dorita980?: LocalV2.Local;
   update() {
-    this.service.updateCharacteristic(this.platform.Characteristic.Active, this.offline ? 0 : this.keepAlive ? 1 : 0);
+    this.service.updateCharacteristic(this.platform.Characteristic.Active, this.offline ?
+      new this.platform.api.hap.HapStatusError(HAPStatus.SERVICE_COMMUNICATION_FAILURE) as unknown as CharacteristicValue :
+      this.keepAlive ? 1 : 0);
     this.service.updateCharacteristic(this.platform.Characteristic.ActiveIdentifier, this.getActivity());
     if (this.platform.config.alwaysShowModes !== true) {
       this.updateVisibility(this.getActivity());
@@ -90,10 +92,15 @@ export default class V2Roomba extends Accessory {
           }
         } else if (value === 1) {
           this.keepAlive = true;
-          await this.connect().then(() => this.disconnect())
-            .catch(() => this.service.updateCharacteristic(this.platform.Characteristic.Active, 0));
+          try {
+            await this.connect().then(() => this.disconnect());
+          } catch (_err) {
+            throw new this.platform.api.hap.HapStatusError(HAPStatus.SERVICE_COMMUNICATION_FAILURE) as unknown as CharacteristicValue;
+          }
         }
-      }).onGet(() => this.offline ? 0 : this.keepAlive ? 1 : 0);
+      }).onGet(() => this.offline ?
+        new this.platform.api.hap.HapStatusError(HAPStatus.SERVICE_COMMUNICATION_FAILURE) as unknown as CharacteristicValue :
+        this.keepAlive ? 1 : 0);
     this.service.setCharacteristic(this.platform.Characteristic.Active, (this.platform.config.autoConnect ?? true) ? 1 : 0);
     this.service.setCharacteristic(this.platform.Characteristic.ActiveIdentifier, ActiveIdentifier.Docked);
     this.service.getCharacteristic(this.platform.Characteristic.ActiveIdentifier)
