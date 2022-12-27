@@ -234,7 +234,7 @@ export default class V2Roomba extends Accessory {
       case 'resume':
         switch (this.lastKnownState.cleanMissionStatus?.cycle) {
           case 'evac':
-            if (!(this.accessory.context as { emptyCapable?: boolean; }).emptyCapable) {
+            if (!this.accessory.context.emptyCapable) {
               this.log(4, 'Adding Bin Empty Service');
               this.addEmptyBinService();
             }
@@ -258,7 +258,7 @@ export default class V2Roomba extends Accessory {
         //this.log('warn', 'Stuck!');
         return ActiveIdentifier.Stuck;
       case 'evac':
-        if (!(this.accessory.context as { emptyCapable?: boolean; }).emptyCapable) {
+        if (!this.accessory.context.emptyCapable) {
           this.log(4, 'Adding Bin Empty Service');
           this.addEmptyBinService();
         }
