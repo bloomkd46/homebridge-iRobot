@@ -270,7 +270,7 @@ export default class V2Roomba extends Accessory {
     }
   }
 
-  notifyActivity(value: CharacteristicChange) {
+  async notifyActivity(value: CharacteristicChange) {
     if (value.newValue !== value.oldValue) {
       const status = ActiveIdentifierPretty[value.newValue as number];
       if (status) {
