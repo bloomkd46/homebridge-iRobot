@@ -43,7 +43,8 @@ export default class V3Roomba extends Accessory {
   private keepAlive = false;
   dorita980?: LocalV3.Local;
   update() {
-    this.service.updateCharacteristic(this.platform.Characteristic.Active, this.offline ? 1 : this.keepAlive ? 1 : 0);
+    !this.offline ? this.service.updateCharacteristic(this.platform.Characteristic.Active, this.offline ? 0 : this.keepAlive ? 1 : 0)
+      : undefined;
     this.service.updateCharacteristic(this.platform.Characteristic.ActiveIdentifier, this.getActivity());
     if (this.platform.config.alwaysShowModes !== true) {
       this.updateVisibility(this.getActivity());
@@ -126,8 +127,9 @@ export default class V3Roomba extends Accessory {
             this.lastKnownState = Object.assign(oldState, state);
           });
           this.dorita980.on('offline', () => {
-            this.offline = true; this.ip = undefined; this.dorita980 = undefined;
-            reject('Roomba Offline');
+            this.offline = true; /*this.ip = undefined;*/ this.dorita980 = undefined;
+            this.log('warn', 'Unavailable');
+            reject();
           });
           this.dorita980.on('connect', () => {
             this.connected = true;
@@ -136,7 +138,9 @@ export default class V3Roomba extends Accessory {
           this.dorita980.on('close', () => {
             this.connected = false; this.dorita980 = undefined;
           });
-        }).catch(() => this.log('warn', 'Offline'));
+        }).catch(() => {
+          this.log('warn', 'Offline'); reject();
+        });
       }
     });
   }
@@ -176,7 +180,7 @@ export default class V3Roomba extends Accessory {
   }
 
   async find() {
-    await this.connect();
+    await this.connect().catch(() => this.service.updateCharacteristic(this.platform.Characteristic.Active, 0));
     this.dorita980?.find() ?? this.log('warn', 'Failed to find');
     this.disconnect();
   }
@@ -185,7 +189,7 @@ export default class V3Roomba extends Accessory {
     this.recentlySet = true;
     //this.log(4, `setActivity: ${activeValue}`);
     const value = activeValue as ActiveIdentifier;
-    await this.connect();
+    await this.connect().catch(() => this.service.updateCharacteristic(this.platform.Characteristic.Active, 0));
     switch (value) {
       case ActiveIdentifier.Clean_Everywhere:
         await this.dorita980?.clean() ?? this.log('warn', 'Failed to clean');

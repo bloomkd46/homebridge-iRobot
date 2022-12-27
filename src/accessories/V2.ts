@@ -129,7 +129,7 @@ export default class V2Roomba extends Accessory {
           this.dorita980.on('offline', () => {
             this.offline = true; /*this.ip = undefined;*/ this.dorita980 = undefined;
             this.log('warn', 'Unavailable');
-            reject('Roomba Offline');
+            reject();
           });
           this.dorita980.on('connect', () => {
             this.connected = true;
@@ -138,7 +138,9 @@ export default class V2Roomba extends Accessory {
           this.dorita980.on('close', () => {
             this.connected = false; this.dorita980 = undefined;
           });
-        }).catch(() => this.log('warn', 'Offline'));
+        }).catch(() => {
+          this.log('warn', 'Offline'); reject();
+        });
       }
     });
   }
