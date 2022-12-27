@@ -73,11 +73,13 @@ export default class V2Roomba extends Accessory {
         if (value === 0) {
           this.keepAlive = false;
           if (!this.connections) {
-            this.connect().then(() => this.disconnect()).catch(err => this.log('warn', err));
+            this.connect().then(() => this.disconnect())
+              .catch(() => this.service.updateCharacteristic(this.platform.Characteristic.Active, 0));
           }
         } else if (value === 1) {
           this.keepAlive = true;
-          this.connect().then(() => this.disconnect()).catch(err => this.log('warn', err));
+          this.connect().then(() => this.disconnect())
+            .catch(() => this.service.updateCharacteristic(this.platform.Characteristic.Active, 0));
         }
       }).onGet(() => this.offline ? 0 : this.keepAlive ? 1 : 0);
     this.service.setCharacteristic(this.platform.Characteristic.Active, (this.platform.config.autoConnect ?? true) ? 1 : 0);
@@ -156,7 +158,7 @@ export default class V2Roomba extends Accessory {
   }
 
   async find() {
-    await this.connect();
+    await this.connect().catch(() => this.service.updateCharacteristic(this.platform.Characteristic.Active, 0));
     this.dorita980?.find() ?? this.log('warn', 'Failed to find');
     this.disconnect();
   }
@@ -165,7 +167,7 @@ export default class V2Roomba extends Accessory {
     this.recentlySet = true;
     //this.log(4, `setActivity: ${activeValue}`);
     const value = activeValue as ActiveIdentifier;
-    await this.connect();
+    await this.connect().catch(() => this.service.updateCharacteristic(this.platform.Characteristic.Active, 0));
     switch (value) {
       case ActiveIdentifier.Clean_Everywhere:
         await this.dorita980?.clean() ?? this.log('warn', 'Failed to clean');
