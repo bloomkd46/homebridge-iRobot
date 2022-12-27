@@ -43,9 +43,9 @@ export default class V3Roomba extends Accessory {
   private keepAlive = false;
   dorita980?: LocalV3.Local;
   update() {
-    //TODO: Add all characteristics that need updated
     this.service.updateCharacteristic(this.platform.Characteristic.Active, this.offline ? 1 : this.keepAlive ? 1 : 0);
     this.service.updateCharacteristic(this.platform.Characteristic.ActiveIdentifier, this.getActivity());
+    this.updateVisibility(this.getActivity());
   }
 
   constructor(
@@ -220,7 +220,7 @@ export default class V3Roomba extends Accessory {
       case 'cancelled':
       case '':
       case undefined:
-        return ActiveIdentifier.Off;
+        return ActiveIdentifier.Docked;
       case 'hmUsrDock':
       case 'dock':
       case 'dockend':
@@ -246,7 +246,7 @@ export default class V3Roomba extends Accessory {
       case 'charge':
         switch (this.lastKnownState.cleanMissionStatus?.cycle) {
           case 'none':
-            return ActiveIdentifier.Off;
+            return ActiveIdentifier.Docked;
           case 'evac':
             return ActiveIdentifier.Emptying_Bin;
           default:
@@ -264,7 +264,7 @@ export default class V3Roomba extends Accessory {
       default:
         //Add unknown channel?
         this.log('warn', 'Unknown phase:', this.lastKnownState.cleanMissionStatus?.phase);
-        return ActiveIdentifier.Off;
+        return ActiveIdentifier.Docked;
     }
   }
 

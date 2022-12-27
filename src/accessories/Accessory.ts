@@ -3,7 +3,7 @@ import fs from 'fs';
 import { Characteristic, HapStatusError, PlatformAccessory, Service } from 'homebridge';
 import path from 'path';
 
-import { LocalV3 } from '@bloomkd46/dorita980';
+
 
 import { iRobotPlatform } from '../platform';
 import { Context, Device } from '../settings';
@@ -19,6 +19,8 @@ export default class Accessory {
   protected generalLogPath: string;
   protected updateCache: () => void;
   protected addEmptyBinService: () => void;
+  protected updateVisibility: (activity: ActiveIdentifier) => void;
+  private updateBinVisibility?: (activity: ActiveIdentifier) => void;
 
   constructor(
     platform: iRobotPlatform,
@@ -117,6 +119,18 @@ export default class Accessory {
       .onSet(value => accessory.context.overrides[ActiveIdentifier.Off] = value as string);
     this.service.addLinkedService(offService);
 
+    const dockedName = accessory.context.overrides[ActiveIdentifier.Docked] || 'Docked';
+    const dockedService = accessory.addService(platform.Service.InputSource, 'Off', 'Off')
+      .setCharacteristic(platform.Characteristic.ConfiguredName, dockedName)
+      .setCharacteristic(platform.Characteristic.Name, dockedName)
+      .setCharacteristic(platform.Characteristic.InputSourceType, platform.Characteristic.InputSourceType.OTHER)
+      .setCharacteristic(platform.Characteristic.IsConfigured, platform.Characteristic.IsConfigured.CONFIGURED)
+      .setCharacteristic(platform.Characteristic.CurrentVisibilityState, platform.Characteristic.CurrentVisibilityState.HIDDEN)
+      .setCharacteristic(platform.Characteristic.Identifier, ActiveIdentifier.Docked);
+    dockedService.getCharacteristic(platform.Characteristic.ConfiguredName)
+      .onSet(value => accessory.context.overrides[ActiveIdentifier.Docked] = value as string);
+    this.service.addLinkedService(dockedService);
+
     const dockingName = accessory.context.overrides[ActiveIdentifier.Docking] || 'Docking';
     const dockingService = accessory.addService(platform.Service.InputSource, 'Docking', 'Docking')
       .setCharacteristic(platform.Characteristic.ConfiguredName, dockingName)
@@ -184,12 +198,10 @@ export default class Accessory {
         .setCharacteristic(platform.Characteristic.Name, emptyName)
         .setCharacteristic(platform.Characteristic.InputSourceType, platform.Characteristic.InputSourceType.OTHER)
         .setCharacteristic(platform.Characteristic.IsConfigured, platform.Characteristic.IsConfigured.CONFIGURED)
-        //        .setCharacteristic(platform.Characteristic.CurrentVisibilityState, platform.Characteristic.CurrentVisibilityState.SHOWN)
+        .setCharacteristic(platform.Characteristic.CurrentVisibilityState, platform.Characteristic.CurrentVisibilityState.SHOWN)
         .setCharacteristic(platform.Characteristic.Identifier, ActiveIdentifier.Empty_Bin);
       emptyService.getCharacteristic(platform.Characteristic.ConfiguredName)
         .onSet(value => accessory.context.overrides[ActiveIdentifier.Empty_Bin] = value as string);
-      emptyService.getCharacteristic(platform.Characteristic.CurrentVisibilityState).onGet(() =>
-        (accessory.context.lastState as Partial<LocalV3.RobotState>)?.cleanMissionStatus?.phase === 'charge' ? 0 : 1);
       this.service.addLinkedService(emptyService);
 
       const emptyingName = accessory.context.overrides[ActiveIdentifier.Emptying_Bin] || 'Emptying Bin';
@@ -204,18 +216,32 @@ export default class Accessory {
         .onSet(value => accessory.context.overrides[ActiveIdentifier.Emptying_Bin] = value as string);
       this.service.addLinkedService(emptyingService);
 
-
       (accessory.context as { emptyCapable?: boolean; }).emptyCapable = true;
+      this.updateBinVisibility = (activity) => {
+        emptyService.updateCharacteristic(platform.Characteristic.CurrentVisibilityState,
+          activity === ActiveIdentifier.Docked ? 0 : 1);
+      };
+    };
+    this.updateVisibility = (activity) => {
+      // HIDDEN: 1; SHOWN: 0
+      this.updateBinVisibility ? this.updateBinVisibility(activity) : undefined;
+      offService.updateCharacteristic(platform.Characteristic.CurrentVisibilityState,
+        activity === ActiveIdentifier.Docked ? 1 : 0);
+      pauseService.updateCharacteristic(platform.Characteristic.CurrentVisibilityState,
+        activity === ActiveIdentifier.Paused ? 1 : 0);
+      cleanService.updateCharacteristic(platform.Characteristic.CurrentVisibilityState,
+        activity >= ActiveIdentifier.Cleaning_Everywhere ? 1 : 0);
     };
   }
 }
 export const ActiveIdentifierPretty =
-  ['', 'Stuck', 'Stopped', 'Docking', undefined, 'Paused', undefined, 'Cleaning Everywhere', undefined, 'Emptying Bin'] as const;
+  ['', 'Stuck', undefined, 'Emptying Bin', undefined, 'Docked', 'Docking', undefined, 'Paused', undefined, 'Cleaning Everywhere'] as const;
 export enum ActiveIdentifier {
   Stuck = 1,
   Empty_Bin,
   Emptying_Bin,
   Off,
+  Docked,
   Docking,
   Pause,
   Paused,
