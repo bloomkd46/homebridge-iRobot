@@ -107,7 +107,7 @@ export default class V2Roomba extends Accessory {
             this.lastKnownState = Object.assign(oldState, state);
           });
           this.dorita980.on('offline', () => {
-            this.offline = true; this.ip = undefined; this.dorita980 = undefined;
+            this.offline = true; /*this.ip = undefined;*/ this.dorita980 = undefined;
             this.log('warn', 'Unavailable');
             reject('Roomba Offline');
           });
