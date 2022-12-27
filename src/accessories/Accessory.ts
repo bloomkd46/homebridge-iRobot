@@ -224,9 +224,9 @@ export default class Accessory {
       // HIDDEN: 1; SHOWN: 0
       this.updateBinVisibility ? this.updateBinVisibility(activity) : undefined;
       offService.updateCharacteristic(platform.Characteristic.CurrentVisibilityState,
-        activity === ActiveIdentifier.Docked ? 1 : 0);
+        [ActiveIdentifier.Docked, ActiveIdentifier.Docking].includes(activity) ? 1 : 0);
       pauseService.updateCharacteristic(platform.Characteristic.CurrentVisibilityState,
-        (activity === ActiveIdentifier.Paused || activity === ActiveIdentifier.Docked) ? 1 : 0);
+        [ActiveIdentifier.Paused, ActiveIdentifier.Docked].includes(activity) ? 1 : 0);
       cleanService.updateCharacteristic(platform.Characteristic.CurrentVisibilityState,
         activity >= ActiveIdentifier.Cleaning_Everywhere ? 1 : 0);
     };
