@@ -39,25 +39,12 @@ export default class V2Roomba extends Accessory {
   public mode = 0;
   public ip?: string = this.accessory.context.ip;
   private connections = 0;
-  private _offline = false;
-  private get offline() {
-    return this._offline;
-  }
-
-  private set offline(value) {
-    this._offline = value;
-    if (!value) {
-      this.service.updateCharacteristic(this.platform.Characteristic.Active,
-        new this.platform.api.hap.HapStatusError(HAPStatus.SERVICE_COMMUNICATION_FAILURE) as unknown as CharacteristicValue);
-    }
-  }
-
+  private offline = false;
   private keepAlive = false;
   dorita980?: LocalV2.Local;
   update() {
-    this.service.updateCharacteristic(this.platform.Characteristic.Active, this.offline ?
-      new this.platform.api.hap.HapStatusError(HAPStatus.SERVICE_COMMUNICATION_FAILURE) as unknown as CharacteristicValue :
-      this.keepAlive ? 1 : 0);
+    !this.offline ? this.service.updateCharacteristic(this.platform.Characteristic.Active, this.offline ? 0 : this.keepAlive ? 1 : 0)
+      : undefined;
     this.service.updateCharacteristic(this.platform.Characteristic.ActiveIdentifier, this.getActivity());
     if (this.platform.config.alwaysShowModes !== true) {
       this.updateVisibility(this.getActivity());
@@ -95,13 +82,22 @@ export default class V2Roomba extends Accessory {
           try {
             await this.connect().then(() => this.disconnect());
           } catch (_err) {
-            throw new this.platform.api.hap.HapStatusError(HAPStatus.SERVICE_COMMUNICATION_FAILURE) as unknown as CharacteristicValue;
+            throw new this.platform.api.hap.HapStatusError(HAPStatus.SERVICE_COMMUNICATION_FAILURE);
           }
         }
-      }).onGet(() => this.offline ?
-        new this.platform.api.hap.HapStatusError(HAPStatus.SERVICE_COMMUNICATION_FAILURE) as unknown as CharacteristicValue :
-        this.keepAlive ? 1 : 0);
-    this.service.setCharacteristic(this.platform.Characteristic.Active, (this.platform.config.autoConnect ?? true) ? 1 : 0);
+      }).onGet(() => {
+        if (this.offline) {
+          throw new this.platform.api.hap.HapStatusError(HAPStatus.SERVICE_COMMUNICATION_FAILURE);
+        } else {
+          return this.keepAlive ? 1 : 0;
+        }
+      });
+    if (this.platform.config.autoConnect ?? true) {
+      this.connect().then(() => {
+        this.service.setCharacteristic(this.platform.Characteristic.Active, 1);
+        this.disconnect();
+      }).catch(() => { /**/ });
+    }
     this.service.setCharacteristic(this.platform.Characteristic.ActiveIdentifier, ActiveIdentifier.Docked);
     this.service.getCharacteristic(this.platform.Characteristic.ActiveIdentifier)
       .onSet(this.setActivity.bind(this)).onGet(this.getActivity.bind(this)).on('change', this.notifyActivity.bind(this));
