@@ -152,31 +152,38 @@ export default class V2Roomba extends Accessory {
     }
   }
 
-  async getIp() {
-    if (this.ip) {
-      return this.ip;
-    }
-    let ip = '';
-    switch (this.device.ipResolution) {
-      case 'broadcast':
-        ip = await new Promise((resolve, reject) =>
-          getRobotByBlid(this.device.blid, (err, data) => reject(err || resolve(data.ip))));
-        break;
-      case 'lookup':
-        ip = await new Promise((resolve, reject) =>
-          lookup(this.device.publicInfo.hostname + '.local', 4).then(data => resolve(data.address)).catch(err => reject(err)));
-        break;
-      default:
-        ip = await new Promise((resolve, reject) =>
-          ping.promise.probe('ip' in this.device ? this.device.ip : this.device.publicInfo.ip)
+  async getIp(): Promise<string> {
+    try {
+      if (this.ip) {
+        return await new Promise((resolve, reject) =>
+          ping.promise.probe(this.ip!)
             .then(data => resolve(data.numeric_host ?? reject() ?? '')).catch(err => reject(err)));
-        break;
+      }
+      let ip = '';
+      switch (this.device.ipResolution) {
+        case 'broadcast':
+          ip = await new Promise((resolve, reject) =>
+            getRobotByBlid(this.device.blid, (err, data) => reject(err || resolve(data.ip))));
+          break;
+        case 'lookup':
+          ip = await new Promise((resolve, reject) =>
+            lookup(this.device.publicInfo.hostname + '.local', 4).then(data => resolve(data.address)).catch(err => reject(err)));
+          break;
+        default:
+          ip = await new Promise((resolve, reject) =>
+            ping.promise.probe('ip' in this.device ? this.device.ip : this.device.publicInfo.ip)
+              .then(data => resolve(data.numeric_host ?? reject() ?? '')).catch(err => reject(err)));
+          break;
+      }
+      if (ip !== this.ip) {
+        this.accessory.context.ip = ip;
+        this.log(2, `Updating IP Address To ${ip}`);
+      }
+      return ip;
+    } catch (err) {
+      this.log('warn', err as string);
+      throw err;
     }
-    if (ip !== this.ip) {
-      this.accessory.context.ip = ip;
-      this.log(2, `Updating IP Address To ${ip}`);
-    }
-    return ip;
   }
 
   async find() {
