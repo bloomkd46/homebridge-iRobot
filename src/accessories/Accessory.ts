@@ -18,7 +18,6 @@ export default class Accessory {
   protected updateCache: () => void;
   protected addEmptyBinService: () => void;
   protected updateVisibility: (activity: ActiveIdentifier) => void;
-  private updateBinVisibility?: (activity: ActiveIdentifier) => void;
 
   constructor(
     platform: iRobotPlatform,
@@ -105,6 +104,30 @@ export default class Accessory {
       .onSet(value => accessory.context.overrides[ActiveIdentifier.Stuck] = value as string);
     this.service.addLinkedService(stuckService);
 
+    const emptyName = accessory.context.overrides[ActiveIdentifier.Empty_Bin] || 'Empty Bin';
+    const emptyService = accessory.addService(platform.Service.InputSource, 'Empty Bin', 'Empty Bin')
+      .setCharacteristic(platform.Characteristic.ConfiguredName, emptyName)
+      .setCharacteristic(platform.Characteristic.Name, emptyName)
+      .setCharacteristic(platform.Characteristic.InputSourceType, platform.Characteristic.InputSourceType.OTHER)
+      .setCharacteristic(platform.Characteristic.IsConfigured, platform.Characteristic.IsConfigured.NOT_CONFIGURED)
+      .setCharacteristic(platform.Characteristic.CurrentVisibilityState, platform.Characteristic.CurrentVisibilityState.SHOWN)
+      .setCharacteristic(platform.Characteristic.Identifier, ActiveIdentifier.Empty_Bin);
+    emptyService.getCharacteristic(platform.Characteristic.ConfiguredName)
+      .onSet(value => accessory.context.overrides[ActiveIdentifier.Empty_Bin] = value as string);
+    this.service.addLinkedService(emptyService);
+
+    const emptyingName = accessory.context.overrides[ActiveIdentifier.Emptying_Bin] || 'Emptying Bin';
+    const emptyingService = accessory.addService(platform.Service.InputSource, 'Emptying Bin', 'Emptying Bin')
+      .setCharacteristic(platform.Characteristic.ConfiguredName, emptyingName)
+      .setCharacteristic(platform.Characteristic.Name, emptyingName)
+      .setCharacteristic(platform.Characteristic.InputSourceType, platform.Characteristic.InputSourceType.OTHER)
+      .setCharacteristic(platform.Characteristic.IsConfigured, platform.Characteristic.IsConfigured.NOT_CONFIGURED)
+      .setCharacteristic(platform.Characteristic.CurrentVisibilityState, platform.Characteristic.CurrentVisibilityState.HIDDEN)
+      .setCharacteristic(platform.Characteristic.Identifier, ActiveIdentifier.Emptying_Bin);
+    emptyingService.getCharacteristic(platform.Characteristic.ConfiguredName)
+      .onSet(value => accessory.context.overrides[ActiveIdentifier.Emptying_Bin] = value as string);
+    this.service.addLinkedService(emptyingService);
+
     const offName = accessory.context.overrides[ActiveIdentifier.Off] || 'Off';
     const offService = accessory.addService(platform.Service.InputSource, 'Off', 'Off')
       .setCharacteristic(platform.Characteristic.ConfiguredName, offName)
@@ -190,39 +213,14 @@ export default class Accessory {
     this.service.addLinkedService(cleaningService);
 
     this.addEmptyBinService = () => {
-      const emptyName = accessory.context.overrides[ActiveIdentifier.Empty_Bin] || 'Empty Bin';
-      const emptyService = accessory.addService(platform.Service.InputSource, 'Empty Bin', 'Empty Bin')
-        .setCharacteristic(platform.Characteristic.ConfiguredName, emptyName)
-        .setCharacteristic(platform.Characteristic.Name, emptyName)
-        .setCharacteristic(platform.Characteristic.InputSourceType, platform.Characteristic.InputSourceType.OTHER)
-        .setCharacteristic(platform.Characteristic.IsConfigured, platform.Characteristic.IsConfigured.CONFIGURED)
-        .setCharacteristic(platform.Characteristic.CurrentVisibilityState, platform.Characteristic.CurrentVisibilityState.SHOWN)
-        .setCharacteristic(platform.Characteristic.Identifier, ActiveIdentifier.Empty_Bin);
-      emptyService.getCharacteristic(platform.Characteristic.ConfiguredName)
-        .onSet(value => accessory.context.overrides[ActiveIdentifier.Empty_Bin] = value as string);
-      this.service.addLinkedService(emptyService);
-
-      const emptyingName = accessory.context.overrides[ActiveIdentifier.Emptying_Bin] || 'Emptying Bin';
-      const emptyingService = accessory.addService(platform.Service.InputSource, 'Emptying Bin', 'Emptying Bin')
-        .setCharacteristic(platform.Characteristic.ConfiguredName, emptyingName)
-        .setCharacteristic(platform.Characteristic.Name, emptyingName)
-        .setCharacteristic(platform.Characteristic.InputSourceType, platform.Characteristic.InputSourceType.OTHER)
-        .setCharacteristic(platform.Characteristic.IsConfigured, platform.Characteristic.IsConfigured.CONFIGURED)
-        .setCharacteristic(platform.Characteristic.CurrentVisibilityState, platform.Characteristic.CurrentVisibilityState.HIDDEN)
-        .setCharacteristic(platform.Characteristic.Identifier, ActiveIdentifier.Emptying_Bin);
-      emptyingService.getCharacteristic(platform.Characteristic.ConfiguredName)
-        .onSet(value => accessory.context.overrides[ActiveIdentifier.Emptying_Bin] = value as string);
-      this.service.addLinkedService(emptyingService);
-
+      emptyService.updateCharacteristic(platform.Characteristic.IsConfigured, platform.Characteristic.IsConfigured.CONFIGURED);
+      emptyingService.updateCharacteristic(platform.Characteristic.IsConfigured, platform.Characteristic.IsConfigured.CONFIGURED);
       (accessory.context as { emptyCapable?: boolean; }).emptyCapable = true;
-      this.updateBinVisibility = (activity) => {
-        emptyService.updateCharacteristic(platform.Characteristic.CurrentVisibilityState,
-          activity === ActiveIdentifier.Docked ? 0 : 1);
-      };
     };
     this.updateVisibility = (activity) => {
       // HIDDEN: 1; SHOWN: 0
-      this.updateBinVisibility ? this.updateBinVisibility(activity) : undefined;
+      emptyService.updateCharacteristic(platform.Characteristic.CurrentVisibilityState,
+        activity === ActiveIdentifier.Docked ? 0 : 1);
       offService.updateCharacteristic(platform.Characteristic.CurrentVisibilityState,
         [ActiveIdentifier.Docked, ActiveIdentifier.Docking].includes(activity) ? 1 : 0);
       pauseService.updateCharacteristic(platform.Characteristic.CurrentVisibilityState,
