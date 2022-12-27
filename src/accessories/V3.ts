@@ -57,7 +57,7 @@ export default class V3Roomba extends Accessory {
   ) {
     super(platform, accessory, device, accessory.getService(platform.Service.Television) ||
       accessory.addService(platform.Service.Television));
-    if ((this.accessory.context as { emptyCapable?: boolean; }).emptyCapable) {
+    if (this.accessory.context.emptyCapable) {
       this.addEmptyBinService();
     }
     this.accessory.getService(platform.Service.AccessoryInformation)!.getCharacteristic(platform.Characteristic.Identify)
@@ -67,6 +67,7 @@ export default class V3Roomba extends Accessory {
       });
 
     // handle on / off events using the Active characteristic
+    //ACTIVE: 1; INACTIVE: 0;
     this.service.getCharacteristic(this.platform.Characteristic.Active)
       .onSet(async value => {
         if (value === 0) {
@@ -80,9 +81,9 @@ export default class V3Roomba extends Accessory {
           await this.connect();
           this.disconnect();
         }
-      }).onGet(() => this.offline ? 1 : this.keepAlive ? 1 : 0);
+      }).onGet(() => this.offline ? 0 : this.keepAlive ? 1 : 0);
     this.service.setCharacteristic(this.platform.Characteristic.Active, (this.platform.config.autoConnect ?? true) ? 1 : 0);
-    this.service.setCharacteristic(this.platform.Characteristic.ActiveIdentifier, 1);
+    this.service.setCharacteristic(this.platform.Characteristic.ActiveIdentifier, ActiveIdentifier.Docked);
     this.service.getCharacteristic(this.platform.Characteristic.ActiveIdentifier)
       .onSet(this.setActivity.bind(this)).onGet(this.getActivity.bind(this)).on('change', this.notifyActivity.bind(this));
   }
@@ -208,6 +209,8 @@ export default class V3Roomba extends Accessory {
         break;
       case ActiveIdentifier.Empty_Bin:
         this.dorita980?.evac() ?? this.log('warn', 'Failed to Empty Bin');
+        break;
+      default:
         break;
     }
     setTimeout(() => {

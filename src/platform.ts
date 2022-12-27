@@ -3,6 +3,7 @@ import fs from 'fs';
 import { API, APIEvent, Characteristic, DynamicPlatformPlugin, Logger, PlatformAccessory, PlatformConfig, Service } from 'homebridge';
 import path from 'path';
 
+import V2Roomba from './accessories/V2';
 import V3Roomba from './accessories/V3';
 import CustomCharacteristics from './CustomCharacteristics';
 import { Config, Context, PLUGIN_NAME } from './settings';
@@ -154,10 +155,10 @@ export class iRobotPlatform implements DynamicPlatformPlugin {
       switch (JSON.parse(/([\d.]+)/.exec(device.publicInfo.sw)![0].split('.').shift()!)) {
         /*case 1:
             new V1Roomba(this, accessory, device);
-            break;
-          case 2:
-            new V2Roomba(this, accessory, device);
             break;*/
+        case 2:
+          new V2Roomba(this, accessory, device);
+          break;
         case 3:
         case 22:
           new V3Roomba(this, accessory, device);

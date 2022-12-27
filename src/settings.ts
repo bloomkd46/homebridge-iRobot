@@ -1,4 +1,4 @@
-import type { LocalV3, LocalV2, PublicInfo } from '@bloomkd46/dorita980';
+import type { LocalV3, LocalV2, PublicInfo, LocalV1 } from '@bloomkd46/dorita980';
 
 /**
  * This is the name of the platform that users will use to register the plugin in the Homebridge config.json
@@ -17,9 +17,18 @@ export type Context = {
   pluginVersion?: 4;
   ip?: string;
   overrides: string[];
+  emptyCapable?: boolean;
+  regions?: {
+    name: string;
+    id: string;
+    type: 'rid' | 'zid';
+    pmap_id: string;
+    user_pmapv_id: string;
+  }[];
 } & (V1 | V2 | V3);
+export type V1Mission = Awaited<ReturnType<LocalV1.Local['getMission']>>['ok'];
 type V1 = {
-  lastState: Record<string, string | object>;
+  lastState: Partial<V1Mission>;
   version: 1;
 };
 type V2 = {
@@ -29,7 +38,6 @@ type V2 = {
 type V3 = {
   lastState: Partial<LocalV3.RobotState>;
   version: 3;
-  emptyCapable?: boolean;
 };
 
 export type Config = {
@@ -46,16 +54,10 @@ export type Device = {
   blid: string;
   password: string;
   publicInfo: PublicInfo;
-  regionData?: RegionData;
 } & ipInfo;
 type ipInfo = {
   ipResolution: 'manual';
   ip: string;
 } | {
   ipResolution: 'lookup' | 'broadcast';
-};
-export type RegionData = {
-  regions: { name: string; id: string; type: 'room' | 'zone'; }[];
-  pmap_id: string;
-  user_pmapv_id: string;
 };

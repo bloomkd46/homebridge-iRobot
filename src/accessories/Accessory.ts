@@ -128,7 +128,7 @@ export default class Accessory {
       .onSet(value => accessory.context.overrides[ActiveIdentifier.Emptying_Bin] = value as string);
     this.service.addLinkedService(emptyingService);
 
-    const offName = accessory.context.overrides[ActiveIdentifier.Off] || 'Off';
+    const offName = accessory.context.overrides[ActiveIdentifier.Off] || 'Go Home';
     const offService = accessory.addService(platform.Service.InputSource, 'Off', 'Off')
       .setCharacteristic(platform.Characteristic.ConfiguredName, offName)
       .setCharacteristic(platform.Characteristic.Name, offName)
@@ -215,7 +215,7 @@ export default class Accessory {
     this.addEmptyBinService = () => {
       emptyService.updateCharacteristic(platform.Characteristic.IsConfigured, platform.Characteristic.IsConfigured.CONFIGURED);
       emptyingService.updateCharacteristic(platform.Characteristic.IsConfigured, platform.Characteristic.IsConfigured.CONFIGURED);
-      (accessory.context as { emptyCapable?: boolean; }).emptyCapable = true;
+      accessory.context.emptyCapable = true;
     };
     this.updateVisibility = (activity) => {
       // HIDDEN: 1; SHOWN: 0
