@@ -43,7 +43,7 @@ export default class V2Roomba extends Accessory {
   private keepAlive = false;
   dorita980?: LocalV2.Local;
   update() {
-    this.service.updateCharacteristic(this.platform.Characteristic.Active, this.offline ? 1 : this.keepAlive ? 1 : 0);
+    this.service.updateCharacteristic(this.platform.Characteristic.Active, this.offline ? 0 : this.keepAlive ? 1 : 0);
     this.service.updateCharacteristic(this.platform.Characteristic.ActiveIdentifier, this.getActivity());
     if (this.platform.config.alwaysShowModes !== true) {
       this.updateVisibility(this.getActivity());
@@ -78,7 +78,7 @@ export default class V2Roomba extends Accessory {
           }
         } else if (value === 1) {
           this.keepAlive = true;
-          this.connect().then(() => this.disconnect())
+          await this.connect().then(() => this.disconnect())
             .catch(() => this.service.updateCharacteristic(this.platform.Characteristic.Active, 0));
         }
       }).onGet(() => this.offline ? 0 : this.keepAlive ? 1 : 0);
