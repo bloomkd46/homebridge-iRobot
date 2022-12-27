@@ -45,7 +45,9 @@ export default class V3Roomba extends Accessory {
   update() {
     this.service.updateCharacteristic(this.platform.Characteristic.Active, this.offline ? 1 : this.keepAlive ? 1 : 0);
     this.service.updateCharacteristic(this.platform.Characteristic.ActiveIdentifier, this.getActivity());
-    this.updateVisibility(this.getActivity());
+    if (this.platform.config.alwaysShowModes !== true) {
+      this.updateVisibility(this.getActivity());
+    }
   }
 
   constructor(

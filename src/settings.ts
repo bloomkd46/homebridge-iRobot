@@ -38,6 +38,7 @@ export type Config = {
   logLevel: 0 | 1 | 2 | 3 | 4;
   platform: 'iRobotPlatform';
   autoConnect?: boolean;
+  alwaysShowModes?: boolean;
 };
 export type Device = {
   name: string;
