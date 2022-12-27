@@ -50,7 +50,6 @@ export type Config = {
 };
 export type Device = {
   name: string;
-  version: 1 | 2 | 3;
   blid: string;
   password: string;
   publicInfo: PublicInfo;
