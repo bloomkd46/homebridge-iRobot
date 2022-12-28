@@ -203,7 +203,7 @@ export default class Accessory {
       .setCharacteristic(platform.Characteristic.CurrentVisibilityState, platform.Characteristic.CurrentVisibilityState.SHOWN)
       .setCharacteristic(platform.Characteristic.Identifier, ActiveIdentifier.Resume);
     resumeService.getCharacteristic(platform.Characteristic.ConfiguredName)
-      .onSet(value => accessory.context.overrides[ActiveIdentifier.Clean_Everywhere] = value as string);
+      .onSet(value => accessory.context.overrides[ActiveIdentifier.Resume] = value as string);
     this.service.addLinkedService(resumeService);
 
     const cleanName = accessory.context.overrides[ActiveIdentifier.Clean_Everywhere] || 'Clean Everywhere';
