@@ -194,6 +194,18 @@ export default class Accessory {
       .onSet(value => accessory.context.overrides[ActiveIdentifier.Paused] = value as string);
     this.service.addLinkedService(pausedService);
 
+    const resumeName = accessory.context.overrides[ActiveIdentifier.Resume] || 'Resume';
+    const resumeService = accessory.addService(platform.Service.InputSource, 'Resume', 'Resume')
+      .setCharacteristic(platform.Characteristic.ConfiguredName, resumeName)
+      .setCharacteristic(platform.Characteristic.Name, resumeName)
+      .setCharacteristic(platform.Characteristic.InputSourceType, platform.Characteristic.InputSourceType.OTHER)
+      .setCharacteristic(platform.Characteristic.IsConfigured, platform.Characteristic.IsConfigured.CONFIGURED)
+      .setCharacteristic(platform.Characteristic.CurrentVisibilityState, platform.Characteristic.CurrentVisibilityState.SHOWN)
+      .setCharacteristic(platform.Characteristic.Identifier, ActiveIdentifier.Resume);
+    resumeService.getCharacteristic(platform.Characteristic.ConfiguredName)
+      .onSet(value => accessory.context.overrides[ActiveIdentifier.Clean_Everywhere] = value as string);
+    this.service.addLinkedService(resumeService);
+
     const cleanName = accessory.context.overrides[ActiveIdentifier.Clean_Everywhere] || 'Clean Everywhere';
     const cleanService = accessory.addService(platform.Service.InputSource, 'Clean Everywhere', 'Clean Everywhere')
       .setCharacteristic(platform.Characteristic.ConfiguredName, cleanName)
@@ -231,13 +243,15 @@ export default class Accessory {
         [ActiveIdentifier.Docked, ActiveIdentifier.Docking].includes(activity) ? 1 : 0);
       pauseService.updateCharacteristic(platform.Characteristic.CurrentVisibilityState,
         [ActiveIdentifier.Paused, ActiveIdentifier.Docked].includes(activity) ? 1 : 0);
+      resumeService.updateCharacteristic(platform.Characteristic.CurrentVisibilityState,
+        activity === ActiveIdentifier.Paused ? 0 : 1);
       cleanService.updateCharacteristic(platform.Characteristic.CurrentVisibilityState,
-        activity >= ActiveIdentifier.Cleaning_Everywhere ? 1 : 0);
+        (activity >= ActiveIdentifier.Cleaning_Everywhere || ActiveIdentifier.Paused) ? 1 : 0);
     };
   }
 }
-export const ActiveIdentifierPretty =
-  ['', 'Stuck', undefined, 'Emptying Bin', undefined, 'Docked', 'Docking', undefined, 'Paused', undefined, 'Cleaning Everywhere'] as const;
+export const ActiveIdentifierPretty = [undefined, 'Stuck', undefined, 'Emptying Bin', undefined, 'Docked', 'Docking', undefined, 'Paused',
+  undefined, undefined, 'Cleaning Everywhere'] as const;
 export enum ActiveIdentifier {
   Stuck = 1,
   Empty_Bin,
@@ -247,6 +261,7 @@ export enum ActiveIdentifier {
   Docking,
   Pause,
   Paused,
+  Resume,
   Clean_Everywhere,
   Cleaning_Everywhere,
 }

@@ -2,7 +2,7 @@ import { lookup } from 'dns/promises';
 import { CharacteristicChange, CharacteristicValue, HAPStatus, PlatformAccessory } from 'homebridge';
 import ping from 'ping';
 
-import { getRobotByBlid, Local, LocalV2 } from '@bloomkd46/dorita980';
+import { getRobotByBlid, Local, LocalV2, LocalV3 } from '@bloomkd46/dorita980';
 
 import { iRobotPlatform } from '../platform';
 import { Context, Device } from '../settings';
@@ -33,7 +33,8 @@ export default class V2Roomba extends Accessory {
     if (value) {
       this.offline = false;
     }
-    this._connected = value; this.update();
+    this._connected = value;
+    this.update();
   }
 
   public mode = 0;
@@ -202,6 +203,13 @@ export default class V2Roomba extends Accessory {
           this.lastKnownState = Object.assign(oldState, { cleanMissionStatus: { cycle: 'clean', phase: 'run' } });
         })();
         break;
+      case ActiveIdentifier.Resume:
+        await this.dorita980?.resume() ?? this.log('warn', 'Failed to resume');
+        (() => {
+          const oldState = this.lastKnownState;
+          this.lastKnownState = Object.assign(oldState, { cleanMissionStatus: { cycle: 'clean', phase: 'run' } });
+        })();
+        break;
       case ActiveIdentifier.Pause:
         await this.dorita980?.pause() ??
           this.log('warn', 'Failed to pause');
@@ -233,6 +241,9 @@ export default class V2Roomba extends Accessory {
             })();
           });
         }
+        break;
+      case ActiveIdentifier.Empty_Bin:
+        (this.dorita980 as LocalV3.Local | undefined)?.evac() ?? this.log('warn', 'Failed to Empty Bin');
         break;
       default:
         break;

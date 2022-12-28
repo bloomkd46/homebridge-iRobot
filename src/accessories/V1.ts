@@ -144,6 +144,13 @@ export default class V1Roomba extends Accessory {
           this.lastKnownState = Object.assign(oldState, { cycle: 'clean', phase: 'run' });
         })();
         break;
+      case ActiveIdentifier.Resume:
+        await this.dorita980?.resume() ?? this.log('warn', 'Failed to resume');
+        (() => {
+          const oldState = this.lastKnownState;
+          this.lastKnownState = Object.assign(oldState, { cleanMissionStatus: { cycle: 'clean', phase: 'run' } });
+        })();
+        break;
       case ActiveIdentifier.Pause:
         await this.dorita980?.pause() ??
           this.log('warn', 'Failed to pause');
