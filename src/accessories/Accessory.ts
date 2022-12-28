@@ -245,17 +245,28 @@ export default class Accessory {
     this.service.addLinkedService(cleaningService);
     this.updateVisibility = (activity) => {
       // HIDDEN: 1; SHOWN: 0
+      stuckService.updateCharacteristic(platform.Characteristic.CurrentVisibilityState, activity === ActiveIdentifier.Stuck ? 0 : 1);
       emptyService.updateCharacteristic(platform.Characteristic.CurrentVisibilityState,
         activity === ActiveIdentifier.Docked ? 0 : 1);
+      emptyingService.updateCharacteristic(platform.Characteristic.CurrentVisibilityState,
+        activity === ActiveIdentifier.Emptying_Bin ? 0 : 1);
       offService.updateCharacteristic(platform.Characteristic.CurrentVisibilityState,
         [ActiveIdentifier.Docked, ActiveIdentifier.Docking].includes(activity) ? 1 : 0);
+      dockedService.updateCharacteristic(platform.Characteristic.CurrentVisibilityState,
+        activity === ActiveIdentifier.Docked ? 0 : 1);
+      dockingService.updateCharacteristic(platform.Characteristic.CurrentVisibilityState,
+        activity === ActiveIdentifier.Docking ? 0 : 1);
       pauseService.updateCharacteristic(platform.Characteristic.CurrentVisibilityState,
         [ActiveIdentifier.Paused, ActiveIdentifier.Docked].includes(activity) ? 1 : 0);
+      pausedService.updateCharacteristic(platform.Characteristic.CurrentVisibilityState,
+        activity === ActiveIdentifier.Paused ? 0 : 1);
       resumeService.updateCharacteristic(platform.Characteristic.CurrentVisibilityState,
         activity === ActiveIdentifier.Paused ? 0 : 1);
       cleanService.updateCharacteristic(platform.Characteristic.CurrentVisibilityState,
         (activity >= ActiveIdentifier.Cleaning_Everywhere ||
           [ActiveIdentifier.Paused, ActiveIdentifier.Docking].includes(activity)) ? 1 : 0);
+      cleaningService.updateCharacteristic(platform.Characteristic.CurrentVisibilityState,
+        activity === ActiveIdentifier.Cleaning_Everywhere ? 0 : 1);
     };
   }
 }
