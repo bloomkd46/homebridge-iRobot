@@ -130,7 +130,7 @@ export default class Accessory {
       .setCharacteristic(platform.Characteristic.Identifier, ActiveIdentifier.Emptying_Bin);
     emptyingService.getCharacteristic(platform.Characteristic.ConfiguredName)
       .onSet(value => accessory.context.overrides[ActiveIdentifier.Emptying_Bin] = value as string);
-    emptyService.getCharacteristic(platform.Characteristic.IsConfigured)
+    emptyingService.getCharacteristic(platform.Characteristic.IsConfigured)
       .onGet(() => (accessory.context.lastState as Partial<LocalV3.RobotState>)?.evacAllowed ? 1 : 0);
     this.service.addLinkedService(emptyingService);
 
