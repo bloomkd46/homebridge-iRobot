@@ -240,7 +240,8 @@ export default class Accessory {
       resumeService.updateCharacteristic(platform.Characteristic.CurrentVisibilityState,
         activity === ActiveIdentifier.Paused ? 0 : 1);
       cleanService.updateCharacteristic(platform.Characteristic.CurrentVisibilityState,
-        (activity >= ActiveIdentifier.Cleaning_Everywhere || activity === ActiveIdentifier.Paused) ? 1 : 0);
+        (activity >= ActiveIdentifier.Cleaning_Everywhere ||
+          [ActiveIdentifier.Paused, ActiveIdentifier.Docking].includes(activity)) ? 1 : 0);
     };
   }
 }
