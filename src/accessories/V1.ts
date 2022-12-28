@@ -15,6 +15,7 @@ export default class V1Roomba extends Accessory {
   public set lastKnownState(state: Partial<V1Mission>) {
     this.accessory.context.lastState = state;
     if (!this.recentlySet) {
+      this.accessory.context.lastMode = this.getActivity();
       this._lastKnownState = state;
       this.update();
     }

@@ -15,6 +15,7 @@ export default class V3Roomba extends Accessory {
   public set lastKnownState(state: Partial<LocalV3.RobotState>) {
     this.accessory.context.lastState = state;
     if (!this.recentlySet) {
+      this.accessory.context.lastMode = this.getActivity();
       this._lastKnownState = state;
       this.update();
     }

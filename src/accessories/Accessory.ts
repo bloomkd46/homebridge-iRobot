@@ -20,6 +20,7 @@ export default class Accessory {
   protected updateCache: () => void;
   //protected addEmptyBinService: () => void;
   protected updateVisibility: (activity: ActiveIdentifier) => void;
+  protected batteryService: Service;
 
   constructor(
     platform: iRobotPlatform,
@@ -92,6 +93,19 @@ export default class Accessory {
     // handle remote control input
     this.service.getCharacteristic(platform.Characteristic.RemoteKey) ?
       this.service.removeCharacteristic(platform.Characteristic.RemoteKey as unknown as Characteristic) : undefined;
+
+
+    this.batteryService = accessory.addService(platform.Service.Battery, 'Battery Status', 'Battery Status');
+    this.batteryService.getCharacteristic(platform.Characteristic.StatusLowBattery)
+      .onGet(() => (accessory.context.lastState.batPct ?? 0) <= 15);
+    this.batteryService.getCharacteristic(platform.Characteristic.BatteryLevel)
+      .onGet(() => accessory.context.lastState.batPct ?? 0);
+    this.batteryService.getCharacteristic(platform.Characteristic.ChargingState)
+      .onGet(() => ['recharge', 'charge'].includes('cleanMissionStatus' in accessory.context.lastState ?
+        accessory.context.lastState.cleanMissionStatus?.phase ?? '' :
+        'phase' in accessory.context.lastState ? accessory.context.lastState.phase ?? '' : ''));
+
+
     accessory.context.overrides = accessory.context.overrides ?? [];
 
     const stuckName = accessory.context.overrides[ActiveIdentifier.Stuck] || 'Stuck';

@@ -1,4 +1,6 @@
 import type { LocalV3, LocalV2, PublicInfo, LocalV1 } from '@bloomkd46/dorita980';
+import { ActiveIdentifier } from './accessories/Accessory';
+
 
 /**
  * This is the name of the platform that users will use to register the plugin in the Homebridge config.json
@@ -25,6 +27,7 @@ export type Context = {
     pmap_id: string;
     user_pmapv_id: string;
   }[];
+  lastMode: ActiveIdentifier;
 } & (V1 | V2 | V3);
 export type V1Mission = Awaited<ReturnType<LocalV1.Local['getMission']>>['ok'];
 type V1 = {
