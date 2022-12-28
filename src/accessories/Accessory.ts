@@ -3,6 +3,8 @@ import fs from 'fs';
 import { Characteristic, HapStatusError, PlatformAccessory, Service } from 'homebridge';
 import path from 'path';
 
+import { LocalV3 } from '@bloomkd46/dorita980';
+
 import { iRobotPlatform } from '../platform';
 import { Context, Device } from '../settings';
 
@@ -16,7 +18,7 @@ export default class Accessory {
   protected cachePath: string;
   protected generalLogPath: string;
   protected updateCache: () => void;
-  protected addEmptyBinService: () => void;
+  //protected addEmptyBinService: () => void;
   protected updateVisibility: (activity: ActiveIdentifier) => void;
 
   constructor(
@@ -109,11 +111,13 @@ export default class Accessory {
       .setCharacteristic(platform.Characteristic.ConfiguredName, emptyName)
       .setCharacteristic(platform.Characteristic.Name, emptyName)
       .setCharacteristic(platform.Characteristic.InputSourceType, platform.Characteristic.InputSourceType.OTHER)
-      .setCharacteristic(platform.Characteristic.IsConfigured, platform.Characteristic.IsConfigured.NOT_CONFIGURED)
+      //.setCharacteristic(platform.Characteristic.IsConfigured, platform.Characteristic.IsConfigured.NOT_CONFIGURED)
       .setCharacteristic(platform.Characteristic.CurrentVisibilityState, platform.Characteristic.CurrentVisibilityState.SHOWN)
       .setCharacteristic(platform.Characteristic.Identifier, ActiveIdentifier.Empty_Bin);
     emptyService.getCharacteristic(platform.Characteristic.ConfiguredName)
       .onSet(value => accessory.context.overrides[ActiveIdentifier.Empty_Bin] = value as string);
+    emptyService.getCharacteristic(platform.Characteristic.IsConfigured)
+      .onGet(() => (accessory.context.lastState as Partial<LocalV3.RobotState>)?.evacAllowed ? 1 : 0);
     this.service.addLinkedService(emptyService);
 
     const emptyingName = accessory.context.overrides[ActiveIdentifier.Emptying_Bin] || 'Emptying Bin';
@@ -121,11 +125,13 @@ export default class Accessory {
       .setCharacteristic(platform.Characteristic.ConfiguredName, emptyingName)
       .setCharacteristic(platform.Characteristic.Name, emptyingName)
       .setCharacteristic(platform.Characteristic.InputSourceType, platform.Characteristic.InputSourceType.OTHER)
-      .setCharacteristic(platform.Characteristic.IsConfigured, platform.Characteristic.IsConfigured.NOT_CONFIGURED)
+      //.setCharacteristic(platform.Characteristic.IsConfigured, platform.Characteristic.IsConfigured.NOT_CONFIGURED)
       .setCharacteristic(platform.Characteristic.CurrentVisibilityState, platform.Characteristic.CurrentVisibilityState.HIDDEN)
       .setCharacteristic(platform.Characteristic.Identifier, ActiveIdentifier.Emptying_Bin);
     emptyingService.getCharacteristic(platform.Characteristic.ConfiguredName)
       .onSet(value => accessory.context.overrides[ActiveIdentifier.Emptying_Bin] = value as string);
+    emptyService.getCharacteristic(platform.Characteristic.IsConfigured)
+      .onGet(() => (accessory.context.lastState as Partial<LocalV3.RobotState>)?.evacAllowed ? 1 : 0);
     this.service.addLinkedService(emptyingService);
 
     const offName = accessory.context.overrides[ActiveIdentifier.Off] || 'Go Home';
@@ -212,11 +218,11 @@ export default class Accessory {
       .onSet(value => accessory.context.overrides[ActiveIdentifier.Cleaning_Everywhere] = value as string);
     this.service.addLinkedService(cleaningService);
 
-    this.addEmptyBinService = () => {
+    /*this.addEmptyBinService = () => {
       emptyService.updateCharacteristic(platform.Characteristic.IsConfigured, platform.Characteristic.IsConfigured.CONFIGURED);
       emptyingService.updateCharacteristic(platform.Characteristic.IsConfigured, platform.Characteristic.IsConfigured.CONFIGURED);
       accessory.context.emptyCapable = true;
-    };
+    };*/
     this.updateVisibility = (activity) => {
       // HIDDEN: 1; SHOWN: 0
       emptyService.updateCharacteristic(platform.Characteristic.CurrentVisibilityState,

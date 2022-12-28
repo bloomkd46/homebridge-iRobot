@@ -17,7 +17,7 @@ export type Context = {
   pluginVersion?: 4;
   ip?: string;
   overrides: string[];
-  emptyCapable?: boolean;
+  //emptyCapable?: boolean;
   regions?: {
     name: string;
     id: string;

@@ -33,7 +33,8 @@ export default class V3Roomba extends Accessory {
     if (value) {
       this.offline = false;
     }
-    this._connected = value; this.update();
+    this._connected = value;
+    this.update();
   }
 
   public mode = 0;
@@ -58,9 +59,9 @@ export default class V3Roomba extends Accessory {
   ) {
     super(platform, accessory, device, accessory.getService(platform.Service.Television) ||
       accessory.addService(platform.Service.Television));
-    if (this.accessory.context.emptyCapable) {
+    /*if (this.accessory.context.emptyCapable) {
       this.addEmptyBinService();
-    }
+    }*/
     this.accessory.getService(platform.Service.AccessoryInformation)!.getCharacteristic(platform.Characteristic.Identify)
       .on('set', async () => {
         await this.find();
@@ -267,10 +268,10 @@ export default class V3Roomba extends Accessory {
       case 'resume':
         switch (this.lastKnownState.cleanMissionStatus?.cycle) {
           case 'evac':
-            if (!this.accessory.context.emptyCapable) {
+            /*if (!this.accessory.context.emptyCapable) {
               this.log(4, 'Adding Bin Empty Service');
               this.addEmptyBinService();
-            }
+            }*/
             return ActiveIdentifier.Emptying_Bin;
           default:
             return ActiveIdentifier.Cleaning_Everywhere;
@@ -291,10 +292,10 @@ export default class V3Roomba extends Accessory {
         //this.log('warn', 'Stuck!');
         return ActiveIdentifier.Stuck;
       case 'evac':
-        if (!this.accessory.context.emptyCapable) {
+        /*if (!this.accessory.context.emptyCapable) {
           this.log(4, 'Adding Bin Empty Service');
           this.addEmptyBinService();
-        }
+        }*/
         return ActiveIdentifier.Emptying_Bin;
       default:
         //Add unknown channel?
