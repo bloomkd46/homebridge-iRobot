@@ -229,12 +229,6 @@ export default class Accessory {
     cleaningService.getCharacteristic(platform.Characteristic.ConfiguredName)
       .onSet(value => accessory.context.overrides[ActiveIdentifier.Cleaning_Everywhere] = value as string);
     this.service.addLinkedService(cleaningService);
-
-    /*this.addEmptyBinService = () => {
-      emptyService.updateCharacteristic(platform.Characteristic.IsConfigured, platform.Characteristic.IsConfigured.CONFIGURED);
-      emptyingService.updateCharacteristic(platform.Characteristic.IsConfigured, platform.Characteristic.IsConfigured.CONFIGURED);
-      accessory.context.emptyCapable = true;
-    };*/
     this.updateVisibility = (activity) => {
       // HIDDEN: 1; SHOWN: 0
       emptyService.updateCharacteristic(platform.Characteristic.CurrentVisibilityState,
@@ -246,7 +240,7 @@ export default class Accessory {
       resumeService.updateCharacteristic(platform.Characteristic.CurrentVisibilityState,
         activity === ActiveIdentifier.Paused ? 0 : 1);
       cleanService.updateCharacteristic(platform.Characteristic.CurrentVisibilityState,
-        (activity >= ActiveIdentifier.Cleaning_Everywhere || activity === ActiveIdentifier.Paused) ? 1 : 0);
+        [ActiveIdentifier.Paused, ActiveIdentifier.Cleaning_Everywhere].includes(activity) ? 1 : 0);
     };
   }
 }
