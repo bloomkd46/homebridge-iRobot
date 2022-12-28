@@ -51,6 +51,10 @@ export default class V2Roomba extends Accessory {
     if (this.platform.config.alwaysShowModes !== true) {
       this.updateVisibility(this.getActivity());
     }
+    this.batteryService.updateCharacteristic(this.platform.Characteristic.StatusLowBattery, (this.lastKnownState.batPct ?? 0) <= 15);
+    this.batteryService.updateCharacteristic(this.platform.Characteristic.BatteryLevel, this.lastKnownState.batPct ?? 0);
+    this.batteryService.updateCharacteristic(this.platform.Characteristic.ChargingState,
+      ['recharge', 'charge'].includes(this.lastKnownState.cleanMissionStatus?.phase ?? ''));
   }
 
   constructor(
