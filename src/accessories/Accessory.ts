@@ -79,7 +79,7 @@ export default class Accessory {
       .setCharacteristic(platform.Characteristic.SerialNumber, accessory.UUID)
       .setCharacteristic(platform.Characteristic.Model, device.publicInfo.sku)
       .setCharacteristic(platform.Characteristic.Name, this.name)
-      .setCharacteristic(platform.Characteristic.FirmwareRevision, /([\d.]+)/.exec(device.publicInfo.sw)![0]);
+      .setCharacteristic(platform.Characteristic.FirmwareRevision, /([\d.-]+)/.exec(device.publicInfo.sw)![0]);
 
 
     // set the tv name
