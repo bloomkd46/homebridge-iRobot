@@ -66,7 +66,7 @@ const menuWrapper = document.getElementById('menuWrapper') as HTMLDivElement;
       settingsHelp.style.display = 'none';
       pageDevices.style.display = 'none';
       currentForm?.end();
-      exitAddDevice.style.display = 'block';
+      exitAddDevice.style.display = 'inline';
       homebridge.hideSpinner();
       // create the form
       currentForm = homebridge.createForm(
@@ -122,6 +122,23 @@ const menuWrapper = document.getElementById('menuWrapper') as HTMLDivElement;
                         type: 'string',
                         format: 'ipv4',
                         required: true,
+                      },
+                      blid: {
+                        title: 'Blid',
+                        type: 'string',
+                        description: 'Your devices blid, if you don\'t know, leave blank.',
+                      },
+                      password: {
+                        title: 'Password',
+                        type: 'string',
+                        description: 'Your devices blid, if you don\'t know, leave blank.',
+                      },
+                      ready: {
+                        title: 'I have pressed and held the HOME button on my robot until it played a series of tones (about 2 seconds).',
+                        description: 'Required to get your device\'s password',
+                        condition: {
+                          functionBody: 'return model.password === undefined',
+                        },
                       },
                     },
                   },
