@@ -307,7 +307,7 @@ export default class Accessory {
       rechargingService.updateCharacteristic(platform.Characteristic.CurrentVisibilityState,
         activity === ActiveIdentifier.Recharging ? 0 : 1);
       stopService.updateCharacteristic(platform.Characteristic.CurrentVisibilityState,
-        [ActiveIdentifier.Stuck, ActiveIdentifier.Recharging].includes(activity) ? 0 : 1);
+        [ActiveIdentifier.Recharging].includes(activity) ? 0 : 1);
       stoppedService.updateCharacteristic(platform.Characteristic.CurrentVisibilityState,
         activity === ActiveIdentifier.Stopped ? 0 : 1);
       homeService.updateCharacteristic(platform.Characteristic.CurrentVisibilityState,
@@ -321,7 +321,7 @@ export default class Accessory {
       resumeService.updateCharacteristic(platform.Characteristic.CurrentVisibilityState,
         [ActiveIdentifier.Paused].includes(activity) ? 0 : 1);
       cleanService.updateCharacteristic(platform.Characteristic.CurrentVisibilityState,
-        [ActiveIdentifier.Ready].includes(activity) ? 1 : 0);
+        [ActiveIdentifier.Ready].includes(activity) ? 0 : 1);
       cleaningService.updateCharacteristic(platform.Characteristic.CurrentVisibilityState,
         activity === ActiveIdentifier.Cleaning_Everywhere ? 0 : 1);
     };
