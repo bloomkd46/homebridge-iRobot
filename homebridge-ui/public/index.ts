@@ -8,7 +8,7 @@ const pageIntro = document.getElementById('pageIntro') as HTMLDivElement;
 const introContinue = document.getElementById('introContinue') as HTMLButtonElement;
 //Settings Elements
 const menuSettings = document.getElementById('menuSettings') as HTMLButtonElement;
-const pageSettings = document.getElementById('pageSettings') as HTMLDivElement;
+const settingsHelp = document.getElementById('settingsHelp') as HTMLParagraphElement;
 //Devices Elements
 const menuDevices = document.getElementById('menuDevices') as HTMLButtonElement;
 const pageDevices = document.getElementById('pageDevices') as HTMLDivElement;
@@ -37,7 +37,7 @@ const menuWrapper = document.getElementById('menuWrapper') as HTMLDivElement;
       menuSettings.classList.add('btn-primary');
       pageDevices.style.display = 'block';
       homebridge.hideSchemaForm();
-      pageSettings.style.display = 'none';
+      settingsHelp.style.display = 'none';
       homebridge.hideSpinner();
     };
     const showSettings = () => {
@@ -48,14 +48,14 @@ const menuWrapper = document.getElementById('menuWrapper') as HTMLDivElement;
       menuSettings.classList.remove('btn-primary');
       pageDevices.style.display = 'none';
       homebridge.showSchemaForm();
-      pageSettings.style.display = 'block';
+      settingsHelp.style.display = 'block';
       homebridge.hideSpinner();
     };
     const showAddDevices = () => {
       homebridge.showSpinner();
       menuWrapper.style.display = 'none';
       homebridge.hideSchemaForm();
-      pageSettings.style.display = 'none';
+      settingsHelp.style.display = 'none';
       pageDevices.style.display = 'none';
       homebridge.hideSpinner();
       // create the form
@@ -68,29 +68,14 @@ const menuWrapper = document.getElementById('menuWrapper') as HTMLDivElement;
                 title: 'Email',
                 type: 'string',
                 required: true,
-                condition: {
-                  functionBody: 'return !model.manual',
-                },
+                format: 'email',
               },
               password: {
                 title: 'Password',
                 type: 'string',
                 required: true,
-                condition: {
-                  functionBody: 'return !model.manual',
-                },
-              },
-              manual: {
-                title: 'Configure Manually',
-                type: 'boolean',
-                required: false,
-              },
-              ip: {
-                title: 'Ip Address',
-                type: 'string',
-                required: true,
-                condition: {
-                  functionBody: 'return model.manual',
+                'x-schema-form': {
+                  type: 'password',
                 },
               },
             },
@@ -98,20 +83,62 @@ const menuWrapper = document.getElementById('menuWrapper') as HTMLDivElement;
           layout: null,
           form: null,
         },
-        {}, 'Get Devices', 'Cancel',
+        {}, 'Get Devices', 'Configure Manually',
       );
 
       // watch for submit button click events
       myForm.onSubmit((form) => {
         console.log(form);
         myForm.end();
+        menuWrapper.style.display = 'inline-flex';
         showDevices();
       });
-
       // watch for cancel button click events
       myForm.onCancel(() => {
+        homebridge.showSpinner();
         myForm.end();
-        showDevices();
+        const myForm2 = homebridge.createForm(
+          {
+            schema: {
+              type: 'object',
+              properties: {
+                devices: {
+                  title: 'Devices',
+                  type: 'array',
+                  buttonText: 'Add Device',
+                  items: {
+                    type: 'object',
+                    properties: {
+                      ip: {
+                        title: 'IP Address',
+                        type: 'string',
+                        format: 'ipv4',
+                        required: true,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            layout: null,
+            form: null,
+          },
+          {}, 'Get Devices', 'Configure From Cloud',
+        );
+
+        // watch for submit button click events
+        myForm2.onSubmit((form) => {
+          console.log(form);
+          myForm2.end();
+          menuWrapper.style.display = 'inline-flex';
+          showDevices();
+        });
+        // watch for cancel button click events
+        myForm2.onCancel(() => {
+          myForm.end();
+          showAddDevices();
+        });
+        homebridge.hideSpinner();
       });
       homebridge.hideSpinner();
     };
