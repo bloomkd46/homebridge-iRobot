@@ -13,7 +13,6 @@ const pageSettings = document.getElementById('pageSettings') as HTMLDivElement;
 const menuDevices = document.getElementById('menuDevices') as HTMLButtonElement;
 const pageDevices = document.getElementById('pageDevices') as HTMLDivElement;
 const deviceAdd = document.getElementById('deviceAdd') as HTMLButtonElement;
-const addDeviceModal = $('#addDeviceModal');
 
 //Miscellaneous Elements
 const menuWrapper = document.getElementById('menuWrapper') as HTMLDivElement;
@@ -54,7 +53,11 @@ const menuWrapper = document.getElementById('menuWrapper') as HTMLDivElement;
     };
     const showAddDevices = () => {
       homebridge.showSpinner();
-      addDeviceModal.modal('show');
+      menuWrapper.style.display = 'none';
+      homebridge.hideSchemaForm();
+      pageSettings.style.display = 'none';
+      pageDevices.style.display = 'none';
+      homebridge.hideSpinner();
       // create the form
       const myForm = homebridge.createForm(
         {
@@ -65,6 +68,30 @@ const menuWrapper = document.getElementById('menuWrapper') as HTMLDivElement;
                 title: 'Email',
                 type: 'string',
                 required: true,
+                condition: {
+                  functionBody: 'return !model.manual',
+                },
+              },
+              password: {
+                title: 'Password',
+                type: 'string',
+                required: true,
+                condition: {
+                  functionBody: 'return !model.manual',
+                },
+              },
+              manual: {
+                title: 'Configure Manually',
+                type: 'boolean',
+                required: false,
+              },
+              ip: {
+                title: 'Ip Address',
+                type: 'string',
+                required: true,
+                condition: {
+                  functionBody: 'return model.manual',
+                },
               },
             },
           },
@@ -77,15 +104,15 @@ const menuWrapper = document.getElementById('menuWrapper') as HTMLDivElement;
       // watch for submit button click events
       myForm.onSubmit((form) => {
         console.log(form);
+        myForm.end();
+        showDevices();
       });
 
       // watch for cancel button click events
-      myForm.onCancel((form) => {
-        console.log(form);
+      myForm.onCancel(() => {
+        myForm.end();
+        showDevices();
       });
-
-      // stop listening to change events and hide the form
-      //myForm.end();
       homebridge.hideSpinner();
     };
     menuDevices.addEventListener('click', () => showDevices());
@@ -106,6 +133,3 @@ const menuWrapper = document.getElementById('menuWrapper') as HTMLDivElement;
     homebridge.hideSpinner();
   }
 })();
-export function closeModal() {
-  $('#deviceDetails').modal('hide');
-}
