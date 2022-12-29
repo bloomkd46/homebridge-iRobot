@@ -13,7 +13,7 @@ const pageSettings = document.getElementById('pageSettings') as HTMLDivElement;
 const menuDevices = document.getElementById('menuDevices') as HTMLButtonElement;
 const pageDevices = document.getElementById('pageDevices') as HTMLDivElement;
 const deviceAdd = document.getElementById('deviceAdd') as HTMLButtonElement;
-const addDeviceModal = $('#deviceDetails');
+const addDeviceModal = $('#addDeviceModal');
 
 //Miscellaneous Elements
 const menuWrapper = document.getElementById('menuWrapper') as HTMLDivElement;
