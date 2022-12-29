@@ -136,6 +136,8 @@ const menuWrapper = document.getElementById('menuWrapper') as HTMLDivElement;
                       ready: {
                         title: 'I have pressed and held the HOME button on my robot until it played a series of tones (about 2 seconds).',
                         description: 'Required to get your device\'s password',
+                        type: 'boolean',
+                        require: true,
                         condition: {
                           functionBody: 'return model.password === undefined',
                         },
