@@ -122,6 +122,7 @@ export default class V2Roomba extends Accessory {
           this.dorita980.on('connect', () => resolve(this.dorita980!));
         }
       } else {
+        this.log(3, 'Connecting...');
         this.getIp().then(ip => {
           this.connections++;
           this.dorita980 = Local(this.device.blid, this.device.password, ip, 2);
@@ -135,6 +136,7 @@ export default class V2Roomba extends Accessory {
             reject();
           });
           this.dorita980.on('connect', () => {
+            this.log(3, 'Connected');
             this.connected = true;
             resolve(this.dorita980!);
           });
@@ -151,6 +153,7 @@ export default class V2Roomba extends Accessory {
   disconnect() {
     this.connections--;
     if (this.connections === 0 && !this.keepAlive) {
+      this.log(3, 'Disconnected');
       this.dorita980?.end() ?? this.log('warn', 'Failed to disconnect');
     }
   }
