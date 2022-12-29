@@ -13,6 +13,7 @@ const settingsHelp = document.getElementById('settingsHelp') as HTMLParagraphEle
 const menuDevices = document.getElementById('menuDevices') as HTMLButtonElement;
 const pageDevices = document.getElementById('pageDevices') as HTMLDivElement;
 const deviceAdd = document.getElementById('deviceAdd') as HTMLButtonElement;
+const exitDeviceAdd = document.getElementById('exitDeviceAdd') as HTMLButtonElement;
 
 //Miscellaneous Elements
 const menuWrapper = document.getElementById('menuWrapper') as HTMLDivElement;
@@ -38,6 +39,7 @@ const menuWrapper = document.getElementById('menuWrapper') as HTMLDivElement;
       pageDevices.style.display = 'block';
       homebridge.hideSchemaForm();
       settingsHelp.style.display = 'none';
+      exitDeviceAdd.style.display = 'none';
       homebridge.hideSpinner();
     };
     const showSettings = () => {
@@ -49,6 +51,7 @@ const menuWrapper = document.getElementById('menuWrapper') as HTMLDivElement;
       pageDevices.style.display = 'none';
       homebridge.showSchemaForm();
       settingsHelp.style.display = 'block';
+      exitDeviceAdd.style.display = 'none';
       homebridge.hideSpinner();
     };
     const showAddDevices = () => {
@@ -57,6 +60,7 @@ const menuWrapper = document.getElementById('menuWrapper') as HTMLDivElement;
       homebridge.hideSchemaForm();
       settingsHelp.style.display = 'none';
       pageDevices.style.display = 'none';
+      exitDeviceAdd.style.display = 'block';
       homebridge.hideSpinner();
       // create the form
       const myForm = homebridge.createForm(
@@ -145,6 +149,7 @@ const menuWrapper = document.getElementById('menuWrapper') as HTMLDivElement;
     menuDevices.addEventListener('click', () => showDevices());
     menuSettings.addEventListener('click', () => showSettings());
     deviceAdd.addEventListener('click', () => showAddDevices());
+    exitDeviceAdd.addEventListener('click', () => showDevices());
 
     if (currentConfig.length) {
       menuWrapper.style.display = 'inline-flex';
