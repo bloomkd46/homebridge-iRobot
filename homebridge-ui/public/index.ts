@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 
-import type { IHomebridgePluginUi } from '@homebridge/plugin-ui-utils/dist/ui.interface';
+import type { IHomebridgePluginUi, IHomebridgeUiFormHelper } from '@homebridge/plugin-ui-utils/dist/ui.interface';
 declare const homebridge: IHomebridgePluginUi;
 
 //Intro Elements
@@ -14,6 +14,7 @@ const menuDevices = document.getElementById('menuDevices') as HTMLButtonElement;
 const pageDevices = document.getElementById('pageDevices') as HTMLDivElement;
 const deviceAdd = document.getElementById('deviceAdd') as HTMLButtonElement;
 const exitAddDevice = document.getElementById('exitAddDevice') as HTMLButtonElement;
+let currentForm: IHomebridgeUiFormHelper;
 
 //Miscellaneous Elements
 const menuWrapper = document.getElementById('menuWrapper') as HTMLDivElement;
@@ -32,6 +33,7 @@ const menuWrapper = document.getElementById('menuWrapper') as HTMLDivElement;
     };
     const showDevices = async () => {
       homebridge.showSpinner();
+      menuWrapper.style.display = 'inline-flex';
       menuDevices.classList.add('btn-elegant');
       menuDevices.classList.remove('btn-primary');
       menuSettings.classList.remove('btn-elegant');
@@ -39,11 +41,13 @@ const menuWrapper = document.getElementById('menuWrapper') as HTMLDivElement;
       pageDevices.style.display = 'block';
       homebridge.hideSchemaForm();
       settingsHelp.style.display = 'none';
+      currentForm.end();
       exitAddDevice.style.display = 'none';
       homebridge.hideSpinner();
     };
     const showSettings = () => {
       homebridge.showSpinner();
+      menuWrapper.style.display = 'inline-flex';
       menuDevices.classList.remove('btn-elegant');
       menuDevices.classList.add('btn-primary');
       menuSettings.classList.add('btn-elegant');
@@ -51,6 +55,7 @@ const menuWrapper = document.getElementById('menuWrapper') as HTMLDivElement;
       pageDevices.style.display = 'none';
       homebridge.showSchemaForm();
       settingsHelp.style.display = 'block';
+      currentForm.end();
       exitAddDevice.style.display = 'none';
       homebridge.hideSpinner();
     };
@@ -60,10 +65,11 @@ const menuWrapper = document.getElementById('menuWrapper') as HTMLDivElement;
       homebridge.hideSchemaForm();
       settingsHelp.style.display = 'none';
       pageDevices.style.display = 'none';
+      currentForm.end();
       exitAddDevice.style.display = 'block';
       homebridge.hideSpinner();
       // create the form
-      const myForm = homebridge.createForm(
+      currentForm = homebridge.createForm(
         {
           schema: {
             type: 'object',
@@ -91,17 +97,15 @@ const menuWrapper = document.getElementById('menuWrapper') as HTMLDivElement;
       );
 
       // watch for submit button click events
-      myForm.onSubmit((form) => {
+      currentForm.onSubmit((form) => {
         console.log(form);
-        myForm.end();
-        menuWrapper.style.display = 'inline-flex';
         showDevices();
       });
       // watch for cancel button click events
-      myForm.onCancel(() => {
+      currentForm.onCancel(() => {
         homebridge.showSpinner();
-        myForm.end();
-        const myForm2 = homebridge.createForm(
+        currentForm.end();
+        currentForm = homebridge.createForm(
           {
             schema: {
               type: 'object',
@@ -131,15 +135,12 @@ const menuWrapper = document.getElementById('menuWrapper') as HTMLDivElement;
         );
 
         // watch for submit button click events
-        myForm2.onSubmit((form) => {
+        currentForm.onSubmit((form) => {
           console.log(form);
-          myForm2.end();
-          menuWrapper.style.display = 'inline-flex';
           showDevices();
         });
         // watch for cancel button click events
-        myForm2.onCancel(() => {
-          myForm.end();
+        currentForm.onCancel(() => {
           showAddDevices();
         });
         homebridge.hideSpinner();
@@ -152,7 +153,6 @@ const menuWrapper = document.getElementById('menuWrapper') as HTMLDivElement;
     exitAddDevice.addEventListener('click', () => showDevices());
 
     if (currentConfig.length) {
-      menuWrapper.style.display = 'inline-flex';
       showSettings();
     } else {
       currentConfig.push({ name: 'iRobot' });
