@@ -312,7 +312,7 @@ export default class Accessory {
       stoppedService.updateCharacteristic(platform.Characteristic.CurrentVisibilityState,
         activity === ActiveIdentifier.Stopped ? 0 : 1);
       homeService.updateCharacteristic(platform.Characteristic.CurrentVisibilityState,
-        [ActiveIdentifier.Cleaning_Everywhere, ActiveIdentifier.Paused].includes(activity) ? 0 : 1);
+        [ActiveIdentifier.Cleaning_Everywhere, ActiveIdentifier.Paused, ActiveIdentifier.Stopped].includes(activity) ? 0 : 1);
       dockingService.updateCharacteristic(platform.Characteristic.CurrentVisibilityState,
         activity === ActiveIdentifier.Docking ? 0 : 1);
       pauseService.updateCharacteristic(platform.Characteristic.CurrentVisibilityState,
