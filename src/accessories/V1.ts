@@ -66,7 +66,7 @@ export default class V1Roomba extends Accessory {
         }
       }).onGet(() => this.offline ? 0 : this.keepAlive ? 1 : 0);
     this.service.setCharacteristic(this.platform.Characteristic.Active, (this.platform.config.autoConnect ?? true) ? 1 : 0);
-    this.service.setCharacteristic(this.platform.Characteristic.ActiveIdentifier, ActiveIdentifier.Docked);
+    this.service.setCharacteristic(this.platform.Characteristic.ActiveIdentifier, ActiveIdentifier.Ready);
     this.service.getCharacteristic(this.platform.Characteristic.ActiveIdentifier)
       .onSet(this.setActivity.bind(this)).onGet(this.getActivity.bind(this)).on('change', this.notifyActivity.bind(this));
   }
@@ -164,7 +164,7 @@ export default class V1Roomba extends Accessory {
           this.lastKnownState = Object.assign(oldState, { cycle: 'clean', phase: 'stop' });
         })();
         break;
-      case ActiveIdentifier.Off:
+      case ActiveIdentifier.Go_Home:
         if (this.lastKnownState.phase !== 'charge') {
           await new Promise(resolve => {
             let docked = false;
@@ -188,6 +188,14 @@ export default class V1Roomba extends Accessory {
           });
         }
         break;
+      case ActiveIdentifier.Stop:
+        await this.dorita980?.stop() ??
+          this.log('warn', 'Failed to stop');
+        (() => {
+          const oldState = this.lastKnownState;
+          this.lastKnownState = Object.assign(oldState, { cycle: 'none', phase: 'stop' });
+        })();
+        break;
       default:
         break;
     }
@@ -202,7 +210,7 @@ export default class V1Roomba extends Accessory {
       case 'cancelled':
       case '':
       case undefined:
-        return ActiveIdentifier.Docked;
+        return ActiveIdentifier.Ready;
       case 'hmUsrDock':
       case 'dock':
       case 'dockend':
@@ -221,14 +229,22 @@ export default class V1Roomba extends Accessory {
       case 'pause':
         return ActiveIdentifier.Paused;
       case 'stop':
-      case 'charge':
         switch (this.lastKnownState.cycle) {
           case 'none':
-            return ActiveIdentifier.Docked;
+            return ActiveIdentifier.Stopped;
           case 'evac':
             return ActiveIdentifier.Emptying_Bin;
           default:
             return ActiveIdentifier.Paused;
+        }
+      case 'charge':
+        switch (this.lastKnownState.cycle) {
+          case 'none':
+            return ActiveIdentifier.Ready;
+          case 'evac':
+            return ActiveIdentifier.Emptying_Bin;
+          default:
+            return ActiveIdentifier.Recharging;
         }
       case 'stuck':
         //this.log('warn', 'Stuck!');
@@ -238,7 +254,7 @@ export default class V1Roomba extends Accessory {
       default:
         //Add unknown channel?
         this.log('warn', 'Unknown phase:', this.lastKnownState.phase);
-        return ActiveIdentifier.Docked;
+        return ActiveIdentifier.Ready;
     }
   }
 
