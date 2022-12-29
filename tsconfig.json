@@ -23,5 +23,13 @@
   ],
   "exclude": [
     "**/*.spec.ts"
+  ],
+  "references": [
+    {
+      "path": "./homebridge-ui/tsconfig.json"
+    },
+    {
+      "path": "./homebridge-ui/public/tsconfig.json"
+    }
   ]
 }

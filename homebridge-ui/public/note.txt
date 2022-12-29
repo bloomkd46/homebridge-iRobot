@@ -1,0 +1,2 @@
+'<i class="fas fa-circle mr-1 green-text"></i> Online'
+'<i class="fas fa-circle mr-1 red-text"></i> Offline'
