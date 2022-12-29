@@ -308,7 +308,7 @@ export default class Accessory {
       rechargingService.updateCharacteristic(platform.Characteristic.CurrentVisibilityState,
         activity === ActiveIdentifier.Recharging ? 0 : 1);
       stopService.updateCharacteristic(platform.Characteristic.CurrentVisibilityState,
-        [ActiveIdentifier.Recharging].includes(activity) ? 0 : 1);
+        [ActiveIdentifier.Recharging, ActiveIdentifier.Cleaning_Everywhere, ActiveIdentifier.Paused].includes(activity) ? 0 : 1);
       stoppedService.updateCharacteristic(platform.Characteristic.CurrentVisibilityState,
         activity === ActiveIdentifier.Stopped ? 0 : 1);
       homeService.updateCharacteristic(platform.Characteristic.CurrentVisibilityState,
