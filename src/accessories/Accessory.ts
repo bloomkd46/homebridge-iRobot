@@ -308,7 +308,8 @@ export default class Accessory {
       rechargingService.updateCharacteristic(platform.Characteristic.CurrentVisibilityState,
         activity === ActiveIdentifier.Recharging ? 0 : 1);
       stopService.updateCharacteristic(platform.Characteristic.CurrentVisibilityState,
-        [ActiveIdentifier.Recharging, ActiveIdentifier.Cleaning_Everywhere, ActiveIdentifier.Paused].includes(activity) ? 0 : 1);
+        [ActiveIdentifier.Recharging, ActiveIdentifier.Cleaning_Everywhere, ActiveIdentifier.Paused, ActiveIdentifier.Docking]
+          .includes(activity) ? 0 : 1);
       stoppedService.updateCharacteristic(platform.Characteristic.CurrentVisibilityState,
         activity === ActiveIdentifier.Stopped ? 0 : 1);
       homeService.updateCharacteristic(platform.Characteristic.CurrentVisibilityState,
@@ -316,7 +317,7 @@ export default class Accessory {
       dockingService.updateCharacteristic(platform.Characteristic.CurrentVisibilityState,
         activity === ActiveIdentifier.Docking ? 0 : 1);
       pauseService.updateCharacteristic(platform.Characteristic.CurrentVisibilityState,
-        [ActiveIdentifier.Cleaning_Everywhere, ActiveIdentifier.Docking].includes(activity) ? 0 : 1);
+        [ActiveIdentifier.Cleaning_Everywhere].includes(activity) ? 0 : 1);
       pausedService.updateCharacteristic(platform.Characteristic.CurrentVisibilityState,
         activity === ActiveIdentifier.Paused ? 0 : 1);
       resumeService.updateCharacteristic(platform.Characteristic.CurrentVisibilityState,
