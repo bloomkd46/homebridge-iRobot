@@ -296,7 +296,7 @@ export default class Accessory {
     this.updateVisibility = (activity) => {
       // SHOWN: 0; HIDDEN: 1
       locateService.updateCharacteristic(platform.Characteristic.CurrentVisibilityState,
-        [ActiveIdentifier.Stuck, ActiveIdentifier.Stopped, ActiveIdentifier.Paused].includes(activity));
+        [ActiveIdentifier.Stuck, ActiveIdentifier.Stopped, ActiveIdentifier.Paused].includes(activity) ? 0 : 1);
       stuckService.updateCharacteristic(platform.Characteristic.CurrentVisibilityState,
         activity === ActiveIdentifier.Stuck ? 0 : 1);
       emptyService.updateCharacteristic(platform.Characteristic.CurrentVisibilityState,
