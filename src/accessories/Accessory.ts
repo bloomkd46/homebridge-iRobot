@@ -323,7 +323,7 @@ export default class Accessory {
       resumeService.updateCharacteristic(platform.Characteristic.CurrentVisibilityState,
         [ActiveIdentifier.Paused].includes(activity) ? 0 : 1);
       cleanService.updateCharacteristic(platform.Characteristic.CurrentVisibilityState,
-        [ActiveIdentifier.Ready].includes(activity) ? 0 : 1);
+        [ActiveIdentifier.Ready, ActiveIdentifier.Stopped].includes(activity) ? 0 : 1);
       cleaningService.updateCharacteristic(platform.Characteristic.CurrentVisibilityState,
         activity === ActiveIdentifier.Cleaning_Everywhere ? 0 : 1);
     };
