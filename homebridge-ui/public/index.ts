@@ -126,6 +126,7 @@ const menuWrapper = document.getElementById('menuWrapper') as HTMLDivElement;
                       allInfo: {
                         title: 'I have my device\'s blid and password',
                         type: 'boolean',
+                        default: false,
                       },
                       blid: {
                         title: 'Blid',
