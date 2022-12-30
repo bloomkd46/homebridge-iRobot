@@ -20,7 +20,7 @@
     "lint": "eslint src/**.ts --max-warnings=0 --fix",
     "watch": "npm run build && npm link && nodemon",
     "prebuild": "rimraf ./dist ./homebridge-ui/server.js ./homebridge-ui/public/bundle.js",
-    "build": "tsc --build && browserify --outfile ./homebridge-ui/public/bundle.js ./homebridge-ui/public/index.js",
+    "build": "tsc --build && browserify --outfile ./homebridge-ui/public/bundle.js ./homebridge-ui/public/index.js --debug",
     "postbuild": "rimraf ./homebridge-ui/server.d.ts ./homebridge-ui/public/index.d.ts ./homebridge-ui/public/index.js ./homebridge-ui/tsconfig.tsbuildinfo ./homebridge-ui/public/tsconfig.tsbuildinfo",
     "prepublishOnly": "npm run lint && npm run build"
   },
