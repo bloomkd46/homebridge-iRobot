@@ -11,298 +11,32 @@
         "title": "Name",
         "description": "For logging purposes",
         "type": "string",
-        "required": true,
-        "default": "iRobot"
-      },
-      "email": {
-        "title": "Email",
-        "type": "string",
-        "required": true,
-        "placeholder": "email@example.com",
-        "format": "email",
-        "condition": {
-          "functionBody": "return !model.manualDiscovery"
-        }
-      },
-      "password": {
-        "title": "Password",
-        "type": "string",
-        "required": true,
-        "x-schema-form": {
-          "type": "password"
-        },
-        "condition": {
-          "functionBody": "return !model.manualDiscovery"
-        }
-      },
-      "manualDiscovery": {
-        "title": "Manual Configuration",
-        "description": "Select this to manually configure your roomba's instead of using an email & password",
-        "type": "boolean",
-        "default": false,
+        "default": "iRobot",
         "required": true
       },
-      "roombas": {
-        "title": "Devices",
-        "type": "array",
-        "buttonText": "Add Device",
-
-        "items": {
-          "type": "object",
-          "properties": {
-            "name": {
-              "title": "Device Name",
-              "description": "Name to display in custom ui and Homekit",
-              "type": "string",
-              "required": true,
-              "placeholder": "Roomba"
-            },
-            "blid": {
-              "title": "Blid",
-              "description": "Your roomba's blid/username (Hint: if you enter your iRobot credentials above you can find your roomba's blid/username in the devices tab above)",
-              "type": "string",
-              "required": true
-            },
-            "password": {
-              "title": "Password",
-              "description": "Your roomba's password (Hint: if you enter your iRobot credentials above you can find your roomba's password in the devices tab above)",
-              "required": true,
-              "type": "string"
-            },
-            "ip": {
-              "title": "IP Address",
-              "description": "Your roomba's ip address (Hint: if you enter your iRobot credentials above you can find your roomba's ip address in the devices tab above)",
-              "type": "string",
-              "format": "ipv4",
-              "required": false
-            }
-          }
-        },
-        "condition": {
-          "functionBody": "return model.manualDiscovery"
-        }
-      },
-      "lowBattery": {
-        "title": "Low Battery Warning",
-        "type": "integer",
-        "required": false,
+      "logLevel": {
+        "title": "Log Level",
+        "type": "number",
         "minimum": 0,
-        "maximum": 100,
-        "default": 20,
-        "description": "At What Percent Should Homekit Display Low Battery Warning"
+        "maximum": 4,
+        "default": 3,
+        "description": "TODO",
+        "required": true
       },
-      "offAction": {
-        "title": "Off Action",
-        "type": "string",
-        "default": "pause:dock",
-        "oneOf": [
-          {
-            "title": "Pause And Dock",
-            "enum": [
-              "pause:dock"
-            ]
-          },
-          {
-            "title": "Stop And Dock",
-            "enum": [
-              "stop:dock"
-            ]
-          },
-          {
-            "title": "Pause And Find",
-            "enum": [
-              "pause:find"
-            ]
-          },
-          {
-            "title": "Stop And Find",
-            "enum": [
-              "stop:find"
-            ]
-          },
-          {
-            "title": "Pause",
-            "enum": [
-              "pause:none"
-            ]
-          },
-          {
-            "title": "Stop",
-            "enum": [
-              "stop:none"
-            ]
-          }
-        ],
-        "required": true,
-        "description": "What To Do When You Set The Switch To Off"
+      "autoConnect": {
+        "title": "Automatically Connect",
+        "description": "Whether or not to automatically establish a connection to your devices at boot",
+        "type": "boolean",
+        "placeholder": true,
+        "required": false
       },
-      "status": {
-        "title": "Status",
-        "type": "string",
-        "default": "phase:run",
-        "oneOf": [
-          {
-            "title": "Job Active",
-            "enum": [
-              "cycle:clean"
-            ]
-          },
-          {
-            "title": "Running",
-            "enum": [
-              "phase:run"
-            ]
-          },
-          {
-            "title": "Not Charging",
-            "enum": [
-              "inverted:phase:charge"
-            ]
-          }
-        ],
-        "required": true,
-        "description": "What To Make Homekit Display As Active"
-      },
-      "sensors": {
-        "title": "Sensors",
-        "type": "array",
-        "buttonText": "Add sensor",
-        "items": {
-          "type": "object",
-          "properties": {
-            "type": {
-              "title": "Sensor Type",
-              "description": "What type of sensor to display",
-              "type": "string",
-              "required": true,
-              "oneOf": [
-                {
-                  "title": "Contact Sensor",
-                  "enum": [
-                    "contact"
-                  ]
-                },
-                {
-                  "title": "Motion Sensor",
-                  "enum": [
-                    "motion"
-                  ]
-                },
-                {
-                  "title": "Filter",
-                  "enum": [
-                    "filter"
-                  ]
-                }
-              ]
-            },
-            "condition": {
-              "title": "Condition",
-              "description": "What triggers the sensor",
-              "type": "string",
-              "required": true,
-              "typeahead": {
-                "source": [
-                  "full:true",
-                  "present:false",
-                  "phase:run",
-                  "phase:stuck"
-                ]
-              }
-            }
-          }
-        }
-      },
-      "refreshInterval": {
-        "title": "Refresh Interval",
-        "description": "How often to update Homekit in minutes",
-        "type": "integer",
-        "required": false,
-        "placeholder": 1,
-        "minimum": 1,
-        "maximum": 60
-      },
-      "connectionTime": {
-        "title": "Active Duration",
-        "description": "How long to maintain a connection in seconds (-1 for infinite connection)",
-        "type": "integer",
-        "required": false,
-        "placeholder": 1,
-        "minimum": -1,
-        "maximum": 60
+      "alwaysShowModes": {
+        "title": "Always Show Actions",
+        "description": "Whether or not to always show actions in HomeKit (Not Recommended; Use With Caution)",
+        "type": "boolean",
+        "placeholder": false,
+        "required": false
       }
     }
-  },
-  "layout": [
-    {
-      "type": "section",
-      "title": "General Options",
-      "expandable": true,
-      "expanded": true,
-      "items": [
-        {
-          "description": "Enter your iRobot username and password below.",
-          "items": [
-            "name",
-            "email",
-            "password",
-            "manualDiscovery",
-            {
-              "key": "roombas",
-              "type": "array",
-              "orderable": true,
-              "title": "Devices",
-              "buttonText": "Add Device",
-              "items": [
-                "roombas[].name",
-                "roombas[].blid",
-                "roombas[].password",
-                "roombas[].ip"
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "type": "section",
-      "title": "Additional Settings (ex. binfull, stuck, running, etc.)",
-      "expandable": true,
-      "expanded": false,
-      "items": [
-        {
-          "key": "sensors",
-          "type": "array",
-          "orderable": true,
-          "title": "Sensors",
-          "buttonText": "Add Sensor",
-          "items": [
-            "sensors[].type",
-            "sensors[].condition"
-          ]
-        }
-      ]
-    },
-    {
-      "type": "section",
-      "title": "Plugin Settings",
-      "expandable": true,
-      "expanded": false,
-      "items": [
-        "lowBattery",
-        "offAction",
-        "status"        
-      ]
-    },
-    {
-      "type": "section",
-      "title": "Advanced Settings (Optional)",
-      "expandable": true,
-      "expanded": false,
-      "items": [
-        "refreshInterval",
-        "connectionTime"
-      ]
-    }
-  ]
+  }
 }

@@ -21,7 +21,6 @@ let currentForm: IHomebridgeUiFormHelper;
 const menuWrapper = document.getElementById('menuWrapper') as HTMLDivElement;
 (async () => {
   try {
-    const currentConfig = await homebridge.getPluginConfig();
     const showIntro = () => {
       introContinue.addEventListener('click', () => {
         homebridge.showSpinner();
@@ -229,6 +228,7 @@ const menuWrapper = document.getElementById('menuWrapper') as HTMLDivElement;
     deviceAdd.addEventListener('click', () => showAddDevices());
     exitAddDevice.addEventListener('click', () => showDevices());
 
+    const currentConfig = await homebridge.getPluginConfig();
     if (currentConfig.length) {
       showSettings();
     } else {
