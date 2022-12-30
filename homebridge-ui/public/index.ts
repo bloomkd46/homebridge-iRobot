@@ -67,7 +67,6 @@ const menuWrapper = document.getElementById('menuWrapper') as HTMLDivElement;
       pageDevices.style.display = 'none';
       currentForm?.end();
       exitAddDevice.style.display = 'inline';
-      homebridge.hideSpinner();
       // create the form
       currentForm = homebridge.createForm(
         {
