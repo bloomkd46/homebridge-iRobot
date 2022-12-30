@@ -139,7 +139,7 @@ const menuWrapper = document.getElementById('menuWrapper') as HTMLDivElement;
                         description: 'Required to get your device\'s password',
                         type: 'boolean',
                         condition: {
-                          functionBody: 'return !model.devices[arrayIndices].password',
+                          functionBody: 'return !("password" in model.devices[arrayIndices])',
                         },
                       },
                     },
