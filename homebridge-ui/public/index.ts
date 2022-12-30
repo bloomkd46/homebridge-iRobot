@@ -120,7 +120,7 @@ const menuWrapper = document.getElementById('menuWrapper') as HTMLDivElement;
                       ip: {
                         title: 'IP Address',
                         type: 'string',
-                        format: 'ipv4',
+                        format: 'hostname',
                         required: true,
                       },
                       blid: {
@@ -132,6 +132,7 @@ const menuWrapper = document.getElementById('menuWrapper') as HTMLDivElement;
                         title: 'Password',
                         type: 'string',
                         description: 'Your devices blid, if you don\'t know, leave blank.',
+                        minLength: 7,
                       },
                       ready: {
                         title: 'I have pressed and held the HOME button on my robot until it played a series of tones (about 2 seconds).',
@@ -139,7 +140,7 @@ const menuWrapper = document.getElementById('menuWrapper') as HTMLDivElement;
                         type: 'boolean',
                         require: true,
                         condition: {
-                          functionBody: 'return model.password === undefined',
+                          functionBody: 'return model[arrayIndices].password === undefined',
                         },
                       },
                     },
