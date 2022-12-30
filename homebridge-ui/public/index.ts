@@ -198,6 +198,7 @@ const menuWrapper = document.getElementById('menuWrapper') as HTMLDivElement;
             console.log(devices);
             homebridge.toast.success(`Successfully Configured ${devices.length} Devices`, 'Success!');
             const config = await homebridge.getPluginConfig() as Config[];
+            config[0].accessories = config[0].accessories || [];
             console.debug(config);
             for (const device of devices) {
               if (device.ipResolution === 'manual' && !device.ip) {
