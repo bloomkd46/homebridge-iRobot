@@ -53,10 +53,10 @@ const menuWrapper = document.getElementById('menuWrapper') as HTMLDivElement;
       menuSettings.classList.add('btn-elegant');
       menuSettings.classList.remove('btn-primary');
       pageDevices.style.display = 'none';
-      homebridge.showSchemaForm();
-      settingsHelp.style.display = 'block';
       currentForm?.end();
       exitAddDevice.style.display = 'none';
+      homebridge.showSchemaForm();
+      settingsHelp.style.display = 'block';
       homebridge.hideSpinner();
     };
     const showAddDevices = () => {
