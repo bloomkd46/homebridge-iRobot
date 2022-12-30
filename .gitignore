@@ -1,5 +1,8 @@
 # Ignore compiled code
 dist
+homebridge-ui/**/*.js
+homebridge-ui/**/*.js.map
+homebridge-ui/**/*.d.ts
 
 # ------------- Defaults ------------- #
 
