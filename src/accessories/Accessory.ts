@@ -78,13 +78,13 @@ export default class Accessory {
     accessory.getService(platform.Service.AccessoryInformation)!
       .setCharacteristic(platform.Characteristic.Manufacturer, 'iRobot')
       .setCharacteristic(platform.Characteristic.SerialNumber, accessory.UUID)
-      .setCharacteristic(platform.Characteristic.Model, device.publicInfo.sku)
+      .setCharacteristic(platform.Characteristic.Model, device.sku)
       .setCharacteristic(platform.Characteristic.Name, this.name)
-      .setCharacteristic(platform.Characteristic.FirmwareRevision, /([\d.-]+)/.exec(device.publicInfo.sw)![0]);
+      .setCharacteristic(platform.Characteristic.FirmwareRevision, /([\d.-]+)/.exec(device.sw)![0]);
 
 
     // set the tv name
-    this.service.setCharacteristic(platform.Characteristic.ConfiguredName, device.publicInfo.robotname);
+    this.service.setCharacteristic(platform.Characteristic.ConfiguredName, this.name);
 
     // set sleep discovery characteristic
     this.service.setCharacteristic(platform.Characteristic.SleepDiscoveryMode,

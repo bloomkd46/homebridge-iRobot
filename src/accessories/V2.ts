@@ -174,11 +174,11 @@ export default class V2Roomba extends Accessory {
           break;
         case 'lookup':
           ip = await new Promise((resolve, reject) =>
-            lookup(this.device.publicInfo.hostname + '.local', 4).then(data => resolve(data.address)).catch(err => reject(err)));
+            lookup('hostname' in this.device ? this.device.hostname : '', 4).then(data => resolve(data.address)).catch(err => reject(err)));
           break;
         default:
           ip = await new Promise((resolve, reject) =>
-            ping.promise.probe('ip' in this.device ? this.device.ip : this.device.publicInfo.ip)
+            ping.promise.probe('ip' in this.device ? this.device.ip : '')
               .then(data => resolve(data.numeric_host ?? reject() ?? '')).catch(err => reject(err)));
           break;
       }

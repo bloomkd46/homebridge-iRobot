@@ -38,20 +38,22 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 exports.__esModule = true;
-exports.closeModal = void 0;
 //Intro Elements
 var pageIntro = document.getElementById('pageIntro');
 var introContinue = document.getElementById('introContinue');
 //Settings Elements
 var menuSettings = document.getElementById('menuSettings');
-var pageSettings = document.getElementById('pageSettings');
+var settingsHelp = document.getElementById('settingsHelp');
 //Devices Elements
 var menuDevices = document.getElementById('menuDevices');
 var pageDevices = document.getElementById('pageDevices');
+var deviceAdd = document.getElementById('deviceAdd');
+var exitAddDevice = document.getElementById('exitAddDevice');
+var currentForm;
 //Miscellaneous Elements
 var menuWrapper = document.getElementById('menuWrapper');
 (function () { return __awaiter(void 0, void 0, void 0, function () {
-    var currentConfig, showIntro, showDevices_1, showSettings_1, err_1;
+    var currentConfig, showIntro, showDevices_1, showSettings_1, showAddDevices_1, err_1;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -72,32 +74,172 @@ var menuWrapper = document.getElementById('menuWrapper');
                 showDevices_1 = function () { return __awaiter(void 0, void 0, void 0, function () {
                     return __generator(this, function (_a) {
                         homebridge.showSpinner();
+                        menuWrapper.style.display = 'inline-flex';
                         menuDevices.classList.add('btn-elegant');
                         menuDevices.classList.remove('btn-primary');
                         menuSettings.classList.remove('btn-elegant');
                         menuSettings.classList.add('btn-primary');
                         pageDevices.style.display = 'block';
                         homebridge.hideSchemaForm();
-                        pageSettings.style.display = 'none';
+                        settingsHelp.style.display = 'none';
+                        currentForm === null || currentForm === void 0 ? void 0 : currentForm.end();
+                        exitAddDevice.style.display = 'none';
                         homebridge.hideSpinner();
                         return [2 /*return*/];
                     });
                 }); };
                 showSettings_1 = function () {
                     homebridge.showSpinner();
+                    menuWrapper.style.display = 'inline-flex';
                     menuDevices.classList.remove('btn-elegant');
                     menuDevices.classList.add('btn-primary');
                     menuSettings.classList.add('btn-elegant');
                     menuSettings.classList.remove('btn-primary');
                     pageDevices.style.display = 'none';
+                    currentForm === null || currentForm === void 0 ? void 0 : currentForm.end();
+                    exitAddDevice.style.display = 'none';
                     homebridge.showSchemaForm();
-                    pageSettings.style.display = 'block';
+                    settingsHelp.style.display = 'block';
+                    homebridge.hideSpinner();
+                };
+                showAddDevices_1 = function () {
+                    homebridge.showSpinner();
+                    menuWrapper.style.display = 'none';
+                    homebridge.hideSchemaForm();
+                    settingsHelp.style.display = 'none';
+                    pageDevices.style.display = 'none';
+                    currentForm === null || currentForm === void 0 ? void 0 : currentForm.end();
+                    exitAddDevice.style.display = 'inline';
+                    // create the form
+                    currentForm = homebridge.createForm({
+                        schema: {
+                            type: 'object',
+                            properties: {
+                                email: {
+                                    title: 'Email',
+                                    type: 'string',
+                                    required: true,
+                                    format: 'email'
+                                },
+                                password: {
+                                    title: 'Password',
+                                    type: 'string',
+                                    required: true,
+                                    'x-schema-form': {
+                                        type: 'password'
+                                    }
+                                }
+                            }
+                        },
+                        layout: null,
+                        form: null
+                    }, {}, 'Get Devices', 'Configure Manually');
+                    // watch for submit button click events
+                    currentForm.onSubmit(function (form) { return __awaiter(void 0, void 0, void 0, function () {
+                        var _a, _b;
+                        return __generator(this, function (_c) {
+                            switch (_c.label) {
+                                case 0:
+                                    homebridge.showSpinner();
+                                    console.log(form);
+                                    _b = (_a = console).log;
+                                    return [4 /*yield*/, homebridge.request('/configureDevices', form)];
+                                case 1:
+                                    _b.apply(_a, [_c.sent()]);
+                                    showDevices_1();
+                                    return [2 /*return*/];
+                            }
+                        });
+                    }); });
+                    // watch for cancel button click events
+                    currentForm.onCancel(function () {
+                        homebridge.showSpinner();
+                        currentForm.end();
+                        currentForm = homebridge.createForm({
+                            schema: {
+                                type: 'object',
+                                properties: {
+                                    devices: {
+                                        title: 'Devices',
+                                        type: 'array',
+                                        buttonText: 'Add Device',
+                                        items: {
+                                            type: 'object',
+                                            properties: {
+                                                ip: {
+                                                    title: 'IP Address',
+                                                    type: 'string',
+                                                    format: 'ipv4',
+                                                    required: true
+                                                },
+                                                allInfo: {
+                                                    title: 'I have my device\'s blid and password',
+                                                    type: 'boolean',
+                                                    "default": false
+                                                },
+                                                blid: {
+                                                    title: 'Blid',
+                                                    type: 'string',
+                                                    description: 'Your devices blid, if you don\'t know, leave blank.',
+                                                    condition: {
+                                                        functionBody: 'return ("devices" in model && model.devices[arrayIndices].allInfo)'
+                                                    }
+                                                },
+                                                password: {
+                                                    title: 'Password',
+                                                    type: 'string',
+                                                    description: 'Your devices blid, if you don\'t know, leave blank.',
+                                                    minLength: 7,
+                                                    condition: {
+                                                        functionBody: 'return ("devices" in model && model.devices[arrayIndices].allInfo)'
+                                                    }
+                                                },
+                                                ready: {
+                                                    title: 'I have pressed and held the HOME button on my robot until it played a series of tones (about 2 seconds).',
+                                                    description: 'Required to get your device\'s password',
+                                                    type: 'boolean',
+                                                    condition: {
+                                                        functionBody: 'return ("devices" in model && !model.devices[arrayIndices].allInfo)'
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            layout: null,
+                            form: null
+                        }, {}, 'Get Devices', 'Configure From Cloud');
+                        // watch for submit button click events
+                        currentForm.onSubmit(function (form) { return __awaiter(void 0, void 0, void 0, function () {
+                            var _a, _b;
+                            return __generator(this, function (_c) {
+                                switch (_c.label) {
+                                    case 0:
+                                        homebridge.showSpinner();
+                                        console.log(form);
+                                        _b = (_a = console).log;
+                                        return [4 /*yield*/, homebridge.request('/configureDevices', form)];
+                                    case 1:
+                                        _b.apply(_a, [_c.sent()]);
+                                        showDevices_1();
+                                        return [2 /*return*/];
+                                }
+                            });
+                        }); });
+                        // watch for cancel button click events
+                        currentForm.onCancel(function () {
+                            showAddDevices_1();
+                        });
+                        homebridge.hideSpinner();
+                    });
                     homebridge.hideSpinner();
                 };
                 menuDevices.addEventListener('click', function () { return showDevices_1(); });
                 menuSettings.addEventListener('click', function () { return showSettings_1(); });
+                deviceAdd.addEventListener('click', function () { return showAddDevices_1(); });
+                exitAddDevice.addEventListener('click', function () { return showDevices_1(); });
                 if (!currentConfig.length) return [3 /*break*/, 2];
-                menuWrapper.style.display = 'inline-flex';
                 showSettings_1();
                 return [3 /*break*/, 4];
             case 2:
@@ -110,7 +252,9 @@ var menuWrapper = document.getElementById('menuWrapper');
             case 4: return [3 /*break*/, 7];
             case 5:
                 err_1 = _a.sent();
-                homebridge.toast.error(err_1.message, 'Error');
+                homebridge.toast.error(err_1, 'Error');
+                console.error(err_1);
+                homebridge.closeSettings();
                 return [3 /*break*/, 7];
             case 6:
                 homebridge.hideSpinner();
@@ -119,9 +263,5 @@ var menuWrapper = document.getElementById('menuWrapper');
         }
     });
 }); })();
-function closeModal() {
-    $('#deviceDetails').modal('hide');
-}
-exports.closeModal = closeModal;
 
 },{}]},{},[1]);

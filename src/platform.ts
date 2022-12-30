@@ -152,7 +152,7 @@ export class iRobotPlatform implements DynamicPlatformPlugin {
       // this is imported from `platformAccessory.ts`
       //new iRobotPlatformAccessory(this, accessory, device);
       //new platformAccessory[accessoryType](this, accessory);
-      switch (JSON.parse(/([\d.-]+)/.exec(device.publicInfo.sw)![0].split('.').shift()!)) {
+      switch (JSON.parse(/([\d.-]+)/.exec(device.sw)![0].split('.').shift()!)) {
         /*case 1:
             new V1Roomba(this, accessory, device);
             break;*/

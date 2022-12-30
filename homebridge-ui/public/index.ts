@@ -96,8 +96,10 @@ const menuWrapper = document.getElementById('menuWrapper') as HTMLDivElement;
       );
 
       // watch for submit button click events
-      currentForm.onSubmit((form) => {
+      currentForm.onSubmit(async (form) => {
+        homebridge.showSpinner();
         console.log(form);
+        console.log(await homebridge.request('/configureDevices', form));
         showDevices();
       });
       // watch for cancel button click events
@@ -164,8 +166,10 @@ const menuWrapper = document.getElementById('menuWrapper') as HTMLDivElement;
         );
 
         // watch for submit button click events
-        currentForm.onSubmit((form) => {
+        currentForm.onSubmit(async (form) => {
+          homebridge.showSpinner();
           console.log(form);
+          console.log(await homebridge.request('/configureDevices', form));
           showDevices();
         });
         // watch for cancel button click events
@@ -196,3 +200,20 @@ const menuWrapper = document.getElementById('menuWrapper') as HTMLDivElement;
     homebridge.hideSpinner();
   }
 })();
+export type Device = {
+  name: string;
+  blid: string;
+  password: string;
+  sw: string;
+  sku: string;
+  //publicInfo: PublicInfo;
+} & ipInfo;
+type ipInfo = {
+  ipResolution: 'manual';
+  ip: string;
+} | {
+  ipResolution: 'lookup';
+  hostname: string;
+} | {
+  ipResolution: 'broadcast';
+};

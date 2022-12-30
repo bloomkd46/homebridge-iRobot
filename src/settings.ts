@@ -1,4 +1,4 @@
-import type { LocalV3, LocalV2, PublicInfo, LocalV1 } from '@bloomkd46/dorita980';
+import type { LocalV3, LocalV2, LocalV1 } from '@bloomkd46/dorita980';
 import { ActiveIdentifier } from './accessories/Accessory';
 
 
@@ -55,11 +55,16 @@ export type Device = {
   name: string;
   blid: string;
   password: string;
-  publicInfo: PublicInfo;
+  sw: string;
+  sku: string;
+  //publicInfo: PublicInfo;
 } & ipInfo;
 type ipInfo = {
   ipResolution: 'manual';
   ip: string;
 } | {
-  ipResolution: 'lookup' | 'broadcast';
+  ipResolution: 'lookup';
+  hostname: string;
+} | {
+  ipResolution: 'broadcast';
 };
