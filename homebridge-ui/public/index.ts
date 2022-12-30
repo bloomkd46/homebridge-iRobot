@@ -140,7 +140,7 @@ const menuWrapper = document.getElementById('menuWrapper') as HTMLDivElement;
                         type: 'boolean',
                         required: true,
                         condition: {
-                          functionBody: 'return model[arrayIndices].password === undefined',
+                          functionBody: 'return !model[arrayIndices].password',
                         },
                       },
                     },
