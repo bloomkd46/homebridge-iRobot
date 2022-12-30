@@ -123,23 +123,33 @@ const menuWrapper = document.getElementById('menuWrapper') as HTMLDivElement;
                         format: 'ipv4',
                         required: true,
                       },
+                      allInfo: {
+                        title: 'I have my device\'s blid and password',
+                        type: 'boolean',
+                      },
                       blid: {
                         title: 'Blid',
                         type: 'string',
                         description: 'Your devices blid, if you don\'t know, leave blank.',
+                        condition: {
+                          functionBody: 'return ("devices" in model && model.devices[arrayIndices].allInfo)',
+                        },
                       },
                       password: {
                         title: 'Password',
                         type: 'string',
                         description: 'Your devices blid, if you don\'t know, leave blank.',
                         minLength: 7,
+                        condition: {
+                          functionBody: 'return ("devices" in model && model.devices[arrayIndices].allInfo)',
+                        },
                       },
                       ready: {
                         title: 'I have pressed and held the HOME button on my robot until it played a series of tones (about 2 seconds).',
                         description: 'Required to get your device\'s password',
                         type: 'boolean',
                         condition: {
-                          functionBody: 'return !("password" in model.devices[arrayIndices])',
+                          functionBody: 'return ("devices" in model && !model.devices[arrayIndices].allInfo)',
                         },
                       },
                     },
