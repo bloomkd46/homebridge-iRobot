@@ -13,6 +13,8 @@ const settingsHelp = document.getElementById('settingsHelp') as HTMLParagraphEle
 const menuDevices = document.getElementById('menuDevices') as HTMLButtonElement;
 const pageDevices = document.getElementById('pageDevices') as HTMLDivElement;
 const deviceAdd = document.getElementById('deviceAdd') as HTMLButtonElement;
+const deviceSelect = document.getElementById('deviceSelect') as HTMLSelectElement;
+const deviceZone = document.getElementById('deviceZone') as HTMLDivElement;
 const exitAddDevice = document.getElementById('exitAddDevice') as HTMLButtonElement;
 const pleaseWait = document.getElementById('pleaseWait') as HTMLDivElement;
 let currentForm: IHomebridgeUiFormHelper;
@@ -44,6 +46,30 @@ const menuWrapper = document.getElementById('menuWrapper') as HTMLDivElement;
       currentForm?.end();
       exitAddDevice.style.display = 'none';
       pleaseWait.style.display = 'none';
+
+      const accessories: Config['accessories'] = (await homebridge.getPluginConfig()[0].accessories ?? []).sort((a, b) =>
+        a.displayName.toLowerCase() > b.displayName.toLowerCase() ? 1 : b.displayName.toLowerCase() > a.displayName.toLowerCase() ? -1 : 0);
+
+      const showDevice = async (blid: string) => {
+        deviceZone.innerHTML = JSON.stringify(accessories.find(accessory => accessory.blid === blid));
+      };
+      deviceSelect.innerHTML = '';
+
+      if (accessories.length) {
+        accessories.forEach(accessory => {
+          const option = document.createElement('option');
+          option.text = accessory.name;
+          option.value = accessory.blid;
+          deviceSelect.add(option);
+        });
+        showDevice(deviceSelect.options[0].value);
+      } else {
+        const option = document.createElement('option');
+        option.text = 'No Devices';
+        deviceSelect.add(option);
+        deviceSelect.disabled = true;
+      }
+      deviceSelect.addEventListener('change', () => showDevice(deviceSelect.value));
       homebridge.hideSpinner();
     };
     const showSettings = () => {
