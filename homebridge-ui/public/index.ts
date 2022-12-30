@@ -13,6 +13,7 @@ const settingsHelp = document.getElementById('settingsHelp') as HTMLParagraphEle
 const menuDevices = document.getElementById('menuDevices') as HTMLButtonElement;
 const pageDevices = document.getElementById('pageDevices') as HTMLDivElement;
 const deviceAdd = document.getElementById('deviceAdd') as HTMLButtonElement;
+const deviceButtons = document.getElementsByClassName('deviceButton') as HTMLCollectionOf<HTMLButtonElement>;
 const deviceSelect = document.getElementById('deviceSelect') as HTMLSelectElement;
 const logZone = document.getElementById('logZone') as HTMLPreElement;
 //const deviceZone = document.getElementById('deviceZone') as HTMLDivElement;
@@ -55,6 +56,11 @@ function resetView(activeButton: 'none' | 'settings' | 'devices') {
   pageIntro.style.display = 'none';
 
 }
+function setDeviceButtonEnabled(visible: boolean) {
+  for (let i = 0; i < deviceButtons.length; i++) {
+    deviceButtons[i].disabled = visible;
+  }
+}
 (async () => {
   try {
     const showIntro = () => {
@@ -85,12 +91,14 @@ function resetView(activeButton: 'none' | 'settings' | 'devices') {
           option.value = accessory.blid;
           deviceSelect.add(option);
         });
+        setDeviceButtonEnabled(true);
         showDeviceLogs(deviceSelect.options[0].value);
       } else {
         const option = document.createElement('option');
         option.text = 'No Devices';
         deviceSelect.add(option);
         deviceSelect.disabled = true;
+        setDeviceButtonEnabled(false);
       }
       deviceSelect.addEventListener('change', () => showDeviceLogs(deviceSelect.value));
       homebridge.hideSpinner();

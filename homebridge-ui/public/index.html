@@ -16,14 +16,21 @@
 </div>
 <p class="mt-4 text-center" id="settingsHelp" style="display: none;">To configure your devices, use the devices tab</p>
 <div id="pageDevices" class="mt-4" style="display: none;">
-  <div class="clearfix">
+  <!--<div class="clearfix">
     <button id="deviceDelete" class="float-right btn btn-danger" style="display:none">Delete Device <i
         class="fas fa-trash-alt"></i></button>
     <button id="deviceAdd" class="float-right btn btn-info">Add Device <i class="fas fa-plus"></i></button>
-  </div>
+  </div>-->
   <form>
-    <div class="form-group">
-      <select class="form-control" id="deviceSelect"></select>
+    <div class="row">
+      <div class="col">
+        <select class="form-control" id="deviceSelect"></select>
+      </div>
+      <div class="col-auto">
+        <button class="btn btn-danger deviceButton"><i class="fas fa-trash-alt"></i></button>
+        <button class="btn btn-warning deviceButton"><i class="fas fa-pen-to-square"></i></button>
+        <button id="deviceAdd" class="btn btn-info"><i class="fas fa-plus"></i></button>
+      </div>
     </div>
   </form>
   <pre class="card" style="height: 55vh; overflow: scroll; white-space: pre-line" id="logZone"></pre>
