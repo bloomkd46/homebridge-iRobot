@@ -3,7 +3,9 @@
     "composite": true,
     "lib": [
       "DOM"
-    ]
+    ],
+    "inlineSourceMap": true,
+    "inlineSources": true
   },
   "include": [
     "index.ts"
