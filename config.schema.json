@@ -27,14 +27,14 @@
         "title": "Automatically Connect",
         "description": "Whether or not to automatically establish a connection to your devices at boot",
         "type": "boolean",
-        "placeholder": true,
+        "default": true,
         "required": false
       },
       "alwaysShowModes": {
         "title": "Always Show Actions",
         "description": "Whether or not to always show actions in HomeKit (Not Recommended; Use With Caution)",
         "type": "boolean",
-        "placeholder": false,
+        "default": false,
         "required": false
       }
     }
