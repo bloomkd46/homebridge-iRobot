@@ -70,6 +70,7 @@ const menuWrapper = document.getElementById('menuWrapper') as HTMLDivElement;
       pageDevices.style.display = 'none';
       currentForm?.end();
       exitAddDevice.style.display = 'inline';
+      pleaseWait.style.display = 'none';
       // create the form
       currentForm = homebridge.createForm(
         {
@@ -99,15 +100,18 @@ const menuWrapper = document.getElementById('menuWrapper') as HTMLDivElement;
       );
 
       // watch for submit button click events
-      currentForm.onSubmit(async (form) => {
+      currentForm.onSubmit((form) => {
         homebridge.showSpinner();
         pleaseWait.style.display = 'block';
         console.log(form);
         currentForm.end();
-        await homebridge.request('/configureDevices', form).then((data: Device[]) =>
-          homebridge.toast.success(`Successfully Configured ${data.length} Devices`, 'Success!'))
-          .catch(err => homebridge.toast.error(err.name, 'Error'));
-        showSettings();
+        homebridge.request('/configureDevices', form).then((data: Device[]) => {
+          homebridge.toast.success(`Successfully Configured ${data.length} Devices`, 'Success!');
+          showSettings();
+        }).catch(err => {
+          homebridge.toast.error(err.name, 'Error');
+          showAddDevices();
+        });
       });
       // watch for cancel button click events
       currentForm.onCancel(() => {
@@ -173,15 +177,18 @@ const menuWrapper = document.getElementById('menuWrapper') as HTMLDivElement;
         );
 
         // watch for submit button click events
-        currentForm.onSubmit(async (form) => {
+        currentForm.onSubmit((form) => {
           homebridge.showSpinner();
           pleaseWait.style.display = 'block';
           console.log(form);
           currentForm.end();
-          await homebridge.request('/configureDevices', form).then((data: Device[]) =>
-            homebridge.toast.success(`Successfully Configured ${data.length} Devices`, 'Success!'))
-            .catch(err => homebridge.toast.error(err.name, 'Error'));
-          showSettings();
+          homebridge.request('/configureDevices', form).then((data: Device[]) => {
+            homebridge.toast.success(`Successfully Configured ${data.length} Devices`, 'Success!');
+            showSettings();
+          }).catch(err => {
+            homebridge.toast.error(err.name, 'Error');
+            showAddDevices();
+          });
         });
         // watch for cancel button click events
         currentForm.onCancel(() => {
