@@ -103,6 +103,7 @@ const menuWrapper = document.getElementById('menuWrapper') as HTMLDivElement;
         homebridge.showSpinner();
         pleaseWait.style.display = 'block';
         console.log(form);
+        currentForm.end();
         await homebridge.request('/configureDevices', form).then((data: Device[]) =>
           homebridge.toast.success(`Successfully Configured ${data.length} Devices`, 'Success!'))
           .catch(err => homebridge.toast.error(err.name, 'Error'));
@@ -176,6 +177,7 @@ const menuWrapper = document.getElementById('menuWrapper') as HTMLDivElement;
           homebridge.showSpinner();
           pleaseWait.style.display = 'block';
           console.log(form);
+          currentForm.end();
           await homebridge.request('/configureDevices', form).then((data: Device[]) =>
             homebridge.toast.success(`Successfully Configured ${data.length} Devices`, 'Success!'))
             .catch(err => homebridge.toast.error(err.name, 'Error'));
