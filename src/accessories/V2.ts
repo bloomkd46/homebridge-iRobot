@@ -131,7 +131,8 @@ export default class V2Roomba extends Accessory {
             this.lastKnownState = Object.assign(oldState, state);
           });
           this.dorita980.on('offline', () => {
-            this.offline = true; /*this.ip = undefined;*/ this.dorita980 = undefined;
+            this.dorita980?.end() ?? this.log(4, 'Failed to disconnect');
+            this.offline = true; /*this.ip = undefined;*/
             this.log('warn', 'Unavailable');
             reject();
           });
@@ -141,6 +142,7 @@ export default class V2Roomba extends Accessory {
             resolve(this.dorita980!);
           });
           this.dorita980.on('close', () => {
+            this.log(3, 'Disconnected');
             this.connected = false; this.dorita980 = undefined;
           });
         }).catch(() => {
@@ -153,7 +155,6 @@ export default class V2Roomba extends Accessory {
   disconnect() {
     this.connections--;
     if (this.connections === 0 && !this.keepAlive) {
-      this.log(3, 'Disconnected');
       this.dorita980?.end() ?? this.log('warn', 'Failed to disconnect');
     }
   }
