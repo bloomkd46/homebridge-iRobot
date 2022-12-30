@@ -74,7 +74,7 @@ function resetView(activeButton: 'none' | 'settings' | 'devices') {
           a.name.toLowerCase() > b.name.toLowerCase() ? 1 : b.name.toLowerCase() > a.name.toLowerCase() ? -1 : 0);
 
       const showDeviceLogs = async (blid: string) => {
-        logZone.innerHTML = JSON.stringify(accessories.find(accessory => accessory.blid === blid));
+        logZone.innerHTML = await homebridge.request('/getLogs', blid);
       };
       deviceSelect.innerHTML = '';
 
