@@ -56,9 +56,9 @@ function resetView(activeButton: 'none' | 'settings' | 'devices') {
   pageIntro.style.display = 'none';
 
 }
-function setDeviceButtonEnabled(visible: boolean) {
+function setDeviceButtonEnabled(disabled: boolean) {
   for (let i = 0; i < deviceButtons.length; i++) {
-    deviceButtons[i].disabled = visible;
+    deviceButtons[i].disabled = disabled;
   }
 }
 (async () => {
@@ -91,14 +91,14 @@ function setDeviceButtonEnabled(visible: boolean) {
           option.value = accessory.blid;
           deviceSelect.add(option);
         });
-        setDeviceButtonEnabled(true);
+        setDeviceButtonEnabled(false);
         showDeviceLogs(deviceSelect.options[0].value);
       } else {
         const option = document.createElement('option');
         option.text = 'No Devices';
         deviceSelect.add(option);
         deviceSelect.disabled = true;
-        setDeviceButtonEnabled(false);
+        setDeviceButtonEnabled(true);
       }
       deviceSelect.addEventListener('change', () => showDeviceLogs(deviceSelect.value));
       homebridge.hideSpinner();
