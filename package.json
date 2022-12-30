@@ -32,7 +32,7 @@
     "vacuum"
   ],
   "dependencies": {
-    "@bloomkd46/dorita980": "^1.1.9",
+    "@bloomkd46/dorita980": "^1.1.10",
     "@homebridge/plugin-ui-utils": "^0.0.19",
     "ping": "^0.4.2"
   },
