@@ -14,6 +14,7 @@ const menuDevices = document.getElementById('menuDevices') as HTMLButtonElement;
 const pageDevices = document.getElementById('pageDevices') as HTMLDivElement;
 const deviceAdd = document.getElementById('deviceAdd') as HTMLButtonElement;
 const exitAddDevice = document.getElementById('exitAddDevice') as HTMLButtonElement;
+const pleaseWait = document.getElementById('pleaseWait') as HTMLDivElement;
 let currentForm: IHomebridgeUiFormHelper;
 
 //Miscellaneous Elements
@@ -43,6 +44,7 @@ const menuWrapper = document.getElementById('menuWrapper') as HTMLDivElement;
       settingsHelp.style.display = 'none';
       currentForm?.end();
       exitAddDevice.style.display = 'none';
+      pleaseWait.style.display = 'none';
       homebridge.hideSpinner();
     };
     const showSettings = () => {
@@ -57,6 +59,7 @@ const menuWrapper = document.getElementById('menuWrapper') as HTMLDivElement;
       exitAddDevice.style.display = 'none';
       homebridge.showSchemaForm();
       settingsHelp.style.display = 'block';
+      pleaseWait.style.display = 'none';
       homebridge.hideSpinner();
     };
     const showAddDevices = () => {
@@ -98,8 +101,10 @@ const menuWrapper = document.getElementById('menuWrapper') as HTMLDivElement;
       // watch for submit button click events
       currentForm.onSubmit(async (form) => {
         homebridge.showSpinner();
+        pleaseWait.style.display = 'block';
         console.log(form);
-        console.log(await homebridge.request('/configureDevices', form));
+        await homebridge.request('/configureDevices', form).then((data: Device[]) =>
+          homebridge.toast.success(`Successfully configured ${data.length} devices`)).catch(err => homebridge.toast.error(err));
         showDevices();
       });
       // watch for cancel button click events
@@ -168,6 +173,7 @@ const menuWrapper = document.getElementById('menuWrapper') as HTMLDivElement;
         // watch for submit button click events
         currentForm.onSubmit(async (form) => {
           homebridge.showSpinner();
+          pleaseWait.style.display = 'block';
           console.log(form);
           console.log(await homebridge.request('/configureDevices', form.devices));
           showDevices();
