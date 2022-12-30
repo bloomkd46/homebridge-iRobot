@@ -1,6 +1,8 @@
 /* eslint-disable no-console */
 
 import { lookup } from 'dns/promises';
+import { readFileSync } from 'fs';
+import { join } from 'path';
 
 import { getPassword, getPasswordCloud, getRobotByBlid, getRobotPublicInfo, PublicInfo } from '@bloomkd46/dorita980';
 import { HomebridgePluginUiServer } from '@homebridge/plugin-ui-utils';
@@ -9,6 +11,15 @@ import { HomebridgePluginUiServer } from '@homebridge/plugin-ui-utils';
 class PluginUiServer extends HomebridgePluginUiServer {
   constructor() {
     super();
+    const storagePath = join(this.homebridgeStoragePath ?? '', 'iRobot');
+
+    this.onRequest('/getLogs', (blid: string) => {
+      try {
+        readFileSync(join(storagePath, `${blid}.log`), 'utf-8');
+      } catch (err) {
+        return `Failed to load logs from ${join(storagePath, `${blid}.log`)}`;
+      }
+    });
 
     this.onRequest('/configureDevices',
       async (payload: { email: string; password: string; } | { ip: string; blid?: string; password?: string; }[]) => {

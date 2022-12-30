@@ -14,45 +14,67 @@ const menuDevices = document.getElementById('menuDevices') as HTMLButtonElement;
 const pageDevices = document.getElementById('pageDevices') as HTMLDivElement;
 const deviceAdd = document.getElementById('deviceAdd') as HTMLButtonElement;
 const deviceSelect = document.getElementById('deviceSelect') as HTMLSelectElement;
-const deviceZone = document.getElementById('deviceZone') as HTMLDivElement;
+const logZone = document.getElementById('logZone') as HTMLPreElement;
+//const deviceZone = document.getElementById('deviceZone') as HTMLDivElement;
 const exitAddDevice = document.getElementById('exitAddDevice') as HTMLButtonElement;
 const pleaseWait = document.getElementById('pleaseWait') as HTMLDivElement;
 let currentForm: IHomebridgeUiFormHelper;
 
 //Miscellaneous Elements
 const menuWrapper = document.getElementById('menuWrapper') as HTMLDivElement;
+
+function resetView(activeButton: 'none' | 'settings' | 'devices') {
+  //Reset Menu
+  switch (activeButton) {
+    case 'none':
+      menuWrapper.style.display = 'none';
+      exitAddDevice.style.display = 'inline';
+      break;
+    case 'settings':
+      menuWrapper.style.display = 'inline-flex';
+      menuDevices.classList.remove('btn-elegant');
+      menuDevices.classList.add('btn-primary');
+      menuSettings.classList.remove('btn-primary');
+      menuSettings.classList.add('btn-elegant');
+      break;
+    case 'devices':
+      menuWrapper.style.display = 'inline-flex';
+      menuDevices.classList.add('btn-elegant');
+      menuDevices.classList.remove('btn-primary');
+      menuSettings.classList.add('btn-primary');
+      menuSettings.classList.remove('btn-elegant');
+      break;
+  }
+  //Reset pages
+  pageDevices.style.display = 'none';
+  homebridge.hideSchemaForm();
+  settingsHelp.style.display = 'none';
+  currentForm?.end();
+  exitAddDevice.style.display = 'none';
+  pleaseWait.style.display = 'none';
+  pageIntro.style.display = 'none';
+
+}
 (async () => {
   try {
     const showIntro = () => {
       introContinue.addEventListener('click', () => {
         homebridge.showSpinner();
-        pageIntro.style.display = 'none';
-        menuWrapper.style.display = 'inline-flex';
         showSettings();
-        homebridge.hideSpinner();
       });
       pageIntro.style.display = 'block';
     };
     const showDevices = async () => {
       homebridge.showSpinner();
-      menuWrapper.style.display = 'inline-flex';
-      menuDevices.classList.add('btn-elegant');
-      menuDevices.classList.remove('btn-primary');
-      menuSettings.classList.remove('btn-elegant');
-      menuSettings.classList.add('btn-primary');
+      resetView('devices');
       pageDevices.style.display = 'block';
-      homebridge.hideSchemaForm();
-      settingsHelp.style.display = 'none';
-      currentForm?.end();
-      exitAddDevice.style.display = 'none';
-      pleaseWait.style.display = 'none';
 
       const accessories = ((await homebridge.getPluginConfig())[0].accessories as Config['accessories'] ?? [])
         .sort((a, b) =>
           a.name.toLowerCase() > b.name.toLowerCase() ? 1 : b.name.toLowerCase() > a.name.toLowerCase() ? -1 : 0);
 
-      const showDevice = async (blid: string) => {
-        deviceZone.innerHTML = JSON.stringify(accessories.find(accessory => accessory.blid === blid));
+      const showDeviceLogs = async (blid: string) => {
+        logZone.innerHTML = JSON.stringify(accessories.find(accessory => accessory.blid === blid));
       };
       deviceSelect.innerHTML = '';
 
@@ -63,40 +85,26 @@ const menuWrapper = document.getElementById('menuWrapper') as HTMLDivElement;
           option.value = accessory.blid;
           deviceSelect.add(option);
         });
-        showDevice(deviceSelect.options[0].value);
+        showDeviceLogs(deviceSelect.options[0].value);
       } else {
         const option = document.createElement('option');
         option.text = 'No Devices';
         deviceSelect.add(option);
         deviceSelect.disabled = true;
       }
-      deviceSelect.addEventListener('change', () => showDevice(deviceSelect.value));
+      deviceSelect.addEventListener('change', () => showDeviceLogs(deviceSelect.value));
       homebridge.hideSpinner();
     };
     const showSettings = () => {
       homebridge.showSpinner();
-      menuWrapper.style.display = 'inline-flex';
-      menuDevices.classList.remove('btn-elegant');
-      menuDevices.classList.add('btn-primary');
-      menuSettings.classList.add('btn-elegant');
-      menuSettings.classList.remove('btn-primary');
-      pageDevices.style.display = 'none';
-      currentForm?.end();
-      exitAddDevice.style.display = 'none';
+      resetView('settings');
       homebridge.showSchemaForm();
       settingsHelp.style.display = 'block';
-      pleaseWait.style.display = 'none';
       homebridge.hideSpinner();
     };
     const showAddDevices = () => {
       homebridge.showSpinner();
-      menuWrapper.style.display = 'none';
-      homebridge.hideSchemaForm();
-      settingsHelp.style.display = 'none';
-      pageDevices.style.display = 'none';
-      currentForm?.end();
-      exitAddDevice.style.display = 'inline';
-      pleaseWait.style.display = 'none';
+      resetView('none');
       // create the form
       currentForm = homebridge.createForm(
         {
