@@ -115,8 +115,9 @@ const menuWrapper = document.getElementById('menuWrapper') as HTMLDivElement;
             if (!config[0].accessories.find(accessory => accessory.blid === device.blid)) {
               config[0].accessories.push(device);
             }
+            await homebridge.updatePluginConfig(config);
           }
-          await homebridge.updatePluginConfig(config);
+          await homebridge.savePluginConfig();
           showDevices();
         }).catch(err => {
           console.error(err);
@@ -206,8 +207,9 @@ const menuWrapper = document.getElementById('menuWrapper') as HTMLDivElement;
               if (!config[0].accessories.find(accessory => accessory.blid === device.blid)) {
                 config[0].accessories.push(device);
               }
+              await homebridge.updatePluginConfig(config);
             }
-            homebridge.updatePluginConfig(config);
+            await homebridge.savePluginConfig();
             showDevices();
           }).catch(err => {
             console.error(err);

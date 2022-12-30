@@ -14,6 +14,9 @@
         "default": "iRobot",
         "required": true
       },
+      "accessories": {
+        "type": "array"
+      },
       "logLevel": {
         "title": "Log Level",
         "type": "number",
@@ -38,5 +41,11 @@
         "required": false
       }
     }
-  }
+  },
+  "layout": [
+    "name",
+    "logLevel",
+    "autoConnect",
+    "alwaysShowModes"
+  ]
 }
