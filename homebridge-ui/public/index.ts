@@ -108,8 +108,8 @@ const menuWrapper = document.getElementById('menuWrapper') as HTMLDivElement;
         homebridge.request('/configureDevices', form).then((data: Device[]) => {
           homebridge.toast.success(`Successfully Configured ${data.length} Devices`, 'Success!');
           showSettings();
-        }).catch(err => {
-          homebridge.toast.error(err.name, 'Error');
+        }).catch(() => {
+          homebridge.toast.error('See Your Homebridge Logs For More Info', 'Please Try Again');
           showAddDevices();
         });
       });
@@ -185,8 +185,8 @@ const menuWrapper = document.getElementById('menuWrapper') as HTMLDivElement;
           homebridge.request('/configureDevices', form).then((data: Device[]) => {
             homebridge.toast.success(`Successfully Configured ${data.length} Devices`, 'Success!');
             showSettings();
-          }).catch(err => {
-            homebridge.toast.error(err.name, 'Error');
+          }).catch(() => {
+            homebridge.toast.error('See Your Homebridge Logs For More Info', 'Please Try Again');
             showAddDevices();
           });
         });
