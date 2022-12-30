@@ -169,7 +169,7 @@ const menuWrapper = document.getElementById('menuWrapper') as HTMLDivElement;
         currentForm.onSubmit(async (form) => {
           homebridge.showSpinner();
           console.log(form);
-          console.log(await homebridge.request('/configureDevices', form));
+          console.log(await homebridge.request('/configureDevices', form.devices));
           showDevices();
         });
         // watch for cancel button click events
