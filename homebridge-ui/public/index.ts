@@ -104,8 +104,9 @@ const menuWrapper = document.getElementById('menuWrapper') as HTMLDivElement;
         pleaseWait.style.display = 'block';
         console.log(form);
         await homebridge.request('/configureDevices', form).then((data: Device[]) =>
-          homebridge.toast.success(`Successfully configured ${data.length} devices`)).catch(err => homebridge.toast.error(err));
-        showDevices();
+          homebridge.toast.success(`Successfully Configured ${data.length} Devices`, 'Success!'))
+          .catch(err => homebridge.toast.error(err.name, 'Error'));
+        showSettings();
       });
       // watch for cancel button click events
       currentForm.onCancel(() => {
@@ -175,8 +176,10 @@ const menuWrapper = document.getElementById('menuWrapper') as HTMLDivElement;
           homebridge.showSpinner();
           pleaseWait.style.display = 'block';
           console.log(form);
-          console.log(await homebridge.request('/configureDevices', form.devices));
-          showDevices();
+          await homebridge.request('/configureDevices', form).then((data: Device[]) =>
+            homebridge.toast.success(`Successfully Configured ${data.length} Devices`, 'Success!'))
+            .catch(err => homebridge.toast.error(err.name, 'Error'));
+          showSettings();
         });
         // watch for cancel button click events
         currentForm.onCancel(() => {
