@@ -47,8 +47,9 @@ const menuWrapper = document.getElementById('menuWrapper') as HTMLDivElement;
       exitAddDevice.style.display = 'none';
       pleaseWait.style.display = 'none';
 
-      const accessories: Config['accessories'] = ((await homebridge.getPluginConfig())[0].accessories ?? []).sort((a, b) =>
-        a.displayName.toLowerCase() > b.displayName.toLowerCase() ? 1 : b.displayName.toLowerCase() > a.displayName.toLowerCase() ? -1 : 0);
+      const accessories = ((await homebridge.getPluginConfig())[0].accessories as Config['accessories'] ?? [])
+        .sort((a, b) =>
+          a.name.toLowerCase() > b.name.toLowerCase() ? 1 : b.name.toLowerCase() > a.name.toLowerCase() ? -1 : 0);
 
       const showDevice = async (blid: string) => {
         deviceZone.innerHTML = JSON.stringify(accessories.find(accessory => accessory.blid === blid));
