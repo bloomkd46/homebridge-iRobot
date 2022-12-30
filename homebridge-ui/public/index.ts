@@ -106,6 +106,7 @@ const menuWrapper = document.getElementById('menuWrapper') as HTMLDivElement;
         console.log(form);
         currentForm.end();
         homebridge.request('/configureDevices', form).then(async (devices: Device[]) => {
+          console.log(devices);
           homebridge.toast.success(`Successfully Configured ${devices.length} Devices`, 'Success!');
           const config = await homebridge.getPluginConfig() as Config[];
           for (const device of devices) {
@@ -118,7 +119,8 @@ const menuWrapper = document.getElementById('menuWrapper') as HTMLDivElement;
           }
           await homebridge.updatePluginConfig(config);
           showDevices();
-        }).catch(() => {
+        }).catch(err => {
+          console.error(err);
           homebridge.toast.error('See Your Homebridge Logs For More Info', 'Please Try Again');
           showAddDevices();
         });
@@ -193,6 +195,7 @@ const menuWrapper = document.getElementById('menuWrapper') as HTMLDivElement;
           console.log(form);
           currentForm.end();
           homebridge.request('/configureDevices', form).then(async (devices: Device[]) => {
+            console.log(devices);
             homebridge.toast.success(`Successfully Configured ${devices.length} Devices`, 'Success!');
             const config = await homebridge.getPluginConfig() as Config[];
             for (const device of devices) {
@@ -205,7 +208,8 @@ const menuWrapper = document.getElementById('menuWrapper') as HTMLDivElement;
             }
             homebridge.updatePluginConfig(config);
             showDevices();
-          }).catch(() => {
+          }).catch(err => {
+            console.error(err);
             homebridge.toast.error('See Your Homebridge Logs For More Info', 'Please Try Again');
             showAddDevices();
           });
