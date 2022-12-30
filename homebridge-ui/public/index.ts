@@ -198,6 +198,7 @@ const menuWrapper = document.getElementById('menuWrapper') as HTMLDivElement;
             console.log(devices);
             homebridge.toast.success(`Successfully Configured ${devices.length} Devices`, 'Success!');
             const config = await homebridge.getPluginConfig() as Config[];
+            console.debug(config);
             for (const device of devices) {
               if (device.ipResolution === 'manual' && !device.ip) {
                 homebridge.toast.warning('Please Configure An IP Address Under The Devices Tab', `Setup Incomplete (${device.name})`);
