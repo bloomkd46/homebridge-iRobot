@@ -15,7 +15,7 @@ class PluginUiServer extends HomebridgePluginUiServer {
 
     this.onRequest('/getLogs', (blid: string) => {
       try {
-        readFileSync(join(storagePath, `${blid}.log`), 'utf-8');
+        return readFileSync(join(storagePath, `${blid}.log`), 'utf-8');
       } catch (err) {
         return `Failed to load logs from ${join(storagePath, `${blid}.log`)}`;
       }
