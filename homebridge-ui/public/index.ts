@@ -105,9 +105,19 @@ const menuWrapper = document.getElementById('menuWrapper') as HTMLDivElement;
         pleaseWait.style.display = 'block';
         console.log(form);
         currentForm.end();
-        homebridge.request('/configureDevices', form).then((data: Device[]) => {
-          homebridge.toast.success(`Successfully Configured ${data.length} Devices`, 'Success!');
-          showSettings();
+        homebridge.request('/configureDevices', form).then(async (devices: Device[]) => {
+          homebridge.toast.success(`Successfully Configured ${devices.length} Devices`, 'Success!');
+          const config = await homebridge.getPluginConfig() as Config[];
+          for (const device of devices) {
+            if (device.ipResolution === 'manual' && !device.ip) {
+              homebridge.toast.warning('Please Configure An IP Address Under The Devices Tab', `Setup Incomplete (${device.name})`);
+            }
+            if (!config[0].accessories.find(accessory => accessory.blid === device.blid)) {
+              config[0].accessories.push(device);
+            }
+          }
+          await homebridge.updatePluginConfig(config);
+          showDevices();
         }).catch(() => {
           homebridge.toast.error('See Your Homebridge Logs For More Info', 'Please Try Again');
           showAddDevices();
@@ -182,9 +192,19 @@ const menuWrapper = document.getElementById('menuWrapper') as HTMLDivElement;
           pleaseWait.style.display = 'block';
           console.log(form);
           currentForm.end();
-          homebridge.request('/configureDevices', form).then((data: Device[]) => {
-            homebridge.toast.success(`Successfully Configured ${data.length} Devices`, 'Success!');
-            showSettings();
+          homebridge.request('/configureDevices', form).then(async (devices: Device[]) => {
+            homebridge.toast.success(`Successfully Configured ${devices.length} Devices`, 'Success!');
+            const config = await homebridge.getPluginConfig() as Config[];
+            for (const device of devices) {
+              if (device.ipResolution === 'manual' && !device.ip) {
+                homebridge.toast.warning('Please Configure An IP Address Under The Devices Tab', `Setup Incomplete (${device.name})`);
+              }
+              if (!config[0].accessories.find(accessory => accessory.blid === device.blid)) {
+                config[0].accessories.push(device);
+              }
+            }
+            homebridge.updatePluginConfig(config);
+            showDevices();
           }).catch(() => {
             homebridge.toast.error('See Your Homebridge Logs For More Info', 'Please Try Again');
             showAddDevices();
@@ -218,6 +238,14 @@ const menuWrapper = document.getElementById('menuWrapper') as HTMLDivElement;
     homebridge.hideSpinner();
   }
 })();
+export type Config = {
+  name: string;
+  accessories: Device[];
+  logLevel: 0 | 1 | 2 | 3 | 4;
+  platform: 'iRobotPlatform';
+  autoConnect?: boolean;
+  alwaysShowModes?: boolean;
+};
 export type Device = {
   name: string;
   blid: string;
