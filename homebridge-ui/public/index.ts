@@ -142,6 +142,8 @@ function setDeviceButtonEnabled(disabled: boolean) {
         {}, 'Get Devices', 'Configure Manually',
       );
 
+      currentForm.onChange(change => console.debug(change));
+
       // watch for submit button click events
       currentForm.onSubmit((form) => {
         homebridge.showSpinner();
