@@ -114,7 +114,7 @@ function showAddDevices() {
   homebridge.showSpinner();
   resetView('none');
   // create the form
-  currentForm = homebridge.createForm(
+  /*currentForm = homebridge.createForm(
     {
       schema: {
         type: 'object',
@@ -269,7 +269,7 @@ function showAddDevices() {
           showAddDevices();
         });
         homebridge.hideSpinner();*/
-  });
+  //});
   homebridge.hideSpinner();
 }
 menuDevices.addEventListener('click', () => showDevices());
