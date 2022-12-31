@@ -32,6 +32,7 @@ function resetView(activeButton: 'none' | 'settings' | 'devices') {
       exitAddDevice.style.display = 'inline';
       break;
     case 'settings':
+      exitAddDevice.style.display = 'none';
       menuWrapper.style.display = 'inline-flex';
       menuDevices.classList.remove('btn-elegant');
       menuDevices.classList.add('btn-primary');
@@ -39,6 +40,7 @@ function resetView(activeButton: 'none' | 'settings' | 'devices') {
       menuSettings.classList.add('btn-elegant');
       break;
     case 'devices':
+      exitAddDevice.style.display = 'none';
       menuWrapper.style.display = 'inline-flex';
       menuDevices.classList.add('btn-elegant');
       menuDevices.classList.remove('btn-primary');
@@ -51,7 +53,6 @@ function resetView(activeButton: 'none' | 'settings' | 'devices') {
   homebridge.hideSchemaForm();
   settingsHelp.style.display = 'none';
   currentForm?.end();
-  exitAddDevice.style.display = 'none';
   pleaseWait.style.display = 'none';
   pageIntro.style.display = 'none';
 
