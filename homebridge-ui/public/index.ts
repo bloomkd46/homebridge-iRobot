@@ -289,11 +289,25 @@ class iRobotPlugin {
     homebridge.hideSpinner();
   }
 
+  async deleteDevice() {
+    if (confirm('Are You Sure? \nThis Will Permanently Delete All Device Data')) {
+      homebridge.showSpinner();
+      const configs = await homebridge.getPluginConfig();
+      const accessories = (configs[0].accessories as Config['accessories'] ?? []);
+      const currentDeviceIndex = accessories.findIndex(accessory => accessory.blid === deviceSelect.value);
+      const currentDevice = accessories.find(accessory => accessory.blid === deviceSelect.value);
+      await homebridge.request('/deleteDevice', currentDevice.blid);
+      configs[0].accessories.splice(currentDeviceIndex, 1);
+      homebridge.updatePluginConfig(configs);
+      homebridge.savePluginConfig();
+    }
+  }
+
   async showEditDevice() {
+    homebridge.showSpinner();
     const configs = await homebridge.getPluginConfig();
     const accessories = (configs[0].accessories as Config['accessories'] ?? []);
     const currentDevice = accessories.findIndex(accessory => accessory.blid === deviceSelect.value);
-    homebridge.showSpinner();
     this.resetView('devices');
     this.currentForm = homebridge.createForm(
       {
