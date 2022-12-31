@@ -63,14 +63,15 @@ function setDeviceButtonEnabled(disabled: boolean) {
   }
 }
 //(async () => {
-export function showIntro() {
+function showIntro() {
   introContinue.addEventListener('click', () => {
     homebridge.showSpinner();
     showSettings();
   });
   pageIntro.style.display = 'block';
 }
-export async function showDevices() {
+window['showIntro'] = showIntro;
+async function showDevices() {
   homebridge.showSpinner();
   resetView('devices');
   pageDevices.style.display = 'block';
@@ -104,14 +105,16 @@ export async function showDevices() {
   deviceSelect.addEventListener('change', () => showDeviceLogs(deviceSelect.value));
   homebridge.hideSpinner();
 }
-export function showSettings() {
+window['showDevices'] = showDevices;
+function showSettings() {
   homebridge.showSpinner();
   resetView('settings');
   homebridge.showSchemaForm();
   settingsHelp.style.display = 'block';
   homebridge.hideSpinner();
 }
-export function showAddDevices() {
+window['showSettings'] = showSettings;
+function showAddDevices() {
   /*homebridge.showSpinner();
   resetView('none');
   // create the form
@@ -273,6 +276,7 @@ export function showAddDevices() {
   //});
   //homebridge.hideSpinner();
 }
+window['showAddDevices'] = showAddDevices;
 /*menuDevices.addEventListener('click', () => showDevices());
 menuSettings.addEventListener('click', () => showSettings());
 deviceAdd.addEventListener('click', () => showAddDevices());
