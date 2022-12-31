@@ -175,7 +175,7 @@ function setDeviceButtonEnabled(disabled: boolean) {
       currentForm.onCancel(() => {
         homebridge.showSpinner();
         currentForm.end();
-        currentForm = homebridge.createForm(
+        /*currentForm = homebridge.createForm(
           {
             schema: {
               type: 'object',
@@ -267,7 +267,7 @@ function setDeviceButtonEnabled(disabled: boolean) {
         currentForm.onCancel(() => {
           showAddDevices();
         });
-        homebridge.hideSpinner();
+        homebridge.hideSpinner();*/
       });
       homebridge.hideSpinner();
     };
