@@ -282,6 +282,95 @@ class iRobotPlugin {
     });
     homebridge.hideSpinner();
   }
+
+  async showEditDevice() {
+    const configs = await homebridge.getPluginConfig();
+    const accessories = (configs[0].accessories as Config['accessories'] ?? []);
+    const currentDevice = accessories.findIndex(accessory => accessory.blid === deviceSelect.value);
+    homebridge.showSpinner();
+    this.resetView('devices');
+    this.currentForm = homebridge.createForm(
+      {
+        schema: {
+          type: 'object',
+          properties: {
+            name: {
+              title: 'Name',
+              type: 'string',
+              required: true,
+            },
+            blid: {
+              title: 'Blid',
+              type: 'string',
+              required: true,
+            },
+            password: {
+              password: 'Password',
+              type: 'string',
+              required: true,
+            },
+            sw: {
+              title: 'Software Version',
+              type: 'string',
+              required: true,
+            },
+            sku: {
+              title: 'SKU',
+              type: 'string',
+              required: true,
+            },
+            ipResolution: {
+              title: 'IP Address Resolution Method',
+              type: 'string',
+              oneOf: [
+                { title: 'UDP Lookup', enum: ['lookup'] },
+                { title: 'UDP Broadcast', enum: ['broadcast'] },
+                { title: 'Manual', enum: ['manual'] },
+              ],
+              required: true,
+            },
+            hostname: {
+              title: 'Hostname',
+              type: 'string',
+              format: 'hostname',
+              placeholder: 'iRobot-${blid}.local',
+              condition: {
+                functionBody: 'return model.ipResolution === "lookup"',
+              },
+            },
+            ip: {
+              title: 'IP Address',
+              type: 'string',
+              format: 'ipv4',
+              condition: {
+                functionBody: 'return model.ipResolution === "manual"',
+              },
+            },
+          },
+        },
+        layout: null,
+        form: null,
+      },
+      accessories[currentDevice], 'Save Changes', 'Cancel',
+    );
+
+    this.currentForm.onChange(change => console.debug(change));
+    // watch for submit button click events
+    this.currentForm.onSubmit((form) => {
+      homebridge.showSpinner();
+      console.log(form);
+      configs[0].accessories[currentDevice] = form;
+      homebridge.updatePluginConfig(configs);
+      homebridge.savePluginConfig();
+      this.showDevices();
+    });
+    // watch for cancel button click events
+    this.currentForm.onCancel(() => {
+      homebridge.showSpinner();
+      this.showDevices();
+    });
+    homebridge.hideSpinner();
+  }
 }
 window['plugin'] = new iRobotPlugin();
 /*menuDevices.addEventListener('click', () => showDevices());
