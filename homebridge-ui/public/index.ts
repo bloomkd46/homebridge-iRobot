@@ -111,7 +111,7 @@ function showSettings() {
   homebridge.hideSpinner();
 }
 function showAddDevices() {
-  homebridge.showSpinner();
+  /*homebridge.showSpinner();
   resetView('none');
   // create the form
   /*currentForm = homebridge.createForm(
@@ -270,7 +270,7 @@ function showAddDevices() {
         });
         homebridge.hideSpinner();*/
   //});
-  homebridge.hideSpinner();
+  //homebridge.hideSpinner();
 }
 menuDevices.addEventListener('click', () => showDevices());
 menuSettings.addEventListener('click', () => showSettings());
