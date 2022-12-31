@@ -52,4 +52,8 @@
       homebridge.updatePluginConfig(currentConfig).then(() => showIntro());
     }
   });
+  window.addEventListener("beforeunload", function (evt) {
+    console.warn('Page Reloading');
+  });
+
 </script>
