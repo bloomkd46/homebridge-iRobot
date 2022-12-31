@@ -285,9 +285,9 @@ function setDeviceButtonEnabled(disabled: boolean) {
       showIntro();
     }
   } catch (err) {
-    homebridge.toast.error(err, 'Error');
     console.error(err);
-    homebridge.closeSettings();
+    homebridge.toast.error('Generic Error', 'Error');
+    //homebridge.closeSettings();
   } finally {
     homebridge.hideSpinner();
   }
