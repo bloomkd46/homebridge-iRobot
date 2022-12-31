@@ -12,7 +12,7 @@ const settingsHelp = document.getElementById('settingsHelp') as HTMLParagraphEle
 //Devices Elements
 const menuDevices = document.getElementById('menuDevices') as HTMLButtonElement;
 const pageDevices = document.getElementById('pageDevices') as HTMLDivElement;
-const deviceAdd = document.getElementById('deviceAdd') as HTMLButtonElement;
+//const deviceAdd = document.getElementById('deviceAdd') as HTMLButtonElement;
 const deviceButtons = document.getElementsByClassName('deviceButton') as HTMLCollectionOf<HTMLButtonElement>;
 const deviceSelect = document.getElementById('deviceSelect') as HTMLSelectElement;
 const logZone = document.getElementById('logZone') as HTMLPreElement;
@@ -63,14 +63,14 @@ function setDeviceButtonEnabled(disabled: boolean) {
   }
 }
 //(async () => {
-function showIntro() {
+export function showIntro() {
   introContinue.addEventListener('click', () => {
     homebridge.showSpinner();
     showSettings();
   });
   pageIntro.style.display = 'block';
 }
-async function showDevices() {
+export async function showDevices() {
   homebridge.showSpinner();
   resetView('devices');
   pageDevices.style.display = 'block';
@@ -79,9 +79,10 @@ async function showDevices() {
     .sort((a, b) =>
       a.name.toLowerCase() > b.name.toLowerCase() ? 1 : b.name.toLowerCase() > a.name.toLowerCase() ? -1 : 0);
 
-  const showDeviceLogs = async (blid: string) => {
+  async function showDeviceLogs(blid: string) {
     logZone.innerHTML = await homebridge.request('/getLogs', blid);
-  };
+    logZone.scrollTo(0, logZone.scrollHeight);
+  }
   deviceSelect.innerHTML = '';
 
   if (accessories.length) {
@@ -103,14 +104,14 @@ async function showDevices() {
   deviceSelect.addEventListener('change', () => showDeviceLogs(deviceSelect.value));
   homebridge.hideSpinner();
 }
-function showSettings() {
+export function showSettings() {
   homebridge.showSpinner();
   resetView('settings');
   homebridge.showSchemaForm();
   settingsHelp.style.display = 'block';
   homebridge.hideSpinner();
 }
-function showAddDevices() {
+export function showAddDevices() {
   /*homebridge.showSpinner();
   resetView('none');
   // create the form
@@ -272,19 +273,10 @@ function showAddDevices() {
   //});
   //homebridge.hideSpinner();
 }
-menuDevices.addEventListener('click', () => showDevices());
+/*menuDevices.addEventListener('click', () => showDevices());
 menuSettings.addEventListener('click', () => showSettings());
 deviceAdd.addEventListener('click', () => showAddDevices());
-exitAddDevice.addEventListener('click', () => showDevices());
-
-homebridge.getPluginConfig().then(currentConfig => {
-  if (currentConfig.length) {
-    showSettings();
-  } else {
-    currentConfig.push({ name: 'iRobot' });
-    homebridge.updatePluginConfig(currentConfig).then(() => showIntro());
-  }
-});
+exitAddDevice.addEventListener('click', () => showDevices());*/
 //})();
 export type Config = {
   name: string;
