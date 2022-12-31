@@ -5,10 +5,10 @@
   <img src="https://user-images.githubusercontent.com/75853497/143301930-e2f3bc9a-9f0d-4e03-95f8-c69769712ca5.png"
     alt="homebridge-irobot logo" style="width: 60%;" />
 </p>
-<div id="pageIntro" class="text-center" style="display: none;">
+<div id="pageIntro" class="text-center">
   <p class="lead">Thank you for installing <strong>homebridge-iRobot</strong></p>
   <p> You can configure your iRobot on the next page </p>
-  <button type="button" class="btn btn-primary" id="introContinue"> Continue &rarr; </button>
+  <button type="button" class="btn btn-primary" id="introContinue" onclick="plugin.showSettings()"> Continue &rarr; </button>
 </div>
 <div id="menuWrapper" class="btn-group w-100 mb-0" role="group" aria-label="UI Menu" style="display: none;">
   <button type="button" class="btn btn-primary ml-0" id="menuSettings" onclick="plugin.showSettings()"> Settings </button>
@@ -24,10 +24,12 @@
   <form class="mb-3">
     <div class="row align-items-center mx-0">
       <div class="col pr-0">
-        <select class="form-control" id="deviceSelect"></select>
+        <select class="form-control" id="deviceSelect" onchange="plugin.showDevice(this.value)"></select>
       </div>
       <div class="col-auto pl-0">
-        <button type="button" class="btn btn-danger deviceButton m-0 ml-1" title="Delete Device"><i
+        <button type="button" class="btn btn-primary deviceButton m-0 ml-1" onclick="plugin.refreshDeviceLogs()" title="Refresh Device"><i
+            class="fas fa-rotate text-white"></i></button>
+        <button type="button" class="btn btn-danger deviceButton m-0" title="Delete Device"><i
             class="fas fa-trash-alt text-white"></i></button>
         <button type="button" class="btn btn-warning deviceButton m-0" onclick="plugin.showEditDevice()" title="Edit Device"><i
             class="fas fa-pen-to-square text-white"></i></button>
@@ -58,5 +60,4 @@
   window.addEventListener("beforeunload", function (evt) {
     console.warn('Page Reloading');
   });
-
 </script>

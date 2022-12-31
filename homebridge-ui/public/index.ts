@@ -3,13 +3,13 @@
 import type { IHomebridgePluginUi, IHomebridgeUiFormHelper } from '@homebridge/plugin-ui-utils/dist/ui.interface';
 declare const homebridge: IHomebridgePluginUi;
 
-//Intro Elements
+// Intro Elements
 const pageIntro = document.getElementById('pageIntro') as HTMLDivElement;
-const introContinue = document.getElementById('introContinue') as HTMLButtonElement;
-//Settings Elements
+//const introContinue = document.getElementById('introContinue') as HTMLButtonElement;
+// Settings Elements
 const menuSettings = document.getElementById('menuSettings') as HTMLButtonElement;
 const settingsHelp = document.getElementById('settingsHelp') as HTMLParagraphElement;
-//Devices Elements
+// Devices Elements
 const menuDevices = document.getElementById('menuDevices') as HTMLButtonElement;
 const pageDevices = document.getElementById('pageDevices') as HTMLDivElement;
 //const deviceAdd = document.getElementById('deviceAdd') as HTMLButtonElement;
@@ -20,7 +20,7 @@ const logZone = document.getElementById('logZone') as HTMLPreElement;
 const exitAddDevice = document.getElementById('exitAddDevice') as HTMLButtonElement;
 const pleaseWait = document.getElementById('pleaseWait') as HTMLDivElement;
 
-//Miscellaneous Elements
+// Miscellaneous Elements
 const menuWrapper = document.getElementById('menuWrapper') as HTMLDivElement;
 
 class iRobotPlugin {
@@ -66,12 +66,23 @@ class iRobotPlugin {
   }
 
   //(async () => {
-  showIntro() {
+  /*showIntro() {
     introContinue.addEventListener('click', () => {
       homebridge.showSpinner();
       this.showSettings();
     });
     pageIntro.style.display = 'block';
+  }*/
+
+  async showDeviceLogs(blid: string) {
+    homebridge.showSpinner();
+    logZone.innerHTML = await homebridge.request('/getLogs', blid);
+    logZone.scrollTo(0, logZone.scrollHeight);
+    homebridge.hideSpinner();
+  }
+
+  async refreshDeviceLogs() {
+    this.showDeviceLogs(deviceSelect.value);
   }
 
   async showDevices() {
@@ -82,11 +93,6 @@ class iRobotPlugin {
     const accessories = ((await homebridge.getPluginConfig())[0].accessories as Config['accessories'] ?? [])
       .sort((a, b) =>
         a.name.toLowerCase() > b.name.toLowerCase() ? 1 : b.name.toLowerCase() > a.name.toLowerCase() ? -1 : 0);
-
-    async function showDeviceLogs(blid: string) {
-      logZone.innerHTML = await homebridge.request('/getLogs', blid);
-      logZone.scrollTo(0, logZone.scrollHeight);
-    }
     deviceSelect.innerHTML = '';
 
     if (accessories.length) {
@@ -97,7 +103,7 @@ class iRobotPlugin {
         deviceSelect.add(option);
       });
       this.setDeviceButtonEnabled(false);
-      showDeviceLogs(deviceSelect.options[0].value);
+      this.showDeviceLogs(deviceSelect.options[0].value);
     } else {
       const option = document.createElement('option');
       option.text = 'No Devices';
@@ -105,8 +111,8 @@ class iRobotPlugin {
       deviceSelect.disabled = true;
       this.setDeviceButtonEnabled(true);
     }
-    deviceSelect.addEventListener('change', () => showDeviceLogs(deviceSelect.value));
-    homebridge.hideSpinner();
+    //deviceSelect.addEventListener('change', () => this.showDeviceLogs(deviceSelect.value));
+    //homebridge.hideSpinner();
   }
 
   showSettings() {
