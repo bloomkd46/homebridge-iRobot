@@ -277,16 +277,14 @@ menuSettings.addEventListener('click', () => showSettings());
 deviceAdd.addEventListener('click', () => showAddDevices());
 exitAddDevice.addEventListener('click', () => showDevices());
 
-document.onload = async () => {
-  const currentConfig = await homebridge.getPluginConfig();
+homebridge.getPluginConfig().then(currentConfig => {
   if (currentConfig.length) {
     showSettings();
   } else {
     currentConfig.push({ name: 'iRobot' });
-    await homebridge.updatePluginConfig(currentConfig);
-    showIntro();
+    homebridge.updatePluginConfig(currentConfig).then(() => showIntro());
   }
-};
+});
 //})();
 export type Config = {
   name: string;
