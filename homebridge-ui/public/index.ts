@@ -288,8 +288,6 @@ function setDeviceButtonEnabled(disabled: boolean) {
     console.error(err);
     homebridge.toast.error('Generic Error', 'Error');
     //homebridge.closeSettings();
-  } finally {
-    homebridge.hideSpinner();
   }
 })();
 export type Config = {
