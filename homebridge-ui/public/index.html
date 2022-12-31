@@ -23,13 +23,16 @@
   </div>-->
   <form>
     <div class="row align-items-center">
-      <div class="col">
+      <div class="col pr-0">
         <select class="form-control" id="deviceSelect"></select>
       </div>
-      <div class="col-auto">
-        <button class="btn btn-danger deviceButton"><i class="fas fa-trash-alt text-white"></i></button>
-        <button class="btn btn-warning deviceButton"><i class="fas fa-pen-to-square text-white"></i></button>
-        <button type="button" class="btn btn-info" onclick="plugin.showAddDevices()"><i class="fas fa-plus text-white"></i></button>
+      <div class="col-auto pl-0">
+        <button type="button" class="btn btn-danger deviceButton m-1" title="Delete Device"><i
+            class="fas fa-trash-alt text-white"></i></button>
+        <button type="button" class="btn btn-warning deviceButton m-1" title="Edit Device"><i
+            class="fas fa-pen-to-square text-white"></i></button>
+        <button type="button" class="btn btn-info m-1" onclick="plugin.showAddDevices()" title="Add Devices"><i
+            class="fas fa-plus text-white"></i></button>
       </div>
     </div>
   </form>

@@ -158,7 +158,7 @@ class iRobotPlugin {
       this.currentForm.end();
       homebridge.request('/configureDevices', form).then(async (devices: Device[]) => {
         console.log(devices);
-        homebridge.toast.success(`Successfully Configured ${devices.length} Devices`, 'Success!');
+        homebridge.toast.success(`Successfully Downloaded ${devices.length} Devices`, 'Success!');
         const config = await homebridge.getPluginConfig() as Config[];
         config[0].accessories = config[0].accessories || [];
         console.debug(config);
@@ -167,11 +167,12 @@ class iRobotPlugin {
             homebridge.toast.warning('Please Configure An IP Address Under The Devices Tab', `Setup Incomplete (${device.name})`);
           }
           if (!config[0].accessories.find(accessory => accessory.blid === device.blid)) {
+            homebridge.toast.success(`Adding ${device.name} To Config`, 'Adding Accessory');
             config[0].accessories.push(device);
           }
           await homebridge.updatePluginConfig(config);
         }
-        await homebridge.savePluginConfig();
+        homebridge.toast.warning('Make Sure You Hit Save Below When Your Done To Save The Devices', 'Notice:');
         this.showDevices();
       }).catch(err => {
         console.error(err);
@@ -251,7 +252,7 @@ class iRobotPlugin {
         this.currentForm.end();
         homebridge.request('/configureDevices', form).then(async (devices: Device[]) => {
           console.log(devices);
-          homebridge.toast.success(`Successfully Configured ${devices.length} Devices`, 'Success!');
+          homebridge.toast.success(`Successfully Found ${devices.length} Devices`, 'Success!');
           const config = await homebridge.getPluginConfig() as Config[];
           config[0].accessories = config[0].accessories || [];
           console.debug(config);
@@ -260,11 +261,12 @@ class iRobotPlugin {
               homebridge.toast.warning('Please Configure An IP Address Under The Devices Tab', `Setup Incomplete (${device.name})`);
             }
             if (!config[0].accessories.find(accessory => accessory.blid === device.blid)) {
+              homebridge.toast.success(`Adding ${device.name} To Config`, 'Adding Accessory');
               config[0].accessories.push(device);
             }
             await homebridge.updatePluginConfig(config);
           }
-          await homebridge.savePluginConfig();
+          homebridge.toast.warning('Make Sure You Hit Save Below When Your Done To Save The Devices', 'Notice:');
           this.showDevices();
         }).catch(err => {
           console.error(err);
