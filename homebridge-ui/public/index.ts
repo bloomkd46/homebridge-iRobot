@@ -62,121 +62,121 @@ function setDeviceButtonEnabled(disabled: boolean) {
     deviceButtons[i].disabled = disabled;
   }
 }
-(async () => {
-  const showIntro = () => {
-    introContinue.addEventListener('click', () => {
-      homebridge.showSpinner();
-      showSettings();
-    });
-    pageIntro.style.display = 'block';
-  };
-  const showDevices = async () => {
+//(async () => {
+function showIntro() {
+  introContinue.addEventListener('click', () => {
     homebridge.showSpinner();
-    resetView('devices');
-    pageDevices.style.display = 'block';
+    showSettings();
+  });
+  pageIntro.style.display = 'block';
+}
+async function showDevices() {
+  homebridge.showSpinner();
+  resetView('devices');
+  pageDevices.style.display = 'block';
 
-    const accessories = ((await homebridge.getPluginConfig())[0].accessories as Config['accessories'] ?? [])
-      .sort((a, b) =>
-        a.name.toLowerCase() > b.name.toLowerCase() ? 1 : b.name.toLowerCase() > a.name.toLowerCase() ? -1 : 0);
+  const accessories = ((await homebridge.getPluginConfig())[0].accessories as Config['accessories'] ?? [])
+    .sort((a, b) =>
+      a.name.toLowerCase() > b.name.toLowerCase() ? 1 : b.name.toLowerCase() > a.name.toLowerCase() ? -1 : 0);
 
-    const showDeviceLogs = async (blid: string) => {
-      logZone.innerHTML = await homebridge.request('/getLogs', blid);
-    };
-    deviceSelect.innerHTML = '';
+  const showDeviceLogs = async (blid: string) => {
+    logZone.innerHTML = await homebridge.request('/getLogs', blid);
+  };
+  deviceSelect.innerHTML = '';
 
-    if (accessories.length) {
-      accessories.forEach(accessory => {
-        const option = document.createElement('option');
-        option.text = accessory.name;
-        option.value = accessory.blid;
-        deviceSelect.add(option);
-      });
-      setDeviceButtonEnabled(false);
-      showDeviceLogs(deviceSelect.options[0].value);
-    } else {
+  if (accessories.length) {
+    accessories.forEach(accessory => {
       const option = document.createElement('option');
-      option.text = 'No Devices';
+      option.text = accessory.name;
+      option.value = accessory.blid;
       deviceSelect.add(option);
-      deviceSelect.disabled = true;
-      setDeviceButtonEnabled(true);
-    }
-    deviceSelect.addEventListener('change', () => showDeviceLogs(deviceSelect.value));
-    homebridge.hideSpinner();
-  };
-  const showSettings = () => {
-    homebridge.showSpinner();
-    resetView('settings');
-    homebridge.showSchemaForm();
-    settingsHelp.style.display = 'block';
-    homebridge.hideSpinner();
-  };
-  const showAddDevices = () => {
-    homebridge.showSpinner();
-    resetView('none');
-    // create the form
-    currentForm = homebridge.createForm(
-      {
-        schema: {
-          type: 'object',
-          properties: {
-            email: {
-              title: 'Email',
-              type: 'string',
-              required: true,
-              format: 'email',
-            },
-            password: {
-              title: 'Password',
-              type: 'string',
-              required: true,
-              'x-schema-form': {
-                type: 'password',
-              },
+    });
+    setDeviceButtonEnabled(false);
+    showDeviceLogs(deviceSelect.options[0].value);
+  } else {
+    const option = document.createElement('option');
+    option.text = 'No Devices';
+    deviceSelect.add(option);
+    deviceSelect.disabled = true;
+    setDeviceButtonEnabled(true);
+  }
+  deviceSelect.addEventListener('change', () => showDeviceLogs(deviceSelect.value));
+  homebridge.hideSpinner();
+}
+function showSettings() {
+  homebridge.showSpinner();
+  resetView('settings');
+  homebridge.showSchemaForm();
+  settingsHelp.style.display = 'block';
+  homebridge.hideSpinner();
+}
+function showAddDevices() {
+  homebridge.showSpinner();
+  resetView('none');
+  // create the form
+  currentForm = homebridge.createForm(
+    {
+      schema: {
+        type: 'object',
+        properties: {
+          email: {
+            title: 'Email',
+            type: 'string',
+            required: true,
+            format: 'email',
+          },
+          password: {
+            title: 'Password',
+            type: 'string',
+            required: true,
+            'x-schema-form': {
+              type: 'password',
             },
           },
         },
-        layout: null,
-        form: null,
       },
-      {}, 'Get Devices', 'Configure Manually',
-    );
+      layout: null,
+      form: null,
+    },
+    {}, 'Get Devices', 'Configure Manually',
+  );
 
-    currentForm.onChange(change => console.debug(change));
+  currentForm.onChange(change => console.debug(change));
 
-    // watch for submit button click events
-    currentForm.onSubmit((form) => {
-      homebridge.showSpinner();
-      pleaseWait.style.display = 'block';
-      console.log(form);
-      currentForm.end();
-      homebridge.request('/configureDevices', form).then(async (devices: Device[]) => {
-        console.log(devices);
-        homebridge.toast.success(`Successfully Configured ${devices.length} Devices`, 'Success!');
-        const config = await homebridge.getPluginConfig() as Config[];
-        config[0].accessories = config[0].accessories || [];
-        console.debug(config);
-        for (const device of devices) {
-          if (device.ipResolution === 'manual' && !device.ip) {
-            homebridge.toast.warning('Please Configure An IP Address Under The Devices Tab', `Setup Incomplete (${device.name})`);
-          }
-          if (!config[0].accessories.find(accessory => accessory.blid === device.blid)) {
-            config[0].accessories.push(device);
-          }
-          await homebridge.updatePluginConfig(config);
+  // watch for submit button click events
+  currentForm.onSubmit((form) => {
+    homebridge.showSpinner();
+    pleaseWait.style.display = 'block';
+    console.log(form);
+    currentForm.end();
+    homebridge.request('/configureDevices', form).then(async (devices: Device[]) => {
+      console.log(devices);
+      homebridge.toast.success(`Successfully Configured ${devices.length} Devices`, 'Success!');
+      const config = await homebridge.getPluginConfig() as Config[];
+      config[0].accessories = config[0].accessories || [];
+      console.debug(config);
+      for (const device of devices) {
+        if (device.ipResolution === 'manual' && !device.ip) {
+          homebridge.toast.warning('Please Configure An IP Address Under The Devices Tab', `Setup Incomplete (${device.name})`);
         }
-        await homebridge.savePluginConfig();
-        showDevices();
-      }).catch(err => {
-        console.error(err);
-        homebridge.toast.error('See Your Homebridge Logs For More Info', 'Please Try Again');
-        showAddDevices();
-      });
+        if (!config[0].accessories.find(accessory => accessory.blid === device.blid)) {
+          config[0].accessories.push(device);
+        }
+        await homebridge.updatePluginConfig(config);
+      }
+      await homebridge.savePluginConfig();
+      showDevices();
+    }).catch(err => {
+      console.error(err);
+      homebridge.toast.error('See Your Homebridge Logs For More Info', 'Please Try Again');
+      showAddDevices();
     });
-    // watch for cancel button click events
-    currentForm.onCancel(() => {
-      homebridge.showSpinner();
-      currentForm.end();
-      /*currentForm = homebridge.createForm(
+  });
+  // watch for cancel button click events
+  currentForm.onCancel(() => {
+    homebridge.showSpinner();
+    currentForm.end();
+    /*currentForm = homebridge.createForm(
           {
             schema: {
               type: 'object',
@@ -269,14 +269,15 @@ function setDeviceButtonEnabled(disabled: boolean) {
           showAddDevices();
         });
         homebridge.hideSpinner();*/
-    });
-    homebridge.hideSpinner();
-  };
-  menuDevices.addEventListener('click', () => showDevices());
-  menuSettings.addEventListener('click', () => showSettings());
-  deviceAdd.addEventListener('click', () => showAddDevices());
-  exitAddDevice.addEventListener('click', () => showDevices());
+  });
+  homebridge.hideSpinner();
+}
+menuDevices.addEventListener('click', () => showDevices());
+menuSettings.addEventListener('click', () => showSettings());
+deviceAdd.addEventListener('click', () => showAddDevices());
+exitAddDevice.addEventListener('click', () => showDevices());
 
+document.onload = async () => {
   const currentConfig = await homebridge.getPluginConfig();
   if (currentConfig.length) {
     showSettings();
@@ -285,7 +286,8 @@ function setDeviceButtonEnabled(disabled: boolean) {
     await homebridge.updatePluginConfig(currentConfig);
     showIntro();
   }
-})();
+};
+//})();
 export type Config = {
   name: string;
   accessories: Device[];
