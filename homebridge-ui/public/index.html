@@ -11,8 +11,8 @@
   <button type="button" class="btn btn-primary" id="introContinue"> Continue &rarr; </button>
 </div>
 <div id="menuWrapper" class="btn-group w-100 mb-0" role="group" aria-label="UI Menu" style="display: none;">
-  <button type="button" class="btn btn-primary ml-0" id="menuSettings" onclick="showSettings()"> Settings </button>
-  <button type="button" class="btn btn-primary" id="menuDevices" onclick="showDevices()"> Devices </button>
+  <button type="button" class="btn btn-primary ml-0" id="menuSettings" onclick="plugin.showSettings()"> Settings </button>
+  <button type="button" class="btn btn-primary" id="menuDevices" onclick="plugin.showDevices()"> Devices </button>
 </div>
 <p class="mt-4 text-center" id="settingsHelp" style="display: none;">To configure your devices, use the devices tab</p>
 <div id="pageDevices" class="mt-4" style="display: none;">
@@ -29,13 +29,13 @@
       <div class="col-auto">
         <button class="btn btn-danger deviceButton"><i class="fas fa-trash-alt text-white"></i></button>
         <button class="btn btn-warning deviceButton"><i class="fas fa-pen-to-square text-white"></i></button>
-        <button id="deviceAdd" class="btn btn-info" onclick="showAddDevices()"><i class="fas fa-plus text-white"></i></button>
+        <button type="button" class="btn btn-info" onclick="plugin.showAddDevices()"><i class="fas fa-plus text-white"></i></button>
       </div>
     </div>
   </form>
   <pre class="card" style="height: 55vh; overflow: scroll; white-space: pre-line" id="logZone"></pre>
 </div>
-<button type="button" class="btn btn-outline-warning ms-3" id="exitAddDevice" style="display:none" onclick="showDevices()">&larr;
+<button type="button" class="btn btn-outline-warning ms-3" id="exitAddDevice" style="display:none" onclick="plugin.showDevices()">&larr;
   Exit</button>
 <div class="text-center" id="pleaseWait" style="display: none;">
   <div style="height: 25vh"></div>
@@ -46,10 +46,10 @@
 <script>
   homebridge.getPluginConfig().then(currentConfig => {
     if (currentConfig.length) {
-      showSettings();
+      plugin.showSettings();
     } else {
       currentConfig.push({ name: 'iRobot' });
-      homebridge.updatePluginConfig(currentConfig).then(() => showIntro());
+      homebridge.updatePluginConfig(currentConfig).then(() => plugin.showIntro());
     }
   });
   window.addEventListener("beforeunload", function (evt) {
