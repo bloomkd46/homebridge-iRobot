@@ -19,6 +19,8 @@ const logZone = document.getElementById('logZone') as HTMLPreElement;
 //const deviceZone = document.getElementById('deviceZone') as HTMLDivElement;
 const exitAddDevice = document.getElementById('exitAddDevice') as HTMLButtonElement;
 const pleaseWait = document.getElementById('pleaseWait') as HTMLDivElement;
+const warningModal = $('#deleteDevicesModal').modal;
+window['warningModal'] = warningModal;
 
 // Miscellaneous Elements
 const menuWrapper = document.getElementById('menuWrapper') as HTMLDivElement;
@@ -56,7 +58,8 @@ class iRobotPlugin {
     this.currentForm?.end();
     pleaseWait.style.display = 'none';
     pageIntro.style.display = 'none';
-
+    //Hide modal
+    warningModal('hide');
   }
 
   setDeviceButtonEnabled(disabled: boolean) {
@@ -74,15 +77,12 @@ class iRobotPlugin {
     pageIntro.style.display = 'block';
   }*/
 
-  async showDeviceLogs(blid: string) {
+  async showDeviceLogs(blid?: string) {
     homebridge.showSpinner();
+    blid = blid ?? deviceSelect.value;
     logZone.innerHTML = await homebridge.request('/getLogs', blid);
     logZone.scrollTo(0, logZone.scrollHeight);
     homebridge.hideSpinner();
-  }
-
-  async refreshDeviceLogs() {
-    this.showDeviceLogs(deviceSelect.value);
   }
 
   async showDevices() {
@@ -299,6 +299,7 @@ class iRobotPlugin {
     configs[0].accessories.splice(currentDeviceIndex, 1);
     homebridge.updatePluginConfig(configs);
     homebridge.savePluginConfig();
+    this.showDevices();
   }
 
   async showEditDevice() {
