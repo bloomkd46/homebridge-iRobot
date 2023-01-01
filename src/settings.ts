@@ -14,6 +14,8 @@ export const PLUGIN_NAME = 'homebridge-irobot';
 
 export type Context = {
   device: Device;
+  connected?: boolean;
+  offline?: boolean;
   logPath?: string;
   refreshToken?: string;
   pluginVersion?: 4;

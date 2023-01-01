@@ -62,8 +62,11 @@ export default class Accessory {
     if (fs.existsSync(this.cachePath)) {
       this.log(4, 'Restoring data from cache');
       Object.assign(accessory.context, JSON.parse(fs.readFileSync(this.cachePath, 'utf8')));
+    } else {
+      fs.writeFileSync(this.cachePath, JSON.stringify(accessory.context, null, 2));
     }
-    this.updateCache = () => fs.writeFileSync(this.cachePath, JSON.stringify(accessory.context, null, 2));
+    this.updateCache = () =>
+      fs.existsSync(this.cachePath) ? fs.writeFileSync(this.cachePath, JSON.stringify(accessory.context, null, 2)) : void 0;
     this.StatusError = platform.api.hap.HapStatusError;
 
     platform.api.on('shutdown', async () => {
@@ -71,7 +74,7 @@ export default class Accessory {
       accessory.context.logPath = this.logPath;
       this.updateCache();
       //accessory.context.lastState = await this.get();
-      platform.api.updatePlatformAccessories([accessory]);
+      //platform.api.updatePlatformAccessories([accessory]);
     });
 
     // set accessory information

@@ -25,9 +25,17 @@ export default class V1Roomba extends Accessory {
     return this._lastKnownState;
   }
 
+  private get offline() {
+    this.accessory.context.offline = this.accessory.context.offline ?? false;
+    return this.accessory.context.offline;
+  }
+
+  private set offline(value: boolean) {
+    this.accessory.context.offline = value;
+  }
+
   public mode = 0;
   public ip?: string = this.accessory.context.ip;
-  private offline = false;
   private keepAlive = false;
   dorita980?: LocalV1.Local;
   update() {

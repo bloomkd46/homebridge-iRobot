@@ -25,23 +25,31 @@ export default class V2Roomba extends Accessory {
     return this._lastKnownState;
   }
 
-  public _connected = false;
   public get connected() {
-    return this._connected;
+    this.accessory.context.connected = this.accessory.context.connected ?? false;
+    return this.accessory.context.connected;
   }
 
   public set connected(value: boolean) {
     if (value) {
       this.offline = false;
     }
-    this._connected = value;
+    this.accessory.context.connected = value;
     this.update();
+  }
+
+  private get offline() {
+    this.accessory.context.offline = this.accessory.context.offline ?? false;
+    return this.accessory.context.offline;
+  }
+
+  private set offline(value: boolean) {
+    this.accessory.context.offline = value;
   }
 
   public mode = 0;
   public ip?: string = this.accessory.context.ip;
   private connections = 0;
-  private offline = false;
   private keepAlive = false;
   dorita980?: LocalV2.Local;
   update() {
