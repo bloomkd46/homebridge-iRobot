@@ -20,7 +20,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">Warning!</h5>
-        <button type="button" class="close" onclick="warningModal('hide')" aria-label="Close">
+        <button type="button" class="close" onclick="warningModal.modal('hide')" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
@@ -33,7 +33,7 @@
         </ul> Are You Sure You Wish To Proceed? </p>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" onclick="warningModal('hide')">Cancel</button>
+        <button type="button" class="btn btn-secondary" onclick="warningModal.modal('hide')">Cancel</button>
         <button type="button" class="btn btn-primary" onclick="plugin.deleteDevice()">Delete Accessory</button>
       </div>
     </div>
@@ -53,7 +53,7 @@
       <div class="col-auto pl-0">
         <button type="button" class="btn btn-info deviceButton m-0 ml-1" onclick="plugin.showDeviceLogs()" title="Refresh Device"><i
             class="fas fa-rotate text-white"></i></button>
-        <button type="button" class="btn btn-danger deviceButton m-0" onclick="warningModal('show')" title="Delete Device"><i
+        <button type="button" class="btn btn-danger deviceButton m-0" onclick="warningModal.modal('show')" title="Delete Device"><i
             class="fas fa-trash-alt text-white"></i></button>
         <button type="button" class="btn btn-warning deviceButton m-0" onclick="plugin.showEditDevice()" title="Edit Device"><i
             class="fas fa-pen-to-square text-white"></i></button>
