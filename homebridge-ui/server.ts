@@ -1,7 +1,8 @@
 /* eslint-disable no-console */
 
 import { lookup } from 'dns/promises';
-import { readFileSync, rmSync } from 'fs';
+import { readFileSync } from 'fs';
+import { rm } from 'fs/promises';
 import { join } from 'path';
 
 import { getPassword, getPasswordCloud, getRobotByBlid, getRobotPublicInfo, PublicInfo } from '@bloomkd46/dorita980';
@@ -13,10 +14,10 @@ class PluginUiServer extends HomebridgePluginUiServer {
     super();
     const storagePath = join(this.homebridgeStoragePath ?? '', 'iRobot');
 
-    this.onRequest('/deleteDevice', (blid: string) => {
+    this.onRequest('/deleteDevice', async (blid: string) => {
       try {
-        rmSync(join(storagePath, `${blid}.log`));
-        rmSync(join(storagePath, `${blid}.cache.json`));
+        await rm(join(storagePath, `${blid}.log`)).catch(err => console.error(err));
+        await rm(join(storagePath, `${blid}.cache.json`)).catch(err => console.error(err));
         return 'true';
       } catch (err) {
         return 'false';
