@@ -51,17 +51,20 @@
         <select class="form-control" id="deviceSelect" onchange="plugin.showDeviceLogs(this.value)"></select>
       </div>
       <div class="col-auto pl-0">
-        <button type="button" class="btn btn-info deviceButton m-0 ml-1" onclick="plugin.showDeviceLogs()" title="Refresh Device"><i
+        <button type="button" class="btn btn-secondary deviceButton m-0 ml-1" onclick="plugin.showDeviceLogs()" title="Refresh Device"><i
             class="fas fa-rotate text-white"></i></button>
-        <button type="button" class="btn btn-danger deviceButton m-0" data-toggle="modal" data-target="#deleteDeviceModal"
-          title="Delete Device"><i class="fas fa-trash-alt text-white"></i></button>
+        <button type="button" class="btn btn-info deviceButton m-0" onclick="plugin.showDeviceInfo()" title="Device Info"><i
+            class="fas fa-info-circle text-white"></i></button>
         <button type="button" class="btn btn-warning deviceButton m-0" onclick="plugin.showEditDevice()" title="Edit Device"><i
             class="fas fa-pen-to-square text-white"></i></button>
+        <button type="button" class="btn btn-danger deviceButton m-0" data-toggle="modal" data-target="#deleteDeviceModal"
+          title="Delete Device"><i class="fas fa-trash-alt text-white"></i></button>
         <button type="button" class="btn btn-success m-0" onclick="plugin.showAddDevices()" title="Add Devices"><i
             class="fas fa-plus text-white"></i></button>
       </div>
     </div>
   </form>
+  <h3 class="text-center">Status: <span id="deviceStatus"></span></h3>
   <pre class="card" style="height: 55vh; overflow: scroll; white-space: pre" id="logZone"></pre>
 </div>
 <button type="button" class="btn btn-outline-warning ms-3" id="exitAddDevice" style="display:none" onclick="plugin.showDevices()">&larr;

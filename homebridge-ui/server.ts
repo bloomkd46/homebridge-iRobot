@@ -24,6 +24,14 @@ class PluginUiServer extends HomebridgePluginUiServer {
       }
     });
 
+    this.onRequest('/getCache', (blid: string) => {
+      try {
+        return JSON.parse(readFileSync(join(storagePath, `${blid}.cache.json`), 'utf-8'));
+      } catch (err) {
+        return {};
+      }
+    });
+
     this.onRequest('/getLogs', (blid: string) => {
       try {
         return readFileSync(join(storagePath, `${blid}.log`), 'utf-8');

@@ -1,5 +1,8 @@
 /* eslint-disable no-console */
 
+import { LocalV1, LocalV2, LocalV3 } from '@bloomkd46/dorita980';
+
+
 import type { IHomebridgePluginUi, IHomebridgeUiFormHelper } from '@homebridge/plugin-ui-utils/dist/ui.interface';
 declare const homebridge: IHomebridgePluginUi;
 
@@ -16,6 +19,7 @@ const pageDevices = document.getElementById('pageDevices') as HTMLDivElement;
 const deviceButtons = document.getElementsByClassName('deviceButton') as HTMLCollectionOf<HTMLButtonElement>;
 const deviceSelect = document.getElementById('deviceSelect') as HTMLSelectElement;
 const logZone = document.getElementById('logZone') as HTMLPreElement;
+const deviceStatus = document.getElementById('deviceStatus') as HTMLSpanElement;
 //const deviceZone = document.getElementById('deviceZone') as HTMLDivElement;
 const exitAddDevice = document.getElementById('exitAddDevice') as HTMLButtonElement;
 const pleaseWait = document.getElementById('pleaseWait') as HTMLDivElement;
@@ -82,6 +86,10 @@ class iRobotPlugin {
     blid = blid ?? deviceSelect.value;
     logZone.innerHTML = await homebridge.request('/getLogs', blid);
     logZone.scrollTo(0, logZone.scrollHeight);
+    const accessoryCache: Context = await homebridge.request('/getCache', blid);
+    deviceStatus.innerHTML = accessoryCache.offline ? '<i class="fas fa-circle mr-1 red-text"></i> Offline' :
+      accessoryCache.connected ? '<i class="fas fa-circle mr-1 green-text"></i> Connected' :
+        '<i class="fas fa-circle mr-1 grey-text"></i> Disconnected';
     homebridge.hideSpinner();
   }
 
@@ -422,3 +430,55 @@ type ipInfo = {
 } | {
   ipResolution: 'broadcast';
 };
+export type Context = {
+  device: Device;
+  connected?: boolean;
+  offline?: boolean;
+  logPath?: string;
+  refreshToken?: string;
+  pluginVersion?: 4;
+  ip?: string;
+  overrides: string[];
+  //emptyCapable?: boolean;
+  regions?: {
+    name: string;
+    id: string;
+    type: 'rid' | 'zid';
+    pmap_id: string;
+    user_pmapv_id: string;
+  }[];
+  lastMode: ActiveIdentifier;
+} & (V1 | V2 | V3);
+export type V1Mission = Awaited<ReturnType<LocalV1.Local['getMission']>>['ok'];
+type V1 = {
+  lastState: Partial<V1Mission>;
+  version: 1;
+};
+type V2 = {
+  lastState: Partial<LocalV2.RobotState>;
+  version: 2;
+};
+type V3 = {
+  lastState: Partial<LocalV3.RobotState>;
+  version: 3;
+};
+export const ActiveIdentifierPretty =
+  [undefined, 'Locating', 'Stuck', undefined, 'Emptying Bin', 'Ready', 'Recharging', undefined, 'Stopped', undefined, 'Docking', undefined,
+    'Paused', 'Resuming', undefined, 'Cleaning Everywhere'] as const;
+export enum ActiveIdentifier {
+  Locate = 1,
+  Stuck,
+  Empty_Bin,
+  Emptying_Bin,
+  Ready,
+  Recharging,
+  Stop,
+  Stopped,
+  Go_Home,
+  Docking,
+  Pause,
+  Paused,
+  Resume,
+  Clean_Everywhere,
+  Cleaning_Everywhere,
+}
