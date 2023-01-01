@@ -48,6 +48,7 @@ export default class V1Roomba extends Accessory {
     this.batteryService.updateCharacteristic(this.platform.Characteristic.BatteryLevel, this.lastKnownState.batPct ?? 0);
     this.batteryService.updateCharacteristic(this.platform.Characteristic.ChargingState,
       ['recharge', 'charge'].includes(this.lastKnownState.phase ?? ''));
+    this.updateCache();
   }
 
   constructor(
