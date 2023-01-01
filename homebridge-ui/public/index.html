@@ -15,7 +15,7 @@
   <button type="button" class="btn btn-primary" id="menuDevices" onclick="plugin.showDevices()"> Devices </button>
 </div>
 <p class="mt-4 text-center" id="settingsHelp" style="display: none;">To configure your devices, use the devices tab</p>
-<div class="modal" id="deleteDeviceModal" tabindex="-1">
+<div class="modal fade" id="deleteDeviceModal" data-backdrop="static" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
@@ -31,7 +31,6 @@
           <li>Cached Accessory Data</li>
           <li>Accessory Logs</li>
         </ul> Are You Sure You Wish To Proceed? </p>
-        <p>Modal body text goes here.</p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
