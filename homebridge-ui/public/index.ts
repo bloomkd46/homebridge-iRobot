@@ -19,8 +19,8 @@ const logZone = document.getElementById('logZone') as HTMLPreElement;
 //const deviceZone = document.getElementById('deviceZone') as HTMLDivElement;
 const exitAddDevice = document.getElementById('exitAddDevice') as HTMLButtonElement;
 const pleaseWait = document.getElementById('pleaseWait') as HTMLDivElement;
-const warningModal = $('#deleteDevicesModal');
-window['warningModal'] = warningModal;
+/*const warningModal = $('#deleteDevicesModal');
+window['warningModal'] = warningModal;*/
 
 // Miscellaneous Elements
 const menuWrapper = document.getElementById('menuWrapper') as HTMLDivElement;
@@ -59,7 +59,7 @@ class iRobotPlugin {
     pleaseWait.style.display = 'none';
     pageIntro.style.display = 'none';
     //Hide modal
-    warningModal.modal('hide');
+    //warningModal.modal('hide');
   }
 
   setDeviceButtonEnabled(disabled: boolean) {
