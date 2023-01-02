@@ -118,6 +118,7 @@ class iRobotPlugin {
       deviceSelect.add(option);
       deviceSelect.disabled = true;
       this.setDeviceButtonEnabled(true);
+      homebridge.hideSpinner();
     }
     //deviceSelect.addEventListener('change', () => this.showDeviceLogs(deviceSelect.value));
     //homebridge.hideSpinner();
