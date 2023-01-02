@@ -1,3 +1,7 @@
+### 4.0.0 Beta 2 
+* Fixed server crash
+
+
 ### 4.0.0 Beta 1 
 * Full Rewrite
 * Automatic IP Resolution
