@@ -81,7 +81,7 @@
       plugin.showSettings();
     } else {
       currentConfig.push({ name: 'iRobot' });
-      homebridge.updatePluginConfig(currentConfig).then(() => plugin.showIntro());
+      homebridge.updatePluginConfig(currentConfig);//.then(() => plugin.showIntro());
     }
   });
   window.addEventListener("beforeunload", function (evt) {
