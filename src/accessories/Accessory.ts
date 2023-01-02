@@ -37,6 +37,9 @@ export default class Accessory {
     if (!fs.existsSync(this.projectDir)) {
       fs.mkdirSync(this.projectDir);
     }
+    if (!fs.existsSync(this.logPath)) {
+      fs.writeFileSync(this.logPath, '');
+    }
     this.log = (type: 'info' | 'warn' | 'error' | 'debug' | 1 | 2 | 3 | 4, message: string, ...args: unknown[]) => {
       const parsedArgs = args.map(arg => JSON.stringify(arg, null, 2));
       const date = new Date();
@@ -48,13 +51,16 @@ export default class Accessory {
       if (type < 4 || typeof type === 'string') {
         fs.appendFileSync(this.generalLogPath, `[${time}] ${this.name}: ${message} ${parsedArgs.join(' ')}\n`);
       }
-      fs.appendFileSync(this.logPath, `[${time}] ${message} ${parsedArgs.join(' ')}\n`);
-      if (typeof type === 'string') {
-        platform.log[type](`${this.name}: ${message} `, ...parsedArgs);
-      } else if (type <= (platform.config.logLevel ?? 3)) {
-        platform.log.info(`${this.name}: ${message} `, ...parsedArgs);
-      } else {
-        platform.log.debug(`${this.name}: ${message} `, ...parsedArgs);
+      if (fs.existsSync(this.logPath)) {
+
+        fs.appendFileSync(this.logPath, `[${time}] ${message} ${parsedArgs.join(' ')}\n`);
+        if (typeof type === 'string') {
+          platform.log[type](`${this.name}: ${message} `, ...parsedArgs);
+        } else if (type <= (platform.config.logLevel ?? 3)) {
+          platform.log.info(`${this.name}: ${message} `, ...parsedArgs);
+        } else {
+          platform.log.debug(`${this.name}: ${message} `, ...parsedArgs);
+        }
       }
     };
     this.log(4, 'Server Started');
