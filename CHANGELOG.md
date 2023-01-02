@@ -1,3 +1,20 @@
+### 4.0.0 Beta 1 
+* Full Rewrite
+* Automatic IP Resolution
+* Cloud OR Local Configuration
+* More Control
+* Better Logging
+* Rewrote Custom UI In Typescript
+### TODO:
+* Add Specific Region Cleaning
+* Add Status Contact Sensors
+* Add Full Info To Custom UI
+* Better Log Levels
+* Add Preferences
+
+**Full Changelog**: https://github.com/bloomkd46/homebridge-iRobot/compare/3.0.0-beta.16...4.0.0-beta.1
+
+
 ### 3.0.0 Beta 16 
 * Added 3 second timeout when requesting robot state
 
