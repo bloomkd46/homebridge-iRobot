@@ -169,6 +169,7 @@ export class iRobotPlatform implements DynamicPlatformPlugin {
             break;
         }
       }
+}
       /*const accessoriesToRemove = this.cachedAccessories.filter(cachedAccessory =>
         !this.restoredAccessories.find(restoredAccessory => restoredAccessory.UUID === cachedAccessory.UUID));
       for (const accessory of accessoriesToRemove) {
@@ -188,5 +189,4 @@ export class iRobotPlatform implements DynamicPlatformPlugin {
         `Removed ${accessoriesToRemove.length} ${accessoriesToRemove.length === 1 ? 'Accessory' : 'Accessories'}`,
       );*/
     }
-  }
 }
