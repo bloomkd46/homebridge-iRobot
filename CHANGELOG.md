@@ -1,3 +1,7 @@
+### 4.0.0 Beta 4 
+* Fixed spinner not stopping if no device found in custom UI
+
+
 ### 4.0.0 Beta 3 
 * Fixed showIntro undefined error
 * Added empty config detection to prevent crash
