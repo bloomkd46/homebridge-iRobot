@@ -1,3 +1,8 @@
+### 4.0.0 Beta 3 
+* Fixed showIntro undefined error
+* Added empty config detection to prevent crash
+
+
 ### 4.0.0 Beta 2 
 * Fixed server crash
 
