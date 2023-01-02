@@ -94,6 +94,10 @@ export class iRobotPlatform implements DynamicPlatformPlugin {
    * must not be registered again to prevent "duplicate UUID" errors.
    */
   discoverDevices() {
+    if (!this.config.accessories) {
+      this.log.warn('No Accessories Configured');
+      return;
+    }
     /*this.log.info(
       `Loaded ${this.cachedAccessories.length} ${this.cachedAccessories.length === 1 ? 'Accessory' : 'Accessories'} From Cache`,
     );*/
