@@ -99,89 +99,94 @@ export class iRobotPlatform implements DynamicPlatformPlugin {
     );*/
     // loop over the discovered devices and register each one if it has not already been registered
     for (const device of this.config.accessories) {
-      //this.log.debug('Configuring device: \n', JSON.stringify(device));
-      // generate a unique id for the accessory this should be generated from
-      // something globally unique, but constant, for example, the device serial
-      // number or MAC address
-      const uuid = this.api.hap.uuid.generate(device.blid);
-      // see if an accessory with the same uuid has already been registered and restored from
-      // the cached devices we stored in the `configureAccessory` method above
-      /*const existingAccessory = this.cachedAccessories.find(accessory => accessory.UUID === uuid);
+      if (device.ipResolution === 'manual' && !device.ip) {
+        this.log.error('No IP Address Configured');
+        this.log.error(JSON.stringify(device, null, 2));
+      } else {
+        //this.log.debug('Configuring device: \n', JSON.stringify(device));
+        // generate a unique id for the accessory this should be generated from
+        // something globally unique, but constant, for example, the device serial
+        // number or MAC address
+        const uuid = this.api.hap.uuid.generate(device.blid);
+        // see if an accessory with the same uuid has already been registered and restored from
+        // the cached devices we stored in the `configureAccessory` method above
+        /*const existingAccessory = this.cachedAccessories.find(accessory => accessory.UUID === uuid);
 
-      if (existingAccessory) {
-        // the accessory already exists
-        this.log.info('Restoring existing accessory from cache:', existingAccessory.displayName);
+        if (existingAccessory) {
+          // the accessory already exists
+          this.log.info('Restoring existing accessory from cache:', existingAccessory.displayName);
 
-        // if you need to update the accessory.context then you should run `api.updatePlatformAccessories`. eg.:
-        // existingAccessory.context.device = device;
-        // this.api.updatePlatformAccessories([existingAccessory]);
+          // if you need to update the accessory.context then you should run `api.updatePlatformAccessories`. eg.:
+          // existingAccessory.context.device = device;
+          // this.api.updatePlatformAccessories([existingAccessory]);
 
-        // create the accessory handler for the restored accessory
+          // create the accessory handler for the restored accessory
+          // this is imported from `platformAccessory.ts`
+          //new iRobotPlatformAccessory(this, existingAccessory, device);
+          //new platformAccessory[accessoryType](this, existingAccessory);
+          switch (JSON.parse(/([\d.-]+)/.exec(device.publicInfo.sw)![0].split('.').shift()!)) {
+            /*case 1:
+              new V1Roomba(this, existingAccessory, device);
+              break;
+            case 2:
+              new V2Roomba(this, existingAccessory, device);
+              break;
+            case 3:
+            case 22:
+              new V3Roomba(this, existingAccessory, device);
+              break;
+          }
+          // it is possible to remove platform accessories at any time using `api.unregisterPlatformAccessories`, eg.:
+          // remove platform accessories when no longer present
+          // this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [existingAccessory]);
+          // this.log.info('Removing existing accessory from cache:', existingAccessory.displayName);
+        } else {*/
+        // the accessory does not yet exist, so we need to create it
+        this.log.info('Configuring accessory:', device.name);
+
+        // create a new accessory
+        const accessory: PlatformAccessory<Context> = new this.api.platformAccessory(device.name, uuid);
+        this.accessories.push(accessory);
+
+        // store a copy of the device object in the `accessory.context`
+        // the `context` property can be used to store any data about the accessory you may need
+        accessory.context.device = device;
+        accessory.context.pluginVersion = 4;
+        // create the accessory handler for the newly create accessory
         // this is imported from `platformAccessory.ts`
-        //new iRobotPlatformAccessory(this, existingAccessory, device);
-        //new platformAccessory[accessoryType](this, existingAccessory);
-        switch (JSON.parse(/([\d.-]+)/.exec(device.publicInfo.sw)![0].split('.').shift()!)) {
+        //new iRobotPlatformAccessory(this, accessory, device);
+        //new platformAccessory[accessoryType](this, accessory);
+        switch (JSON.parse(/([\d.-]+)/.exec(device.sw)![0].split('.').shift()!)) {
           /*case 1:
-            new V1Roomba(this, existingAccessory, device);
-            break;
+              new V1Roomba(this, accessory, device);
+              break;*/
           case 2:
-            new V2Roomba(this, existingAccessory, device);
+            new V2Roomba(this, accessory, device);
             break;
           case 3:
           case 22:
-            new V3Roomba(this, existingAccessory, device);
+            new V3Roomba(this, accessory, device);
             break;
         }
-        // it is possible to remove platform accessories at any time using `api.unregisterPlatformAccessories`, eg.:
-        // remove platform accessories when no longer present
-        // this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [existingAccessory]);
-        // this.log.info('Removing existing accessory from cache:', existingAccessory.displayName);
-      } else {*/
-      // the accessory does not yet exist, so we need to create it
-      this.log.info('Configuring accessory:', device.name);
-
-      // create a new accessory
-      const accessory: PlatformAccessory<Context> = new this.api.platformAccessory(device.name, uuid);
-      this.accessories.push(accessory);
-
-      // store a copy of the device object in the `accessory.context`
-      // the `context` property can be used to store any data about the accessory you may need
-      accessory.context.device = device;
-      accessory.context.pluginVersion = 4;
-      // create the accessory handler for the newly create accessory
-      // this is imported from `platformAccessory.ts`
-      //new iRobotPlatformAccessory(this, accessory, device);
-      //new platformAccessory[accessoryType](this, accessory);
-      switch (JSON.parse(/([\d.-]+)/.exec(device.sw)![0].split('.').shift()!)) {
-        /*case 1:
-            new V1Roomba(this, accessory, device);
-            break;*/
-        case 2:
-          new V2Roomba(this, accessory, device);
-          break;
-        case 3:
-        case 22:
-          new V3Roomba(this, accessory, device);
-          break;
       }
+      /*const accessoriesToRemove = this.cachedAccessories.filter(cachedAccessory =>
+        !this.restoredAccessories.find(restoredAccessory => restoredAccessory.UUID === cachedAccessory.UUID));
+      for (const accessory of accessoriesToRemove) {
+        this.log.warn('Removing Accessory: ', accessory.displayName);
+        this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
+      }*/
+      // link the accessories to your platform
+      //this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [...this.addedAccessories]);
+      this.api.publishExternalAccessories(PLUGIN_NAME, this.accessories);
+      /*this.log.info(
+        `Restored ${this.restoredAccessories.length} ${this.restoredAccessories.length === 1 ? 'Accessory' : 'Accessories'}`,
+      );
+      this.log.info(
+        `Added ${this.addedAccessories.length} ${this.addedAccessories.length === 1 ? 'Accessory' : 'Accessories'}`,
+      );
+      this.log.info(
+        `Removed ${accessoriesToRemove.length} ${accessoriesToRemove.length === 1 ? 'Accessory' : 'Accessories'}`,
+      );*/
     }
-    /*const accessoriesToRemove = this.cachedAccessories.filter(cachedAccessory =>
-      !this.restoredAccessories.find(restoredAccessory => restoredAccessory.UUID === cachedAccessory.UUID));
-    for (const accessory of accessoriesToRemove) {
-      this.log.warn('Removing Accessory: ', accessory.displayName);
-      this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
-    }*/
-    // link the accessories to your platform
-    //this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [...this.addedAccessories]);
-    this.api.publishExternalAccessories(PLUGIN_NAME, this.accessories);
-    /*this.log.info(
-      `Restored ${this.restoredAccessories.length} ${this.restoredAccessories.length === 1 ? 'Accessory' : 'Accessories'}`,
-    );
-    this.log.info(
-      `Added ${this.addedAccessories.length} ${this.addedAccessories.length === 1 ? 'Accessory' : 'Accessories'}`,
-    );
-    this.log.info(
-      `Removed ${accessoriesToRemove.length} ${accessoriesToRemove.length === 1 ? 'Accessory' : 'Accessories'}`,
-    );*/
   }
 }
