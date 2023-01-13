@@ -86,24 +86,29 @@ export default class V2Roomba extends Accessory {
         if (value === 0) {
           this.keepAlive = false;
           if (!this.connections) {
-            this.connect().then(() => this.disconnect())
-              .catch(() => this.service.updateCharacteristic(this.platform.Characteristic.Active, 0));
+            this.connect()
+              .catch(() => this.service.updateCharacteristic(this.platform.Characteristic.Active, 0))
+              .finally(() => this.disconnect());
           }
         } else if (value === 1) {
           this.keepAlive = true;
           try {
-            await this.connect().then(() => this.disconnect());
+            await this.connect();
           } catch (_err) {
             throw new this.platform.api.hap.HapStatusError(HAPStatus.SERVICE_COMMUNICATION_FAILURE);
+          } finally {
+            this.disconnect();
           }
         }
       }).onGet(async () => {
         if (this.offline) {
           try {
-            await this.connect().then(() => this.disconnect());
+            await this.connect();
             return this.keepAlive ? 1 : 0;
           } catch (_err) {
             throw new this.platform.api.hap.HapStatusError(HAPStatus.SERVICE_COMMUNICATION_FAILURE);
+          } finally {
+            this.disconnect();
           }
         } else {
           return this.keepAlive ? 1 : 0;
@@ -112,8 +117,7 @@ export default class V2Roomba extends Accessory {
     if (this.platform.config.autoConnect ?? true) {
       this.connect().then(() => {
         this.service.setCharacteristic(this.platform.Characteristic.Active, 1);
-        this.disconnect();
-      }).catch(() => { /**/ });
+      }).catch(() => { /**/ }).finally(() => this.disconnect());
     }
     //this.service.setCharacteristic(this.platform.Characteristic.ActiveIdentifier, ActiveIdentifier.Docked);
     this.service.getCharacteristic(this.platform.Characteristic.ActiveIdentifier)
@@ -129,6 +133,7 @@ export default class V2Roomba extends Accessory {
         } else {
           this.connections++;
           this.dorita980.on('connect', () => resolve(this.dorita980!));
+          this.dorita980.on('offline', () => reject());
         }
       } else {
         this.log(3, 'Connecting...');
@@ -140,7 +145,6 @@ export default class V2Roomba extends Accessory {
             this.lastKnownState = Object.assign(oldState, state);
           });
           this.dorita980.on('offline', () => {
-            this.dorita980?.end() ?? this.log(4, 'Failed to disconnect');
             this.offline = true; /*this.ip = undefined;*/
             this.log('warn', 'Unavailable');
             reject();
@@ -151,7 +155,7 @@ export default class V2Roomba extends Accessory {
             resolve(this.dorita980!);
           });
           this.dorita980.on('close', () => {
-            this.log(3, 'Disconnected');
+            this.offline ? this.log('debug', 'Disconnected') : this.log(3, 'Disconnected');
             this.connected = false; this.dorita980 = undefined;
           });
         }).catch(() => {
@@ -203,88 +207,98 @@ export default class V2Roomba extends Accessory {
   }
 
   async find() {
-    await this.connect().catch(() => this.service.updateCharacteristic(this.platform.Characteristic.Active, 0));
-    this.dorita980?.find() ?? this.log('warn', 'Failed to find');
-    this.disconnect();
+    try {
+      await this.connect();
+      await this.dorita980?.find() ?? this.log('warn', 'Failed to find');
+    } catch (err) {
+      this.service.updateCharacteristic(this.platform.Characteristic.Active, 0);
+    } finally {
+      this.disconnect();
+    }
   }
 
   async setActivity(activeValue: CharacteristicValue) {
-    this.recentlySet = true;
     //this.log(4, `setActivity: ${activeValue}`);
     const value = activeValue as ActiveIdentifier;
-    await this.connect().catch(() => this.service.updateCharacteristic(this.platform.Characteristic.Active, 0));
-    switch (value) {
-      case ActiveIdentifier.Clean_Everywhere:
-        await this.dorita980?.clean() ?? this.log('warn', 'Failed to clean');
-        (() => {
-          const oldState = this.lastKnownState;
-          this.lastKnownState = Object.assign(oldState, { cleanMissionStatus: { cycle: 'clean', phase: 'run' } });
-        })();
-        break;
-      case ActiveIdentifier.Resume:
-        await this.dorita980?.resume() ?? this.log('warn', 'Failed to resume');
-        (() => {
-          const oldState = this.lastKnownState;
-          this.lastKnownState = Object.assign(oldState, { cleanMissionStatus: { cycle: 'clean', phase: 'run' } });
-        })();
-        break;
-      case ActiveIdentifier.Pause:
-        await this.dorita980?.pause() ??
-          this.log('warn', 'Failed to pause');
-        (() => {
-          const oldState = this.lastKnownState;
-          this.lastKnownState = Object.assign(oldState, { cleanMissionStatus: { cycle: 'clean', phase: 'stop' } });
-        })();
-        break;
-      case ActiveIdentifier.Go_Home:
-        if (this.lastKnownState.cleanMissionStatus?.phase !== 'charge') {
-          await new Promise(resolve => {
-            let docked = false;
-            this.dorita980?.on('state', async state => {
-              if (state.cleanMissionStatus.phase === 'stop' && !docked) {
-                docked = true;
-                resolve(await this.dorita980?.dock() ??
-                  this.log('warn', 'Failed to dock'));
-                (() => {
-                  const oldState = this.lastKnownState;
-                  this.lastKnownState = Object.assign(oldState, { cleanMissionStatus: { cycle: 'clean', phase: 'hmUsrDock' } });
-                })();
-              }
+    try {
+      await this.connect();
+      this.recentlySet = true;
+      switch (value) {
+        case ActiveIdentifier.Clean_Everywhere:
+          await this.dorita980?.clean() ?? this.log('warn', 'Failed to clean');
+          (() => {
+            const oldState = this.lastKnownState;
+            this.lastKnownState = Object.assign(oldState, { cleanMissionStatus: { cycle: 'clean', phase: 'run' } });
+          })();
+          break;
+        case ActiveIdentifier.Resume:
+          await this.dorita980?.resume() ?? this.log('warn', 'Failed to resume');
+          (() => {
+            const oldState = this.lastKnownState;
+            this.lastKnownState = Object.assign(oldState, { cleanMissionStatus: { cycle: 'clean', phase: 'run' } });
+          })();
+          break;
+        case ActiveIdentifier.Pause:
+          await this.dorita980?.pause() ??
+            this.log('warn', 'Failed to pause');
+          (() => {
+            const oldState = this.lastKnownState;
+            this.lastKnownState = Object.assign(oldState, { cleanMissionStatus: { cycle: 'clean', phase: 'stop' } });
+          })();
+          break;
+        case ActiveIdentifier.Go_Home:
+          if (this.lastKnownState.cleanMissionStatus?.phase !== 'charge') {
+            await new Promise(resolve => {
+              let docked = false;
+              this.dorita980?.on('state', async state => {
+                if (state.cleanMissionStatus.phase === 'stop' && !docked) {
+                  docked = true;
+                  resolve(await this.dorita980?.dock() ??
+                    this.log('warn', 'Failed to dock'));
+                  (() => {
+                    const oldState = this.lastKnownState;
+                    this.lastKnownState = Object.assign(oldState, { cleanMissionStatus: { cycle: 'clean', phase: 'hmUsrDock' } });
+                  })();
+                }
+              });
+              this.dorita980?.pause() ??
+                this.log('warn', 'Failed to pause');
+              (() => {
+                const oldState = this.lastKnownState;
+                this.lastKnownState = Object.assign(oldState, { cleanMissionStatus: { cycle: 'clean', phase: 'stop' } });
+              })();
             });
-            this.dorita980?.pause() ??
-              this.log('warn', 'Failed to pause');
-            (() => {
-              const oldState = this.lastKnownState;
-              this.lastKnownState = Object.assign(oldState, { cleanMissionStatus: { cycle: 'clean', phase: 'stop' } });
-            })();
-          });
-        }
-        break;
-      case ActiveIdentifier.Stop:
-        await this.dorita980?.stop() ??
-          this.log('warn', 'Failed to stop');
-        (() => {
-          const oldState = this.lastKnownState;
-          this.lastKnownState = Object.assign(oldState, { cleanMissionStatus: { cycle: 'none', phase: 'stop' } });
-        })();
-        break;
-      case ActiveIdentifier.Empty_Bin:
-        await (this.dorita980 as unknown as LocalV3.Local)?.evac() ?? this.log('warn', 'Failed to Empty Bin');
-        (() => {
-          const oldState = this.lastKnownState;
-          this.lastKnownState = Object.assign(oldState, { cleanMissionStatus: { cycle: 'evac', phase: 'charge' } });
-        })();
-        break;
-      case ActiveIdentifier.Locate:
-        await this.dorita980?.find() ?? this.log('warn', 'Failed to locate');
-        break;
-      default:
-        break;
+          }
+          break;
+        case ActiveIdentifier.Stop:
+          await this.dorita980?.stop() ??
+            this.log('warn', 'Failed to stop');
+          (() => {
+            const oldState = this.lastKnownState;
+            this.lastKnownState = Object.assign(oldState, { cleanMissionStatus: { cycle: 'none', phase: 'stop' } });
+          })();
+          break;
+        case ActiveIdentifier.Empty_Bin:
+          await (this.dorita980 as unknown as LocalV3.Local)?.evac() ?? this.log('warn', 'Failed to Empty Bin');
+          (() => {
+            const oldState = this.lastKnownState;
+            this.lastKnownState = Object.assign(oldState, { cleanMissionStatus: { cycle: 'evac', phase: 'charge' } });
+          })();
+          break;
+        case ActiveIdentifier.Locate:
+          await this.dorita980?.find() ?? this.log('warn', 'Failed to locate');
+          break;
+        default:
+          break;
+      }
+      setTimeout(() => {
+        this.recentlySet = false;
+      }, 500);
+    } catch (e) {
+      this.service.updateCharacteristic(this.platform.Characteristic.Active, 0);
+    } finally {
+      this.disconnect();
     }
-    setTimeout(() => {
-      this.recentlySet = false;
-    }, 500);
-    this.disconnect();
   }
 
   getActivity(): ActiveIdentifier {
