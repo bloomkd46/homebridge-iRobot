@@ -49,7 +49,6 @@ export default class V3Roomba extends Accessory {
 
   public mode = 0;
   public ip = this.accessory.context.ip;
-  private connections = 0;
   private keepAlive = false;
   dorita980?: LocalV3.Local;
   update() {
@@ -85,7 +84,7 @@ export default class V3Roomba extends Accessory {
       .onSet(async value => {
         if (value === 0) {
           this.keepAlive = false;
-          if (!this.connections) {
+          if (!this.accessory.context.connections) {
             this.connect()
               .catch(() => this.service.updateCharacteristic(this.platform.Characteristic.Active, 0))
               .finally(() => this.disconnect());
@@ -128,17 +127,17 @@ export default class V3Roomba extends Accessory {
     return new Promise((resolve, reject) => {
       if (this.dorita980) {
         if (this.connected) {
-          this.connections++;
+          this.accessory.context.connections++;
           resolve(this.dorita980);
         } else {
-          this.connections++;
+          this.accessory.context.connections++;
           this.dorita980.on('connect', () => resolve(this.dorita980!));
           this.dorita980.on('offline', () => reject());
         }
       } else {
         this.log(3, 'Connecting...');
         this.getIp().then(ip => {
-          this.connections++;
+          this.accessory.context.connections++;
           this.dorita980 = Local(this.device.blid, this.device.password, ip, 3);
           this.dorita980.on('state', state => {
             const oldState = this.lastKnownState;
@@ -166,8 +165,8 @@ export default class V3Roomba extends Accessory {
   }
 
   disconnect() {
-    this.connections--;
-    if (this.connections === 0 && !this.keepAlive) {
+    this.accessory.context.connections--;
+    if (this.accessory.context.connections === 0 && !this.keepAlive) {
       this.dorita980?.end() ?? this.log('warn', 'Failed to disconnect');
     }
   }

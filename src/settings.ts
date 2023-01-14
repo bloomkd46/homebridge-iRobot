@@ -30,6 +30,7 @@ export type Context = {
     user_pmapv_id: string;
   }[];
   lastMode: ActiveIdentifier;
+  connections: number;
 } & (V1 | V2 | V3);
 export type V1Mission = Awaited<ReturnType<LocalV1.Local['getMission']>>['ok'];
 type V1 = {
