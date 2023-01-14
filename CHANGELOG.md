@@ -1,3 +1,8 @@
+### 4.0.0 Beta 5 
+* Improved connectivity restoration
+* Fixed lastState undefined errors
+
+
 ### 4.0.0 Beta 4 
 * Fixed spinner not stopping if no device found in custom UI
 
