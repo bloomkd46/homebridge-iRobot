@@ -33,7 +33,6 @@ export default class Accessory {
     this.logPath = path.join(this.projectDir, device.blid + '.log');
     this.cachePath = path.join(this.projectDir, device.blid + '.cache.json');
     this.generalLogPath = path.join(this.projectDir, 'General.log');
-    accessory.context.connections = 0;
 
     if (!fs.existsSync(this.projectDir)) {
       fs.mkdirSync(this.projectDir);
@@ -69,6 +68,7 @@ export default class Accessory {
     if (fs.existsSync(this.cachePath)) {
       this.log(4, 'Restoring data from cache');
       Object.assign(accessory.context, JSON.parse(fs.readFileSync(this.cachePath, 'utf8')));
+      accessory.context.connections = 0;
     } else {
       fs.writeFileSync(this.cachePath, JSON.stringify(accessory.context, null, 2));
     }
