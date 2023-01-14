@@ -1,3 +1,8 @@
+### 4.0.0 Beta 7 
+* Add current connections to accessory context
+
+
+
 ### 4.0.0 Beta 6 
 * Disabled MQTT auto reconnect
 
