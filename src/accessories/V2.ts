@@ -136,8 +136,8 @@ export default class V2Roomba extends Accessory {
         }
       } else {
         this.log(3, 'Connecting...');
+        this.accessory.context.connections++;
         this.getIp().then(ip => {
-          this.accessory.context.connections++;
           this.dorita980 = Local(this.device.blid, this.device.password, ip, 2);
           this.dorita980.on('state', state => {
             const oldState = this.lastKnownState;
