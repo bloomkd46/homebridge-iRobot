@@ -1,3 +1,7 @@
+### 4.0.0-beta.9 
+* Fixed when connections is increased
+
+
 ### 4.0.0 Beta 7 
 * Add current connections to accessory context
 
