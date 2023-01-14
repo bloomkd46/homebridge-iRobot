@@ -1,3 +1,7 @@
+### 4.0.0 Beta 10 
+* Fixed connections being reset to 0 at boot being set to early
+
+
 ### 4.0.0-beta.9 
 * Fixed when connections is increased
 
