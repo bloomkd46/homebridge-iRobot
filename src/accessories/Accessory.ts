@@ -33,6 +33,7 @@ export default class Accessory {
     this.logPath = path.join(this.projectDir, device.blid + '.log');
     this.cachePath = path.join(this.projectDir, device.blid + '.cache.json');
     this.generalLogPath = path.join(this.projectDir, 'General.log');
+    accessory.context.connections = 0;
 
     if (!fs.existsSync(this.projectDir)) {
       fs.mkdirSync(this.projectDir);
