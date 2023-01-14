@@ -24,7 +24,7 @@ export default class Accessory {
 
   constructor(
     platform: iRobotPlatform,
-    accessory: PlatformAccessory<Context>,
+    accessory: PlatformAccessory<Partial<Context>>,
     device: Device,
     protected service: Service,
   ) {
@@ -106,13 +106,13 @@ export default class Accessory {
 
     this.batteryService = accessory.addService(platform.Service.Battery, 'Battery Status', 'Battery Status');
     this.batteryService.getCharacteristic(platform.Characteristic.StatusLowBattery)
-      .onGet(() => (accessory.context.lastState.batPct ?? 0) <= 15);
+      .onGet(() => (accessory.context.lastState?.batPct ?? 0) <= 15);
     this.batteryService.getCharacteristic(platform.Characteristic.BatteryLevel)
-      .onGet(() => accessory.context.lastState.batPct ?? 0);
+      .onGet(() => accessory.context.lastState?.batPct ?? 0);
     this.batteryService.getCharacteristic(platform.Characteristic.ChargingState)
-      .onGet(() => ['recharge', 'charge'].includes('cleanMissionStatus' in accessory.context.lastState ?
-        accessory.context.lastState.cleanMissionStatus?.phase ?? '' :
-        'phase' in accessory.context.lastState ? accessory.context.lastState.phase ?? '' : ''));
+      .onGet(() => ['recharge', 'charge'].includes(accessory.context.lastState ?
+        ('cleanMissionStatus' in accessory.context.lastState ? accessory.context.lastState.cleanMissionStatus?.phase ?? '' :
+          ('phase' in accessory.context.lastState ? accessory.context.lastState.phase ?? '' : '')) : ''));
 
 
     accessory.context.overrides = accessory.context.overrides ?? [];
@@ -126,7 +126,7 @@ export default class Accessory {
       .setCharacteristic(platform.Characteristic.CurrentVisibilityState, platform.Characteristic.CurrentVisibilityState.SHOWN)
       .setCharacteristic(platform.Characteristic.Identifier, ActiveIdentifier.Locate);
     locateService.getCharacteristic(platform.Characteristic.ConfiguredName)
-      .onSet(value => accessory.context.overrides[ActiveIdentifier.Locate] = value as string);
+      .onSet(value => accessory.context.overrides![ActiveIdentifier.Locate] = value as string);
     this.service.addLinkedService(locateService);
     //Stuck Service
     const stuckName = accessory.context.overrides[ActiveIdentifier.Stuck] || 'Stuck';
@@ -138,7 +138,7 @@ export default class Accessory {
       .setCharacteristic(platform.Characteristic.CurrentVisibilityState, platform.Characteristic.CurrentVisibilityState.HIDDEN)
       .setCharacteristic(platform.Characteristic.Identifier, ActiveIdentifier.Stuck);
     stuckService.getCharacteristic(platform.Characteristic.ConfiguredName)
-      .onSet(value => accessory.context.overrides[ActiveIdentifier.Stuck] = value as string);
+      .onSet(value => accessory.context.overrides![ActiveIdentifier.Stuck] = value as string);
     this.service.addLinkedService(stuckService);
     //Empty Bin Service
     const emptyName = accessory.context.overrides[ActiveIdentifier.Empty_Bin] || 'Empty Bin';
@@ -150,7 +150,7 @@ export default class Accessory {
       .setCharacteristic(platform.Characteristic.CurrentVisibilityState, platform.Characteristic.CurrentVisibilityState.SHOWN)
       .setCharacteristic(platform.Characteristic.Identifier, ActiveIdentifier.Empty_Bin);
     emptyService.getCharacteristic(platform.Characteristic.ConfiguredName)
-      .onSet(value => accessory.context.overrides[ActiveIdentifier.Empty_Bin] = value as string);
+      .onSet(value => accessory.context.overrides![ActiveIdentifier.Empty_Bin] = value as string);
     emptyService.getCharacteristic(platform.Characteristic.IsConfigured)
       .onGet(() => (accessory.context.lastState as Partial<LocalV3.RobotState>)?.evacAllowed ? 1 : 0);
     this.service.addLinkedService(emptyService);
@@ -164,7 +164,7 @@ export default class Accessory {
       .setCharacteristic(platform.Characteristic.CurrentVisibilityState, platform.Characteristic.CurrentVisibilityState.HIDDEN)
       .setCharacteristic(platform.Characteristic.Identifier, ActiveIdentifier.Emptying_Bin);
     emptyingService.getCharacteristic(platform.Characteristic.ConfiguredName)
-      .onSet(value => accessory.context.overrides[ActiveIdentifier.Emptying_Bin] = value as string);
+      .onSet(value => accessory.context.overrides![ActiveIdentifier.Emptying_Bin] = value as string);
     emptyingService.getCharacteristic(platform.Characteristic.IsConfigured)
       .onGet(() => (accessory.context.lastState as Partial<LocalV3.RobotState>)?.evacAllowed ? 1 : 0);
     this.service.addLinkedService(emptyingService);
@@ -178,7 +178,7 @@ export default class Accessory {
       .setCharacteristic(platform.Characteristic.CurrentVisibilityState, platform.Characteristic.CurrentVisibilityState.HIDDEN)
       .setCharacteristic(platform.Characteristic.Identifier, ActiveIdentifier.Ready);
     readyService.getCharacteristic(platform.Characteristic.ConfiguredName)
-      .onSet(value => accessory.context.overrides[ActiveIdentifier.Ready] = value as string);
+      .onSet(value => accessory.context.overrides![ActiveIdentifier.Ready] = value as string);
     this.service.addLinkedService(readyService);
     //Recharging Service
     const rechargingName = accessory.context.overrides[ActiveIdentifier.Recharging] || 'Recharging';
@@ -190,7 +190,7 @@ export default class Accessory {
       .setCharacteristic(platform.Characteristic.CurrentVisibilityState, platform.Characteristic.CurrentVisibilityState.HIDDEN)
       .setCharacteristic(platform.Characteristic.Identifier, ActiveIdentifier.Recharging);
     rechargingService.getCharacteristic(platform.Characteristic.ConfiguredName)
-      .onSet(value => accessory.context.overrides[ActiveIdentifier.Recharging] = value as string);
+      .onSet(value => accessory.context.overrides![ActiveIdentifier.Recharging] = value as string);
     this.service.addLinkedService(rechargingService);
     //Stop Service
     const stopName = accessory.context.overrides[ActiveIdentifier.Stop] || 'Stop';
@@ -202,7 +202,7 @@ export default class Accessory {
       .setCharacteristic(platform.Characteristic.CurrentVisibilityState, platform.Characteristic.CurrentVisibilityState.SHOWN)
       .setCharacteristic(platform.Characteristic.Identifier, ActiveIdentifier.Stop);
     stopService.getCharacteristic(platform.Characteristic.ConfiguredName)
-      .onSet(value => accessory.context.overrides[ActiveIdentifier.Stop] = value as string);
+      .onSet(value => accessory.context.overrides![ActiveIdentifier.Stop] = value as string);
     this.service.addLinkedService(stopService);
     //Recharging Service
     const stoppedName = accessory.context.overrides[ActiveIdentifier.Stopped] || 'Stopped';
@@ -214,7 +214,7 @@ export default class Accessory {
       .setCharacteristic(platform.Characteristic.CurrentVisibilityState, platform.Characteristic.CurrentVisibilityState.HIDDEN)
       .setCharacteristic(platform.Characteristic.Identifier, ActiveIdentifier.Stopped);
     stoppedService.getCharacteristic(platform.Characteristic.ConfiguredName)
-      .onSet(value => accessory.context.overrides[ActiveIdentifier.Stopped] = value as string);
+      .onSet(value => accessory.context.overrides![ActiveIdentifier.Stopped] = value as string);
     this.service.addLinkedService(stoppedService);
     //Go Home Service
     const homeName = accessory.context.overrides[ActiveIdentifier.Go_Home] || 'Go Home';
@@ -226,7 +226,7 @@ export default class Accessory {
       .setCharacteristic(platform.Characteristic.CurrentVisibilityState, platform.Characteristic.CurrentVisibilityState.SHOWN)
       .setCharacteristic(platform.Characteristic.Identifier, ActiveIdentifier.Go_Home);
     homeService.getCharacteristic(platform.Characteristic.ConfiguredName)
-      .onSet(value => accessory.context.overrides[ActiveIdentifier.Go_Home] = value as string);
+      .onSet(value => accessory.context.overrides![ActiveIdentifier.Go_Home] = value as string);
     this.service.addLinkedService(homeService);
     //Docking Service
     const dockingName = accessory.context.overrides[ActiveIdentifier.Docking] || 'Docking';
@@ -238,7 +238,7 @@ export default class Accessory {
       .setCharacteristic(platform.Characteristic.CurrentVisibilityState, platform.Characteristic.CurrentVisibilityState.HIDDEN)
       .setCharacteristic(platform.Characteristic.Identifier, ActiveIdentifier.Docking);
     dockingService.getCharacteristic(platform.Characteristic.ConfiguredName)
-      .onSet(value => accessory.context.overrides[ActiveIdentifier.Docking] = value as string);
+      .onSet(value => accessory.context.overrides![ActiveIdentifier.Docking] = value as string);
     this.service.addLinkedService(dockingService);
     //Pause Service
     const pauseName = accessory.context.overrides[ActiveIdentifier.Pause] || 'Pause';
@@ -250,7 +250,7 @@ export default class Accessory {
       .setCharacteristic(platform.Characteristic.CurrentVisibilityState, platform.Characteristic.CurrentVisibilityState.SHOWN)
       .setCharacteristic(platform.Characteristic.Identifier, ActiveIdentifier.Pause);
     pauseService.getCharacteristic(platform.Characteristic.ConfiguredName)
-      .onSet(value => accessory.context.overrides[ActiveIdentifier.Pause] = value as string);
+      .onSet(value => accessory.context.overrides![ActiveIdentifier.Pause] = value as string);
     this.service.addLinkedService(pauseService);
     //Paused Service
     const pausedName = accessory.context.overrides[ActiveIdentifier.Paused] || 'Paused';
@@ -262,7 +262,7 @@ export default class Accessory {
       .setCharacteristic(platform.Characteristic.CurrentVisibilityState, platform.Characteristic.CurrentVisibilityState.HIDDEN)
       .setCharacteristic(platform.Characteristic.Identifier, ActiveIdentifier.Paused);
     pauseService.getCharacteristic(platform.Characteristic.ConfiguredName)
-      .onSet(value => accessory.context.overrides[ActiveIdentifier.Paused] = value as string);
+      .onSet(value => accessory.context.overrides![ActiveIdentifier.Paused] = value as string);
     this.service.addLinkedService(pausedService);
     //Resume Service
     const resumeName = accessory.context.overrides[ActiveIdentifier.Resume] || 'Resume';
@@ -274,7 +274,7 @@ export default class Accessory {
       .setCharacteristic(platform.Characteristic.CurrentVisibilityState, platform.Characteristic.CurrentVisibilityState.SHOWN)
       .setCharacteristic(platform.Characteristic.Identifier, ActiveIdentifier.Resume);
     resumeService.getCharacteristic(platform.Characteristic.ConfiguredName)
-      .onSet(value => accessory.context.overrides[ActiveIdentifier.Resume] = value as string);
+      .onSet(value => accessory.context.overrides![ActiveIdentifier.Resume] = value as string);
     this.service.addLinkedService(resumeService);
     //Clean Everywhere Service
     const cleanName = accessory.context.overrides[ActiveIdentifier.Clean_Everywhere] || 'Clean Everywhere';
@@ -286,7 +286,7 @@ export default class Accessory {
       .setCharacteristic(platform.Characteristic.CurrentVisibilityState, platform.Characteristic.CurrentVisibilityState.SHOWN)
       .setCharacteristic(platform.Characteristic.Identifier, ActiveIdentifier.Clean_Everywhere);
     cleanService.getCharacteristic(platform.Characteristic.ConfiguredName)
-      .onSet(value => accessory.context.overrides[ActiveIdentifier.Clean_Everywhere] = value as string);
+      .onSet(value => accessory.context.overrides![ActiveIdentifier.Clean_Everywhere] = value as string);
     this.service.addLinkedService(cleanService);
     //Cleaning Everywhere Service
     const cleaningName = accessory.context.overrides[ActiveIdentifier.Cleaning_Everywhere] || 'Cleaning Everywhere';
@@ -298,7 +298,7 @@ export default class Accessory {
       .setCharacteristic(platform.Characteristic.CurrentVisibilityState, platform.Characteristic.CurrentVisibilityState.HIDDEN)
       .setCharacteristic(platform.Characteristic.Identifier, ActiveIdentifier.Cleaning_Everywhere);
     cleaningService.getCharacteristic(platform.Characteristic.ConfiguredName)
-      .onSet(value => accessory.context.overrides[ActiveIdentifier.Cleaning_Everywhere] = value as string);
+      .onSet(value => accessory.context.overrides![ActiveIdentifier.Cleaning_Everywhere] = value as string);
     this.service.addLinkedService(cleaningService);
 
 
