@@ -1,3 +1,7 @@
+### 4.0.0 Beta 6 
+* Disabled MQTT auto reconnect
+
+
 ### 4.0.0 Beta 5 
 * Improved connectivity restoration
 * Fixed lastState undefined errors
