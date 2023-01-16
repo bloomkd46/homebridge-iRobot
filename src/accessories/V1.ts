@@ -9,6 +9,7 @@ import { Context, Device, V1Mission } from '../settings';
 import Accessory, { ActiveIdentifier, ActiveIdentifierPretty } from './Accessory';
 
 
+/** @deprecated No Longer Supported */
 export default class V1Roomba extends Accessory {
   public _lastKnownState = (this.accessory.context.lastState as Partial<V1Mission> | undefined) ?? {};
   private recentlySet = false;
