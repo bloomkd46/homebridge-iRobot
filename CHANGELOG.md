@@ -1,3 +1,7 @@
+### 4.0.0 Beta 11 
+* Deprecated v1 support
+
+
 ### 4.0.0 Beta 10 
 * Fixed connections being reset to 0 at boot being set to early
 
